@@ -5,7 +5,6 @@ call plug#begin(expand('<sfile>:p:h') . '/plugged')
     Plug 'psliwka/vim-smoothie'       
     Plug 'preservim/nerdtree'
     Plug 'LuxVim/vim-luxpane'
-    Plug 'josstei/vim-intellipane'
     Plug 'josstei/vim-easydash'
     Plug 'josstei/vim-easyline'
     Plug 'josstei/vim-easycomment'
@@ -76,43 +75,6 @@ call plug#end()
     nnoremap <space> <nop>
     let mapleader = " "    " - Remap leader to space 
     inoremap jk <ESC> 
-
-" ********************************************************************
-" ******************* WINDOW BUFFER BEHAVIOR START *******************
-" ********************************************************************
-let g:functionalBuffers = ['quickfix', 'help', 'nofile', 'terminal']
-
-function! NavigateToOpenWindow()
-	if IsFunctionalBuffer(bufnr('%'))
-		let new_win_num = FindOpenWindow(GetAllOpenWindows())
-		call DoNavigate(new_win_num)
-	endif
-endfunction
-
-function! IsFunctionalBuffer(buffer)
-	return index(g:functionalBuffers,getbufvar(a:buffer,"&bt")) >= 0
-endfunction
-	
-function! GetAllOpenWindows()
-	return filter(tabpagebuflist(),'(IsFunctionalBuffer(v:val) == 0) && (IsNewBuffer(v:val) == 1)')
-endfunction
-
-" - TODO ADD CHECK FOR MODIFIED
-function! IsNewBuffer(buffer)
-	return (bufname(a:buffer) == 'new') || ( bufname(a:buffer) == '')
-endfunction
-
-function! FindOpenWindow(arr)
-	if !empty(a:arr) | return bufwinnr(a:arr[0]) | endif | return 0 
-endfunction
-
-function! GetAllFunctionalWindows()
-	return filter(range(1,tabpagewinnr('$')),'(IsFunctionalBuffer(v:val) == 1)')
-endfunction
-
-function! DoNavigate(window)
-	if a:window != 0 | execute ':'.a:window.'wincmd w ' | else | tabnew |endif	
-endfunction
 
 " **********************************************************
 " ***************** FILE SETUP *****************************
