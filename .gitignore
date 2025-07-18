@@ -1,2 +1,4 @@
 plugged/*
 .claude/
+data/lazy
+LuxVim/lazy-lock.json
