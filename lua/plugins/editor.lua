@@ -23,8 +23,8 @@ return {
             vim.g.easyline_right_active_items = { 'position', 'filetype', 'encoding' }
             vim.g.easyline_right_inactive_items = { 'filename' }
 
-            vim.g.easyline_left_separator = ''
-            vim.g.easyline_right_separator = ''
+            vim.g.easyline_left_separator       = ''
+            vim.g.easyline_right_separator      = ''
         end,
     },
 

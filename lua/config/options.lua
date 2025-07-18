@@ -1,5 +1,5 @@
 -- General settings
-vim.opt.compatible = false           -- Enables full Vim features (modern mode)
+vim.opt.compatible = false 	     -- Enables full Vim features (modern mode)
 vim.opt.relativenumber = true        -- Display line numbers relative to current line
 vim.opt.number = true
 vim.opt.ignorecase = true            -- remove case sensitivity for search
