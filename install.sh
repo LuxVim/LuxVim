@@ -13,7 +13,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Get the absolute path of LuxVim_New directory
+# Get the absolute path of LuxVim directory
 LUXVIM_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo -e "${BLUE}🚀 Installing LuxVim...${NC}"
@@ -55,15 +55,15 @@ if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
     echo -e "${YELLOW}Then restart your terminal or run: source ~/.bashrc (or ~/.zshrc)${NC}"
 fi
 
-# Create data directories within LuxVim_New
+# Create data directories within LuxVim
 LUXVIM_DATA_DIR="$LUXVIM_DIR/data"
 mkdir -p "$LUXVIM_DATA_DIR/lazy"
 mkdir -p "$LUXVIM_DATA_DIR/mason"
 mkdir -p "$LUXVIM_DATA_DIR/nvim"
 
-echo -e "${GREEN}✅ Created data directories in LuxVim_New${NC}"
+echo -e "${GREEN}✅ Created data directories in LuxVim${NC}"
 
-# Bootstrap lazy.nvim within LuxVim_New
+# Bootstrap lazy.nvim within LuxVim
 LAZY_PATH="$LUXVIM_DATA_DIR/lazy/lazy.nvim"
 if [ ! -d "$LAZY_PATH" ]; then
     echo -e "${BLUE}📦 Bootstrapping lazy.nvim...${NC}"
