@@ -2,3 +2,4 @@ plugged/*
 .claude/
 data/lazy
 LuxVim/lazy-lock.json
+lua/config/lazy.lua.backup
