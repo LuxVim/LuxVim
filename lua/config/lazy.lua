@@ -1,6 +1,6 @@
 -- Bootstrap lazy.nvim
 
-local luxvim_dir = vim.fn.expand("~/.local/share/LuxVim_New") 
+local luxvim_dir = vim.fn.expand("~/.local/share/LuxVim") 
 if vim.env.XDG_DATA_HOME then
     luxvim_dir = vim.env.XDG_DATA_HOME
 end
