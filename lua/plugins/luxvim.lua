@@ -11,7 +11,7 @@ return {
 
     {
         "LuxVim/nvim-luxdash",
-        optional = true,
+        -- optional = true,
         config = function()
             require("luxdash").setup({
                 name = 'LuxVim',
