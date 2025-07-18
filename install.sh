@@ -1,51 +1,102 @@
-# LuxVIM Unix/Linux Installer
-#!/usr/bin/env bash
+#!/bin/bash
+
+# **********************************************************
+# ********************* LUXVIM INSTALLER ******************
+# **********************************************************
 
 set -e
 
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLUGGED_DIR="$REPO_DIR/plugged"
-VIMRC="$REPO_DIR/.vimrc"
-PLUG_VIM="$REPO_DIR/autoload/plug.vim"
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-# 1. Download vim-plug locally if missing
-if [ ! -f "$PLUG_VIM" ]; then
-  mkdir -p "$REPO_DIR/autoload"
-  curl -fLo "$PLUG_VIM" --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+# Get the absolute path of LuxVim_New directory
+LUXVIM_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo -e "${BLUE}🚀 Installing LuxVim...${NC}"
+echo -e "${YELLOW}LuxVim directory: ${LUXVIM_DIR}${NC}"
+
+# Check if nvim is installed
+if ! command -v nvim &> /dev/null; then
+    echo -e "${RED}❌ Neovim is not installed. Please install Neovim first.${NC}"
+    echo -e "${YELLOW}Visit: https://neovim.io/${NC}"
+    exit 1
 fi
 
-mkdir -p "$PLUGGED_DIR"
+echo -e "${GREEN}✅ Neovim found${NC}"
 
-# 2. Install plugins for Vim/Neovim
-for editor in vim nvim; do
-  if command -v $editor >/dev/null 2>&1; then
-    $editor \
-      --cmd "set runtimepath^=$REPO_DIR,$REPO_DIR/plugged" \
-      -u "$VIMRC" +PlugInstall +qall
-  fi
-done
+# Create the lux alias script
+ALIAS_SCRIPT_DIR="$HOME/.local/bin"
+ALIAS_SCRIPT="$ALIAS_SCRIPT_DIR/lux"
 
-# 3. Write aliases to shell profile
-ALIAS_STR="
-# LuxVim aliases
-alias luxvim='vim -u \"$REPO_DIR/.vimrc\" --cmd \"set runtimepath^=$REPO_DIR,$REPO_DIR/plugged\"'
-alias lux='nvim -u \"$REPO_DIR/.vimrc\" --cmd \"set runtimepath^=$REPO_DIR,$REPO_DIR/plugged\"'
-"
+# Create .local/bin directory if it doesn't exist
+mkdir -p "$ALIAS_SCRIPT_DIR"
 
-PROFILE=""
-if [ -n "$ZSH_VERSION" ]; then
-  PROFILE="$HOME/.zshrc"
-elif [ -n "$BASH_VERSION" ]; then
-  PROFILE="$HOME/.bashrc"
+# Create the lux script
+cat > "$ALIAS_SCRIPT" << EOF
+#!/bin/bash
+# LuxVim launcher script
+NVIM_APPNAME="LuxVim" XDG_DATA_HOME="${LUXVIM_DIR}" XDG_CONFIG_HOME="${LUXVIM_DIR}" nvim --cmd "set rtp+=${LUXVIM_DIR}" -u "${LUXVIM_DIR}/init.lua" "\$@"
+EOF
+
+# Make the script executable
+chmod +x "$ALIAS_SCRIPT"
+
+echo -e "${GREEN}✅ Created lux command at ${ALIAS_SCRIPT}${NC}"
+
+# Check if ~/.local/bin is in PATH
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    echo -e "${YELLOW}⚠️  ~/.local/bin is not in your PATH${NC}"
+    echo -e "${YELLOW}Add the following line to your shell profile (~/.bashrc, ~/.zshrc, etc.):${NC}"
+    echo -e "${BLUE}export PATH=\"\$HOME/.local/bin:\$PATH\"${NC}"
+    echo -e "${YELLOW}Then restart your terminal or run: source ~/.bashrc (or ~/.zshrc)${NC}"
+fi
+
+# Create data directories within LuxVim_New
+LUXVIM_DATA_DIR="$LUXVIM_DIR/data"
+mkdir -p "$LUXVIM_DATA_DIR/lazy"
+mkdir -p "$LUXVIM_DATA_DIR/mason"
+mkdir -p "$LUXVIM_DATA_DIR/nvim"
+
+echo -e "${GREEN}✅ Created data directories in LuxVim_New${NC}"
+
+# Bootstrap lazy.nvim within LuxVim_New
+LAZY_PATH="$LUXVIM_DATA_DIR/lazy/lazy.nvim"
+if [ ! -d "$LAZY_PATH" ]; then
+    echo -e "${BLUE}📦 Bootstrapping lazy.nvim...${NC}"
+    git clone --filter=blob:none --branch=stable https://github.com/folke/lazy.nvim.git "$LAZY_PATH"
+    echo -e "${GREEN}✅ lazy.nvim installed${NC}"
 else
-  PROFILE="$HOME/.profile"
+    echo -e "${GREEN}✅ lazy.nvim already exists${NC}"
 fi
 
-if ! grep -q "LuxVim aliases" "$PROFILE"; then
-  echo "$ALIAS_STR" >> "$PROFILE"
-  echo "Aliases added to $PROFILE. Restart your shell or run: source $PROFILE"
+# Update the lazy.nvim configuration to use our custom path
+LAZY_CONFIG="$LUXVIM_DIR/lua/config/lazy.lua"
+if [ -f "$LAZY_CONFIG" ]; then
+    # Create a backup
+    cp "$LAZY_CONFIG" "$LAZY_CONFIG.backup"
+    
+    # Update the lazy path to use our custom data directory
+    sed -i "s|local lazypath = vim.fn.stdpath(\"data\") .. \"/lazy/lazy.nvim\"|local lazypath = \"$LUXVIM_DATA_DIR/lazy/lazy.nvim\"|" "$LAZY_CONFIG"
+    
+    echo -e "${GREEN}✅ Updated lazy.nvim configuration${NC}"
+fi
+
+echo -e "${GREEN}🎉 LuxVim installation complete!${NC}"
+echo -e "${BLUE}Usage: lux [file]${NC}"
+echo -e "${YELLOW}Note: Plugins will auto-download on first run${NC}"
+
+# Test if lux command is available
+if command -v lux &> /dev/null; then
+    echo -e "${GREEN}✅ 'lux' command is ready to use${NC}"
 else
-  echo "Aliases already exist in $PROFILE."
+    echo -e "${YELLOW}⚠️  'lux' command not found in PATH. You may need to restart your terminal or update your PATH.${NC}"
 fi
 
-echo "LuxVim setup complete! Use 'lux', 'luxvim' to launch with project settings."
+echo -e "${BLUE}Starting LuxVim for initial plugin installation...${NC}"
+"$ALIAS_SCRIPT" --headless "+Lazy! sync" +qa
+
+echo -e "${GREEN}🎉 All plugins installed! LuxVim is ready to use.${NC}"

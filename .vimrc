@@ -5,7 +5,9 @@ call plug#begin(expand('<sfile>:p:h') . '/plugged')
     Plug 'psliwka/vim-smoothie'       
     Plug 'preservim/nerdtree'
     Plug 'LuxVim/vim-luxpane'
-    Plug 'josstei/vim-easydash'
+    Plug 'LuxVim/vim-luxdash'
+    Plug 'LuxVim/luxdash.nvim'
+    " Plug 'josstei/vim-easydash'
     Plug 'josstei/vim-easyline'
     Plug 'josstei/vim-easycomment'
     Plug 'josstei/vim-easyops'
@@ -187,14 +189,14 @@ call plug#end()
 " **********************************************************
 " ***************** EASYDASH SETUP *************************
 " **********************************************************
-    let g:easydash_menu_fzf         = { "keymap":"s", "label":"Search Project", "command":":Files<CR>" }
-    let g:easydash_menu_backtrack   = { "keymap":"r", "label":"Recent Files",   "command":":Backtrack<CR>" }
-    let g:easydash_menu_newfile     = { "keymap":"n", "label":"New File",       "command":":enew<CR>" }
-    let g:easydash_menu_closelux    = { "keymap":"q", "label":"Quit",           "command":":qa!<CR>" }
-    let g:easydash_options          = ['newfile','backtrack','fzf','closelux']
-    let g:easydash_extras           = [strftime('%c'),'']
-    let g:easydash_name             = 'LuxVim'
-    let g:easydash_logo = [
+    let g:luxdash_menu_fzf         = { "keymap":"s", "label":"Search Project", "command":":Files<CR>" }
+    let g:luxdash_menu_backtrack   = { "keymap":"r", "label":"Recent Files",   "command":":Backtrack<CR>" }
+    let g:luxdash_menu_newfile     = { "keymap":"n", "label":"New File",       "command":":enew<CR>" }
+    let g:luxdash_menu_closelux    = { "keymap":"q", "label":"Quit",           "command":":qa!<CR>" }
+    let g:luxdash_options          = ['newfile','backtrack','fzf','closelux']
+    let g:luxdash_extras           = [strftime('%c'),'']
+    let g:luxdash_name             = 'LuxVim'
+    let g:luxdash_logo = [
           \ ' ',
           \ ' █████                              █████   █████  ███                 ',
           \ '░░███                              ░░███   ░░███  ░░░                  ',
