@@ -10,9 +10,8 @@ return {
     },
 
     {
-        dir = "/home/josstei/Development/workspace/nvim-plugins/luxdash.nvim",
-        name = "luxdash.nvim",
-        -- optional = true,
+        "LuxVim/nvim-luxdash",
+        optional = true,
         config = function()
             require("luxdash").setup({
                 name = 'LuxVim',
