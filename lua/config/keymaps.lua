@@ -29,8 +29,8 @@ vim.keymap.set('n', '<leader>t', ':SearchText<CR>')
 vim.keymap.set('n', '<leader>m', ':EasyOps<CR>', { silent = true })
 
 -- TidyTerm
-vim.keymap.set('n', '<C-_>', ':TidyTerm<CR>', { silent = true })
-vim.keymap.set('t', '<C-_>', '<C-\\><C-n>:TidyTerm<CR>', { silent = true })
+vim.keymap.set('n', '<C-/>', ':TidyTerm<CR>', { silent = true })
+vim.keymap.set('t', '<C-/>', '<C-\\><C-n>:TidyTerm<CR>', { silent = true })
 vim.keymap.set('t', '<c-n>', '<c-\\><c-n>')
 
 -- nvim-tree
