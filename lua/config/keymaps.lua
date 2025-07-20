@@ -28,10 +28,27 @@ vim.keymap.set('n', '<leader>t', ':SearchText<CR>')
 -- EasyOps
 vim.keymap.set('n', '<leader>m', ':EasyOps<CR>', { silent = true })
 
--- TidyTerm
-vim.keymap.set('n', '<C-/>', ':TidyTerm<CR>', { silent = true })
-vim.keymap.set('t', '<C-/>', '<C-\\><C-n>:TidyTerm<CR>', { silent = true })
+-- LuxTerm 
+vim.keymap.set('n', '<C-/>', ':LuxTerm<CR>', { silent = true })
+vim.keymap.set('t', '<C-/>', '<C-\\><C-n>:LuxTerm<CR>', { silent = true })
 vim.keymap.set('t', '<c-n>', '<c-\\><c-n>')
+vim.keymap.set('n', '<C-`>', ':LuxTerm<CR>', { silent = true })
+vim.keymap.set('t', '<C-`>', '<C-\\><C-n>:LuxTerm<CR>', { silent = true })
+
+-- LuxTerm extended keymaps
+--[[ vim.keymap.set('n', '<leader>tn', ':LuxTermNext<CR>', { silent = true })
+vim.keymap.set('n', '<leader>tp', ':LuxTermPrev<CR>', { silent = true })
+vim.keymap.set('n', '<leader>tl', ':LuxTermList<CR>', { silent = true })
+vim.keymap.set('n', '<leader>tc', ':LuxTermClean<CR>', { silent = true })
+vim.keymap.set('n', '<leader>ts', ':LuxTermSession<CR>', { silent = true }) ]]
+
+-- LuxTerm integration commands
+--[[ vim.keymap.set('n', '<leader>tr', ':LuxTermRun<CR>', { silent = true })
+vim.keymap.set('n', '<leader>tb', ':LuxTermBuild<CR>', { silent = true })
+vim.keymap.set('n', '<leader>tt', ':LuxTermTest<CR>', { silent = true })
+vim.keymap.set('n', '<leader>tg', ':LuxTermGitStatus<CR>', { silent = true })
+vim.keymap.set('n', '<leader>ta', ':LuxTermGitAdd<CR>', { silent = true })
+vim.keymap.set('n', '<leader>td', ':LuxTermGitDiff<CR>', { silent = true }) ]]
 
 -- nvim-tree
 vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>')
@@ -39,3 +56,4 @@ vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>')
 -- EasyComment
 vim.keymap.set('n', '<leader>cc', ':EasyComment <CR>')
 vim.keymap.set('v', '<leader>cc', ':EasyComment <CR>')
+
