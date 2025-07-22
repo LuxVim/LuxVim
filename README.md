@@ -93,7 +93,7 @@ lux /path/to/project
 LuxVim includes an extensive collection of 30+ carefully curated colorschemes:
 
 #### Custom LuxVim Themes
-- **[lux.nvim](~/Development/workspace/nvim-themes/lux.nvim)** by [LuxVim](https://github.com/LuxVim) - Custom prismatic theme (default, local development)
+- **[lux.nvim](https://github.com/LuxVim/lux.nvim)** by [LuxVim](https://github.com/LuxVim) - Custom vesper theme (default)
 
 #### Modern Neovim Themes
 - **[voidpulse.nvim](https://github.com/josstei/voidpulse.nvim)** by [josstei](https://github.com/josstei) - Dark theme with purple accents
@@ -272,13 +272,13 @@ Edit `lua/plugins/colorschemes.lua` to modify the default theme:
 ```lua
 -- Change the default theme
 {
-    dir = "~/Development/workspace/nvim-themes/lux.nvim",
+    "LuxVim/lux.nvim",
     priority = 1000,
     config = function()
         require('lux').setup({
-            variant = 'vesper'  -- Change from 'prismatic' to 'vesper'
+            variant = 'vesper'  -- Default variant
         })
-        vim.cmd('colorscheme your_preferred_theme')
+        vim.cmd('colorscheme lux')
     end,
 },
 ```
