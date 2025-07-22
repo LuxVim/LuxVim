@@ -4,6 +4,9 @@ return {
         "LuxVim/lux.nvim",
         priority = 1000,
         config = function()
+            require('lux').setup({
+                variant = 'vesper'
+            })
             local status_ok, _ = pcall(vim.cmd, 'colorscheme lux')
             if not status_ok then
                 vim.api.nvim_echo({{'LuxVim: Failed to load colorscheme', 'WarningMsg'}}, true, {})
