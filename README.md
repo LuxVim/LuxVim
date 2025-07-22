@@ -1,4 +1,6 @@
-# LuxVim
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/546ee0e5-30fd-4e37-b219-e390be8b1c6e" alt="LuxVim Logo" style="width: 50%; height: auto;" />
+</p>
 
 LuxVim is a high-performance Neovim distribution built for developers who want powerful features, responsive editing, and a sleek interface — without the setup overhead.
 
