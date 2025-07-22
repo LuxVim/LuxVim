@@ -1,3 +1,4 @@
+  ![InDevelopment](https://img.shields.io/badge/status-in_development-orange) ![License](https://img.shields.io/badge/license-GPL_3.0-blue)
 <p align="center">
   <img src="https://github.com/user-attachments/assets/546ee0e5-30fd-4e37-b219-e390be8b1c6e" alt="LuxVim Logo" style="width: 50%; height: auto;" />
 </p>
