@@ -14,7 +14,7 @@ vim.api.nvim_create_autocmd('BufLeave', {
     pattern = '*',
     callback = function()
         if vim.bo.filetype == 'fzf' then
-            vim.opt.laststatus = 2
+            vim.opt.laststatus = 3
             vim.opt.showmode = true
             vim.opt.ruler = true
         end

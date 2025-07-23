@@ -1,32 +1,55 @@
 return {
     -- Editor enhancement plugins
-    {
-        "josstei/vim-easyline",
-        config = function()
-            vim.g.easyline_left_active_items_NvimTree = { 'windownumber' }
-            vim.g.easyline_left_inactive_items_NvimTree = { 'windownumber' }
-            vim.g.easyline_right_active_items_NvimTree = {}
-            vim.g.easyline_right_inactive_items_NvimTree = {}
-
-            vim.g.easyline_left_active_items_tidyterm = { 'windownumber', 'git' }
-            vim.g.easyline_left_inactive_items_tidyterm = { 'windownumber' }
-            vim.g.easyline_right_active_items_tidyterm = { 'filetype' }
-            vim.g.easyline_right_inactive_items_tidyterm = { 'filetype' }
-
-            vim.g.easyline_left_active_items_luxdash = { 'windownumber', 'git' }
-            vim.g.easyline_left_inactive_items_luxdash = { 'windownumber' }
-            vim.g.easyline_right_active_items_luxdash = {}
-            vim.g.easyline_right_inactive_items_luxdash = {}
-
-            vim.g.easyline_left_active_items = { 'windownumber', 'git', 'filename', 'modified' }
-            vim.g.easyline_left_inactive_items = { 'windownumber' }
-            vim.g.easyline_right_active_items = { 'position', 'filetype', 'encoding' }
-            vim.g.easyline_right_inactive_items = { 'filename' }
-
-            vim.g.easyline_left_separator       = ''
-            vim.g.easyline_right_separator      = ''
-        end,
-    },
+     {
+         "LuxVim/nvim-luxline",
+         config = function()
+             require('luxline').setup({
+                 -- NvimTree specific configuration  
+                 left_active_items_NvimTree = { 'windownumber' },
+                 left_inactive_items_NvimTree = { 'windownumber' },
+                 right_active_items_NvimTree = {},
+                 right_inactive_items_NvimTree = {},
+    
+                 -- Terminal specific configuration
+                 left_active_items_tidyterm = { 'windownumber', 'git:branch' },
+                 left_inactive_items_tidyterm = { 'windownumber' },
+                 right_active_items_tidyterm = { 'filetype' },
+                 right_inactive_items_tidyterm = { 'filetype' },
+    
+                 -- Luxdash specific configuration
+                 left_active_items_luxdash = { 'windownumber', 'git:branch' },
+                 left_inactive_items_luxdash = { 'windownumber' },
+                 right_active_items_luxdash = {},
+                 right_inactive_items_luxdash = {},
+    
+                 -- Default configuration with enhanced item variants
+                 left_active_items = { 'windownumber', 'git:status', 'filename:tail', 'modified:icon' },
+                 left_inactive_items = { 'windownumber' },
+                 right_active_items = { 'position', 'filetype:icon', 'encoding:short' },
+                 right_inactive_items = { 'filename:tail' },
+                 
+                 -- Winbar configuration - window number left, filename right
+                 winbar_enabled = true,
+                 left_active_items_winbar = { 'windownumber' },
+                 left_inactive_items_winbar = { 'windownumber' },
+                 right_active_items_winbar = { 'filename:tail' },
+                 right_inactive_items_winbar = { 'filename:tail' },
+    
+                 -- Visual separators
+                 left_separator = '',
+                 right_separator = '',
+    
+                 -- Performance settings
+                 update_throttle = 20,
+                 git_cache_timeout = 5000,
+                 git_diff_debounce = 200,
+                 git_enabled = true,
+    
+                 -- Theme
+                 default_theme = 'default',
+             })
+         end,
+     },
 
     {
         "josstei/vim-easycomment",

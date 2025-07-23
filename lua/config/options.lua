@@ -13,6 +13,7 @@ vim.opt.autoindent = true
 vim.opt.smartindent = true
 vim.opt.swapfile = false             -- Prevent swap file creation
 vim.opt.fillchars = { eob = ' ' }    -- Hide characters at the end of the buffer
+vim.opt.laststatus = 3
 
 -- Allow system clipboard if applicable
 if vim.fn.has('clipboard') == 1 then
