@@ -5,7 +5,8 @@ return {
         priority = 1000,
         config = function()
             require('lux').setup({
-                variant = 'vesper'
+                variant = 'vesper',
+                transparent = false
             })
             local status_ok, _ = pcall(vim.cmd, 'colorscheme lux')
             if not status_ok then

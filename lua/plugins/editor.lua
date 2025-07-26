@@ -1,30 +1,27 @@
 return {
     -- Editor enhancement plugins
      {
-         "LuxVim/nvim-luxline",
+        "LuxVim/nvim-luxterm",
          config = function()
              require('luxline').setup({
-                 -- NvimTree specific configuration  
-                 left_active_items_NvimTree = { 'windownumber' },
-                 left_inactive_items_NvimTree = { 'windownumber' },
-                 right_active_items_NvimTree = {},
-                 right_inactive_items_NvimTree = {},
-    
+
+                 -- NvimTree specific configuration
+                 right_active_items_winbar_NvimTree = {},
+                 right_inactive_items_winbar_NvimTree = {},
+                 
                  -- Terminal specific configuration
-                 left_active_items_tidyterm = { 'windownumber', 'git:branch' },
-                 left_inactive_items_tidyterm = { 'windownumber' },
-                 right_active_items_tidyterm = { 'filetype' },
-                 right_inactive_items_tidyterm = { 'filetype' },
+                 left_active_items_winbar_terminal = { 'windownumber'},
+                 left_inactive_items_winbar_terminal = { 'windownumber'},
+                 right_active_items_winbar_terminal= {},
+                 right_inactive_items_winbar_terminal= {},
     
                  -- Luxdash specific configuration
-                 left_active_items_luxdash = { 'windownumber', 'git:branch' },
-                 left_inactive_items_luxdash = { 'windownumber' },
                  right_active_items_luxdash = {},
                  right_inactive_items_luxdash = {},
     
                  -- Default configuration with enhanced item variants
-                 left_active_items = { 'windownumber', 'git:status', 'filename:tail', 'modified:icon' },
-                 left_inactive_items = { 'windownumber' },
+                 left_active_items = { 'filename:tail' , 'git:status', 'modified:icon' },
+                 left_inactive_items = {},
                  right_active_items = { 'position', 'filetype:icon', 'encoding:short' },
                  right_inactive_items = { 'filename:tail' },
                  
@@ -32,12 +29,16 @@ return {
                  winbar_enabled = true,
                  left_active_items_winbar = { 'windownumber' },
                  left_inactive_items_winbar = { 'windownumber' },
-                 right_active_items_winbar = { 'filename:tail' },
-                 right_inactive_items_winbar = { 'filename:tail' },
-    
+                 right_active_items_winbar = { 'modified','filename:tail' },
+                 right_inactive_items_winbar = { 'modified','filename:tail' },
+
                  -- Visual separators
-                 left_separator = '',
-                 right_separator = '',
+                left_separator       = '',
+                right_separator      = '',
+                 
+                 -- Winbar-specific separators (for testing)
+                 left_separator_winbar = '▶',
+                 right_separator_winbar = '◀',
     
                  -- Performance settings
                  update_throttle = 20,
