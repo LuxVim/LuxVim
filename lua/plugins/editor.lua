@@ -1,7 +1,7 @@
 return {
     -- Editor enhancement plugins
      {
-        "LuxVim/nvim-luxterm",
+        "LuxVim/nvim-luxline",
          config = function()
              require('luxline').setup({
 
