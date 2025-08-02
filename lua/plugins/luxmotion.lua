@@ -17,6 +17,15 @@ return {
                 scroll = true,
                 experimental = true,
             },
+            performance = {
+                enabled = false,  -- Can enable for testing
+                disable_syntax_during_scroll = true,
+                ignore_events = {'WinScrolled', 'CursorMoved', 'CursorMovedI'},
+                reduce_frame_rate = false,
+                frame_rate_threshold = 30,
+                auto_enable_on_large_files = true,
+                large_file_threshold = 5000,
+            },
         })
     end,
 }

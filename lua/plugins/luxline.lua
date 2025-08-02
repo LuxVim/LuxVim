@@ -12,10 +12,6 @@ return {
                  right_active_items_winbar_terminal= {},
                  right_inactive_items_winbar_terminal= {},
     
-                 -- Luxdash specific configuration
-                 right_active_items_luxdash = {},
-                 right_inactive_items_luxdash = {},
-    
                  -- Default configuration with enhanced item variants
                  left_active_items = { 'filename:tail' , 'git:status'},
                  left_inactive_items = {},
@@ -33,7 +29,7 @@ return {
                 left_separator       = '',
                 right_separator      = '',
                  
-                 -- Winbar-specific separators (for testing)
+                 -- Winbar-specific separators
                  left_separator_winbar = '▶',
                  right_separator_winbar = '◀',
     

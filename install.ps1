@@ -43,9 +43,9 @@ if (!(Test-Path -Path $AliasScriptDir)) {
 $BatchContent = @"
 @echo off
 set NVIM_APPNAME=LuxVim
-set XDG_DATA_HOME=$LuxVimDir
-set XDG_CONFIG_HOME=$LuxVimDir
-nvim --cmd "set rtp+=$LuxVimDir" -u "$LuxVimDir\init.lua" %*
+set XDG_DATA_HOME=$($LuxVimDir)
+set XDG_CONFIG_HOME=$($LuxVimDir)
+nvim --cmd "set rtp+=$($LuxVimDir)" -u "$($LuxVimDir)\init.lua" %*
 "@
 
 $BatchContent | Out-File -FilePath $AliasScript -Encoding ASCII
@@ -108,7 +108,7 @@ if (Test-Path -Path $LazyConfig) {
     # Update the lazy path to use our custom data directory (convert backslashes to forward slashes for Lua)
     $LuxVimDataDirLua = $LuxVimDataDir -replace '\\', '/'
     $Content = Get-Content -Path $LazyConfig -Raw
-    $UpdatedContent = $Content -replace 'local lazypath = vim\.fn\.stdpath\("data"\) \.\. "/lazy/lazy\.nvim"', "local lazypath = `"$LuxVimDataDirLua/lazy/lazy.nvim`""
+    $UpdatedContent = $Content -replace 'local lazypath = vim\.fn\.stdpath\("data"\) \.\. "/lazy/lazy\.nvim"', "local lazypath = \`"$LuxVimDataDirLua/lazy/lazy.nvim\`""
     $UpdatedContent | Out-File -FilePath $LazyConfig -Encoding UTF8
     
     Write-ColorOutput "✅ Updated lazy.nvim configuration" "Green"
@@ -131,5 +131,5 @@ try {
     & "$AliasScript" --headless "+Lazy! sync" +qa
     Write-ColorOutput "🎉 All plugins installed! LuxVim is ready to use." "Green"
 } catch {
-    Write-ColorOutput "⚠️  Initial plugin installation may have encountered issues. You can run 'lux' to complete setup manually." "Yellow"
+    Write-ColorOutput "⚠️  Initial plugin installation may have encountered issues. You can run ``lux`` to complete setup manually." "Yellow"
 }

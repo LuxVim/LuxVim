@@ -1,6 +1,9 @@
-plugged/*
 .claude/
 CLAUDE.MD
-data/lazy
+
+cache/*
+data/*
+state/*
+
+lazy-lock.json
 LuxVim/lazy-lock.json
-lua/config/lazy.lua.backup

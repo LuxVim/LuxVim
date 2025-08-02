@@ -5,12 +5,18 @@ return {
             name = 'LuxVim',
             logo_color = {
                 row_gradient = {
-                    start = '#f392b1',  -- Pink
-                    bottom = '#c586c0'  -- Purple
+                    start = '#ff7801',
+                    bottom = '#db2dee'
                 }
             },
             
-            -- New modular section configuration
+           
+            performance = {
+                debounce_resize = 100,  -- Debounce resize events by 100ms
+                lazy_render = true,     -- Only render when visible
+                cache_logo = true       -- Cache ASCII logo rendering
+            },
+            
             sections = {
                 main = {
                     type = 'logo',
