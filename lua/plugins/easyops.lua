@@ -1,4 +1,6 @@
-return {
+local dev = require('dev')
+
+return dev.create_plugin_spec({
     "josstei/vim-easyops",
     config = function()
         vim.g.easyops_commands_main = {
@@ -19,4 +21,4 @@ return {
         }
         vim.g.easyops_menu_misc = { commands = vim.g.easyops_commands_misc }
     end,
-}
+}, { debug_name = "vim-easyops" })

@@ -1,4 +1,6 @@
-return {
+local dev = require('dev')
+
+return dev.create_plugin_spec({
     "LuxVim/nvim-luxmotion",
     config = function()
         require("luxmotion").setup({
@@ -28,4 +30,4 @@ return {
             },
         })
     end,
-}
+}, { debug_name = "nvim-luxmotion" })

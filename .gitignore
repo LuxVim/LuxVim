@@ -1,10 +1,13 @@
 .claude/
-CLAUDE.MD
+CLAUDE.*
 
 cache/*
 data/*
 state/*
+debug/*
 
 lua/config/lazy.lua.backup
 lazy-lock.json
 LuxVim/lazy-lock.json
+
+lesshst

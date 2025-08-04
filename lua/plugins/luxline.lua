@@ -1,4 +1,6 @@
-return {
+local dev = require('dev')
+
+return dev.create_plugin_spec({
     "LuxVim/nvim-luxline",
     config = function()
         require('luxline').setup({
@@ -43,4 +45,4 @@ return {
                  default_theme = 'default',
         })
     end,
-}
+}, { debug_name = "nvim-luxline" })

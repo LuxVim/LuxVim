@@ -31,6 +31,9 @@ safe_require("config.autocmds")
 -- Load utility functions
 local utils = safe_require("utils")
 
+-- Load development utilities
+safe_require("dev")
+
 -- Create commands only if utils loaded successfully
 if utils then
     vim.api.nvim_create_user_command('SearchText', utils.search_text_in_current_dir, {})
