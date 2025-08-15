@@ -23,20 +23,20 @@ vim.keymap.set('n', '<leader>6', ':6wincmd w<CR>')
 vim.keymap.set('n', '<leader><leader>', function()
     vim.cmd('Files')
 end)
-vim.keymap.set('n', '<leader>t', ':SearchText<CR>')
+vim.keymap.set('n', '<leader>st', ':SearchText<CR>')
 
 -- EasyOps
 vim.keymap.set('n', '<leader>m', ':EasyOps<CR>', { silent = true })
 
 -- LuxTerm 
-vim.keymap.set('n', '<C-_>', ':LuxTerm<CR>', { silent = true })
-vim.keymap.set('t', '<C-_>', '<C-\\><C-n>:LuxTerm<CR>', { silent = true })
+vim.keymap.set('n', '<C-_>', ':LuxtermToggle<CR>', { silent = true })
+vim.keymap.set('t', '<C-_>', '<C-\\><C-n>:LuxtermToggle<CR>', { silent = true })
 
-vim.keymap.set('n', '<C-/>', ':LuxTerm<CR>', { silent = true })
-vim.keymap.set('t', '<C-/>', '<C-\\><C-n>:LuxTerm<CR>', { silent = true })
+vim.keymap.set('n', '<C-/>', ':LuxtermToggle<CR>', { silent = true })
+vim.keymap.set('t', '<C-/>', '<C-\\><C-n>:LuxtermToggle<CR>', { silent = true })
 
-vim.keymap.set('n', '<C-`>', ':LuxTerm<CR>', { silent = true })
-vim.keymap.set('t', '<C-`>', '<C-\\><C-n>:LuxTerm<CR>', { silent = true })
+vim.keymap.set('n', '<C-`>', ':LuxtermToggle<CR>', { silent = true })
+vim.keymap.set('t', '<C-`>', '<C-\\><C-n>:LuxtermToggle<CR>', { silent = true })
 
 vim.keymap.set('t', '<c-n>', '<c-\\><c-n>')
 
