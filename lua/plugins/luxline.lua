@@ -4,6 +4,17 @@ return dev.create_plugin_spec({
     "LuxVim/nvim-luxline",
     config = function()
         require('luxline').setup({
+                 -- LuxTerm specific configuration
+                 left_active_items_winbar_luxterm_main          = {},
+                 left_inactive_items_winbar_luxterm_main        = {},
+                 right_active_items_winbar_luxterm_main         = {},
+                 right_inactive_items_winbar_luxterm_main       = {},
+
+                 left_active_items_winbar_luxterm_preview       = {},
+                 left_inactive_items_winbar_luxterm_preview     = {},
+                 right_active_items_winbar_luxterm_preview      = {},
+                 right_inactive_items_winbar_luxterm_preview    = {},
+
                  -- NvimTree specific configuration
                  right_active_items_winbar_NvimTree = {},
                  right_inactive_items_winbar_NvimTree = {},
@@ -18,7 +29,7 @@ return dev.create_plugin_spec({
                  left_active_items = { 'filename:tail' , 'git:status'},
                  left_inactive_items = {},
                  right_active_items = { 'position', 'filetype:icon', 'encoding:short' },
-                  right_inactive_items = { 'filename:tail' },
+                 right_inactive_items = { 'filename:tail' },
                  
                  -- Winbar configuration - window number left, filename right
                  winbar_enabled = true,
