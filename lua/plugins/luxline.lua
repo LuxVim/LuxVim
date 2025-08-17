@@ -4,17 +4,6 @@ return dev.create_plugin_spec({
     "LuxVim/nvim-luxline",
     config = function()
         require('luxline').setup({
-                 -- LuxTerm specific configuration
-                 left_active_items_winbar_luxterm_main          = {},
-                 left_inactive_items_winbar_luxterm_main        = {},
-                 right_active_items_winbar_luxterm_main         = {},
-                 right_inactive_items_winbar_luxterm_main       = {},
-
-                 left_active_items_winbar_luxterm_preview       = {},
-                 left_inactive_items_winbar_luxterm_preview     = {},
-                 right_active_items_winbar_luxterm_preview      = {},
-                 right_inactive_items_winbar_luxterm_preview    = {},
-
                  -- NvimTree specific configuration
                  right_active_items_winbar_NvimTree = {},
                  right_inactive_items_winbar_NvimTree = {},
