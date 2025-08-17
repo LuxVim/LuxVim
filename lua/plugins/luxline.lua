@@ -33,6 +33,7 @@ return dev.create_plugin_spec({
                  
                  -- Winbar configuration - window number left, filename right
                  winbar_enabled = true,
+                 winbar_disabled_filetypes = { 'luxterm_main', 'luxterm_preview' },
                  left_active_items_winbar = { 'windownumber' },
                  left_inactive_items_winbar = { 'windownumber' },
                  right_active_items_winbar = { 'modified','filename:tail' },
@@ -55,5 +56,6 @@ return dev.create_plugin_spec({
                  -- Theme
                  default_theme = 'default',
         })
+        
     end,
 }, { debug_name = "nvim-luxline" })
