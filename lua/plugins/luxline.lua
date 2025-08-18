@@ -18,10 +18,11 @@ return dev.create_plugin_spec({
                  left_active_items = { 'filename:tail' , 'git:status'},
                  left_inactive_items = {},
                  right_active_items = { 'position', 'filetype:icon', 'encoding:short' },
-                  right_inactive_items = { 'filename:tail' },
+                 right_inactive_items = { 'filename:tail' },
                  
                  -- Winbar configuration - window number left, filename right
                  winbar_enabled = true,
+                 winbar_disabled_filetypes = { 'luxterm_main', 'luxterm_preview' },
                  left_active_items_winbar = { 'windownumber' },
                  left_inactive_items_winbar = { 'windownumber' },
                  right_active_items_winbar = { 'modified','filename:tail' },
@@ -44,5 +45,6 @@ return dev.create_plugin_spec({
                  -- Theme
                  default_theme = 'default',
         })
+        
     end,
 }, { debug_name = "nvim-luxline" })
