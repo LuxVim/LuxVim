@@ -20,8 +20,8 @@ return dev.create_plugin_spec({
             -- Global keybinding configuration
             keymaps = {
                 toggle_manager = "<C-/>",
-                next_session = "<C-]>",
-                prev_session = "<C-[>",
+                next_session = "<C-k>",
+                prev_session = "<C-j>",
                 global_session_nav = false
             }
         })

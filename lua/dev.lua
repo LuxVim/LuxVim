@@ -100,7 +100,8 @@ function M.list_debug_plugins()
         local name, type = vim.loop.fs_scandir_next(handle)
         if not name then break end
         
-        if type == "directory" and M.has_debug_plugin(name) then
+        -- Accept both directories and symbolic links (which could point to directories)
+        if (type == "directory" or type == "link") and M.has_debug_plugin(name) then
             table.insert(debug_plugins, name)
         end
     end
