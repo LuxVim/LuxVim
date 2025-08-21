@@ -23,10 +23,10 @@ LuxVim is a high-performance Neovim distribution built for developers who want p
 
 ```bash
 # Clone LuxVim
-git clone https://github.com/LuxVim/LuxVim.git ~/.config/LuxVim
+git clone https://github.com/LuxVim/LuxVim.git
 
 # Run the installer
-cd ~/.config/LuxVim && ./install.sh
+cd LuxVim && ./install.sh
 
 # Start LuxVim
 lux
@@ -135,16 +135,16 @@ LuxVim includes an extensive collection of 30+ carefully curated colorschemes:
 
 #### Terminal Integration
 - **[nvim-luxterm](https://github.com/LuxVim/nvim-luxterm)** by [LuxVim](https://github.com/LuxVim)
-  - Advanced terminal integration with session management
-  - Floating window support (80% width, 60% height, rounded borders)
-  - Smart positioning and focus management
-  - History persistence (100 commands)
-  - Shell integration with auto-cd functionality
-  - Quick commands and statusline integration
+  - Advanced terminal with session management and floating windows
+  - Manager window (80% width, 80% height) with preview pane
+  - Global keybindings (`<C-/>`, `<C-_>`, `<C-`>`)
+  - Auto-hide floating windows when cursor leaves
+  - Session navigation with `<C-k>` and `<C-j>`
+  - Focus management for new sessions
 
 #### Status & Interface Enhancements
-- **[vim-easyline](https://github.com/josstei/vim-easyline)** by [josstei](https://github.com/josstei)
-  - Lightweight, customizable statusline
+- **[nvim-luxline](https://github.com/LuxVim/nvim-luxline)** by [LuxVim](https://github.com/LuxVim)
+  - Lightweight, context-aware statusline
   - Different configurations for various window types (NvimTree, terminal, dashboard)
   - Git branch integration, window numbers, file info
   - Custom separators and position indicators
@@ -156,7 +156,7 @@ LuxVim includes an extensive collection of 30+ carefully curated colorschemes:
   - Works in both normal and visual modes
 
 - **[vim-easyops](https://github.com/josstei/vim-easyops)** by [josstei](https://github.com/josstei)
-  - Command palette for quick operations
+  - Command palette for quick operations (activated with `<leader>m`)
   - Hierarchical menu system (Main → Git/Window/File/Code/Misc)
   - Maven/Spring Boot development shortcuts
   - Vim-specific operations
@@ -191,12 +191,13 @@ LuxVim includes an extensive collection of 30+ carefully curated colorschemes:
 | `<leader>fq` | `:q<CR>` | Quit current file |
 | `<leader>FQ` | `:q!<CR>` | Force quit without saving |
 | `<leader>bye` | `:qa!<CR>` | Quit all files without saving |
+| `jk` | `<ESC>` | Exit insert mode |
 
 ### Navigation & Search
 | Key | Action | Description |
 |-----|--------|-------------|
 | `<leader><leader>` | `:Files` | Fuzzy find files using fzf |
-| `<leader>t` | `:SearchText<CR>` | Search text in current directory |
+| `<leader>st` | `:SearchText<CR>` | Search text in current directory |
 | `<leader>e` | `:NvimTreeToggle<CR>` | Toggle file explorer |
 
 ### Window Management
@@ -209,8 +210,8 @@ LuxVim includes an extensive collection of 30+ carefully curated colorschemes:
 ### Terminal (LuxTerm)
 | Key | Context | Action | Description |
 |-----|---------|--------|-------------|
-| `Ctrl+/` | Normal | `:LuxTerm<CR>` | Toggle terminal |
-| `Ctrl+/` | Terminal | `<C-\><C-n>:LuxTerm<CR>` | Toggle terminal from terminal mode |
+| `Ctrl+/` | Normal | `:LuxtermToggle<CR>` | Toggle terminal |
+| `Ctrl+/` | Terminal | `<C-\><C-n>:LuxtermToggle<CR>` | Toggle terminal from terminal mode |
 | `Ctrl+_` | Normal/Terminal | Same as `Ctrl+/` | Alternative terminal toggle |
 | `Ctrl+`` | Normal/Terminal | Same as `Ctrl+/` | Backtick terminal toggle |
 | `Ctrl+n` | Terminal | `<c-\><c-n>` | Enter normal mode in terminal |
@@ -220,7 +221,6 @@ LuxVim includes an extensive collection of 30+ carefully curated colorschemes:
 |-----|--------|-------------|
 | `<leader>m` | `:EasyOps<CR>` | Open EasyOps command menu |
 | `<leader>cc` | `:EasyComment<CR>` | Toggle comment (normal/visual) |
-| `jk` | `<ESC>` | Exit insert mode |
 
 ## Configuration Structure
 
@@ -234,17 +234,27 @@ LuxVim/
 │   │   ├── lazy.lua     # Plugin manager setup
 │   │   ├── options.lua  # Vim options and settings
 │   │   ├── keymaps.lua  # Key mappings
-│   │   └── autocmds.lua # Auto commands (FZF, quickfix)
+│   │   └── autocmds.lua # Auto commands
 │   ├── plugins/         # Plugin configurations
 │   │   ├── colorschemes.lua # All available themes
-│   │   ├── core.lua     # Essential plugins (fzf, nvim-tree)
-│   │   ├── editor.lua   # Editor enhancements (easy* plugins)
-│   │   └── luxvim.lua   # LuxVim-specific plugins
-│   └── utils.lua        # Utility functions (search, fzf integration)
-└── data/               # Plugin and cache data (auto-created)
-    ├── lazy/           # Lazy.nvim plugins
-    ├── mason/          # Mason LSP data
-    └── nvim/           # Neovim data
+│   │   ├── luxdash.lua     # Dashboard plugin
+│   │   ├── luxterm.lua     # Terminal plugin
+│   │   ├── luxline.lua     # Statusline plugin
+│   │   ├── luxmotion.lua   # Animation plugin
+│   │   ├── luxpane.lua     # Window management
+│   │   ├── fzf.lua         # Fuzzy finder
+│   │   ├── nvim-tree.lua   # File explorer
+│   │   ├── easycomment.lua # Commenting
+│   │   ├── easyops.lua     # Command palette
+│   │   ├── easyenv.lua     # Environment management
+│   │   └── backtrack.lua   # File history
+│   ├── utils.lua        # Utility functions (search, fzf integration)
+│   └── dev.lua          # Development utilities
+├── data/               # Plugin and cache data (auto-created)
+│   ├── lazy/           # Lazy.nvim plugins
+│   ├── mason/          # Mason LSP data
+│   └── nvim/           # Neovim data
+└── debug/              # Local plugin development directory
 ```
 
 ## Advanced Configuration
@@ -298,12 +308,18 @@ vim.keymap.set('n', '<leader>gp', ':Git push<CR>')  -- Git push example
 
 ### Plugin Configuration
 
-Each plugin configuration is modularized. You can modify settings by editing the respective files:
+Each plugin configuration is modularized. You can modify settings by editing the respective files in `lua/plugins/`:
 
-- `lua/plugins/core.lua` - File management plugins
-- `lua/plugins/editor.lua` - Editor enhancement plugins
-- `lua/plugins/luxvim.lua` - LuxVim-specific plugins
-- `lua/plugins/colorschemes.lua` - Theme configurations
+- `colorschemes.lua` - All available themes and colorschemes
+- `luxdash.lua` - Dashboard configuration
+- `luxterm.lua` - Terminal settings and keybindings
+- `luxline.lua` - Statusline configuration
+- `luxmotion.lua` - Animation settings
+- `fzf.lua` - Fuzzy finder configuration
+- `nvim-tree.lua` - File explorer settings
+- `easycomment.lua` - Commenting system
+- `easyops.lua` - Command palette configuration
+- `backtrack.lua` - File history settings
 
 ## LuxVim Ecosystem
 
@@ -313,7 +329,7 @@ LuxVim integrates several custom-built plugins designed to work together:
 2. **nvim-luxterm** - Terminal with floating window and session management  
 3. **nvim-luxmotion** - Smooth cursor and scroll animations
 4. **vim-luxpane** - Intelligent window pane management
-5. **vim-easyline** - Minimal statusline with context awareness
+5. **nvim-luxline** - Minimal statusline with context awareness
 6. **vim-easycomment** - Language-aware commenting system
 7. **vim-easyops** - Hierarchical command palette
 8. **vim-backtrack** - File navigation history
