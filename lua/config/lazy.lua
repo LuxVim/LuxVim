@@ -43,4 +43,5 @@ require("lazy").setup({
         },
     },
     root = luxvim_dir .. "/data/lazy",
+    lockfile = luxvim_dir .. "/lazy-lock.json",
 })
