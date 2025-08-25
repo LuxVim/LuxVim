@@ -12,6 +12,7 @@ function M.setup()
     
     -- Setup Mason
     mason.setup({
+        install_root_dir = vim.fn.fnamemodify(vim.fn.stdpath("config"), ":h") .. "/data/mason",
         ui = {
             icons = {
                 package_installed = "✓",
