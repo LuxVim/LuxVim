@@ -80,7 +80,7 @@ if [ -f "$LAZY_CONFIG" ]; then
     cp "$LAZY_CONFIG" "$LAZY_CONFIG.backup"
     
     # Update the lazy path to use our custom data directory
-    sed -i "s|local lazypath = vim.fn.stdpath(\"data\") .. \"/lazy/lazy.nvim\"|local lazypath = \"$LUXVIM_DATA_DIR/lazy/lazy.nvim\"|" "$LAZY_CONFIG"
+    sed -i "" "s|local lazypath = vim.fn.stdpath(\"data\") .. \"/lazy/lazy.nvim\"|local lazypath = \"$LUXVIM_DATA_DIR/lazy/lazy.nvim\"|" "$LAZY_CONFIG"
     
     echo -e "${GREEN}✅ Updated lazy.nvim configuration${NC}"
 fi
