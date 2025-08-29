@@ -5,6 +5,7 @@ vim.opt.number = true
 vim.opt.ignorecase = true            -- remove case sensitivity for search
 vim.opt.cursorline = true            -- Highlight line cursor is currently on
 vim.opt.timeoutlen = 500             -- Timeout length between keymap keystrokes (in ms)
+vim.opt.updatetime = 250              -- Faster diagnostic updates (default: 4000ms)
 vim.opt.encoding = 'UTF-8'           -- Set encoding to UTF-8
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4

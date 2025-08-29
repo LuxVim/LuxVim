@@ -28,3 +28,25 @@ vim.api.nvim_create_autocmd('FileType', {
         vim.keymap.set('n', '<CR>', '<CR>:cclose<CR>', { buffer = true })
     end
 })
+
+-- Fix diagnostic virtual text being disabled by some plugin
+vim.api.nvim_create_autocmd('VimEnter', {
+    callback = function()
+        vim.defer_fn(function()
+            local current_config = vim.diagnostic.config()
+            if current_config.virtual_text == false then
+                vim.diagnostic.config({
+                    virtual_text = {
+                        prefix = "●",
+                        spacing = 4,
+                    },
+                    signs = current_config.signs,
+                    underline = current_config.underline,
+                    update_in_insert = current_config.update_in_insert,
+                    severity_sort = current_config.severity_sort,
+                    float = current_config.float,
+                })
+            end
+        end, 100)
+    end
+})

@@ -3,8 +3,7 @@ local dev = require('dev')
 return dev.create_plugin_spec({
     "neovim/nvim-lspconfig",
     dependencies = {
-        "williamboman/mason.nvim",
-        "williamboman/mason-lspconfig.nvim",
+        "nvim-lua/plenary.nvim", -- Required for LuxLSP async operations
     },
     event = { "BufReadPre", "BufNewFile" },
     config = function()

@@ -5,6 +5,8 @@ return dev.create_plugin_spec({
     dependencies = {
         "nvim-lua/plenary.nvim", -- For async operations and utilities
     },
+    priority = 1000, -- Load before LSP config
+    lazy = false, 
     cmd = {
         "LuxLsp",
         "LuxLspInstall", 

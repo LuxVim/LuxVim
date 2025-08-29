@@ -227,6 +227,44 @@ local configs = {
             completeUnimported = true,
         },
     },
+    
+    solargraph = {
+        cmd = function()
+            local luxlsp_root = vim.fn.fnamemodify(vim.fn.stdpath("config"), ":h") .. "/data/luxlsp/solargraph"
+            local wrapper_bin = luxlsp_root .. "/bin/solargraph-wrapper"
+            if vim.fn.executable(wrapper_bin) == 1 then
+                return { wrapper_bin, "stdio" }
+            elseif vim.fn.executable("solargraph") == 1 then
+                return { "solargraph", "stdio" }
+            end
+            return nil
+        end,
+        settings = {
+            solargraph = {
+                autoformat = false,
+                completion = true,
+                diagnostic = true,
+                folding = true,
+                references = true,
+                rename = true,
+                symbols = true,
+                logLevel = "warn",
+                -- Performance optimizations for faster diagnostics
+                useBundler = false,
+                checkGemVersion = false,
+                backgroundAnalysis = false,
+                useBundlerForDefinitions = false,
+                -- Enable faster file watching and analysis
+                workspaceAnalysis = true,
+                -- Reduce diagnostic delay
+                diagnosticsDelay = 100,
+                -- Optimize memory usage
+                maxFiles = 5000,
+                -- Cache for better performance
+                enableCache = true,
+            }
+        }
+    },
 }
 
 -- Get configuration for a specific server
@@ -239,6 +277,12 @@ function M.get_config(server_name)
             config.settings.java.configuration.runtimes = config.settings.java.configuration.runtimes()
         end
     end
+    
+    -- Handle function-based cmd configurations
+    if config.cmd and type(config.cmd) == "function" then
+        config.cmd = config.cmd()
+    end
+    
     
     return config
 end
