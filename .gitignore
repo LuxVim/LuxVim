@@ -1,14 +1,38 @@
+# Claude Code
 .claude/
 claude/
 CLAUDE.*
 
+# LuxVim specific
 cache/*
-data/*
+data/
 state/*
 debug/*
-
 lua/config/lazy.lua.backup
 lazy-lock.json
 LuxVim/lazy-lock.json
-
 lesshst
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Logs
+*.log
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets
+.env
