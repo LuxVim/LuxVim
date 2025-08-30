@@ -7,6 +7,5 @@ return dev.create_plugin_spec({
     },
     event = { "BufReadPre", "BufNewFile" },
     config = function()
-        require("lsp").setup()
     end,
 }, { debug_name = "nvim-lspconfig" })
