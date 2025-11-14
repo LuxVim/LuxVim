@@ -1,7 +1,7 @@
 return {
     "nvim-tree/nvim-tree.lua",
     dependencies = { "nvim-tree/nvim-web-devicons" },
-    event = "VeryLazy", -- Lazy load for faster startup
+    lazy = false, -- Load immediately to ensure filesystem watcher works
     config = function()
         require("nvim-tree").setup({
             -- Disable netrw for better performance
