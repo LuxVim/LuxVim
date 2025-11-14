@@ -39,7 +39,7 @@ return dev.create_plugin_spec({
                         config = {
                             show_title = true,
                             show_underline = true,
-                            menu_items = { 'newfile', 'backtrack', 'fzf', 'closelux' },
+                            menu_items = { 'newfile','fzf', 'closelux' },
                             alignment = {
                                 horizontal = 'center',
                                 vertical = 'top',
