@@ -1,17 +1,44 @@
+local dev = require('dev')
+
 return {
-    -- LuxVim theme
+    -- LuxWave - Ocean waves at sunset theme (matches Kitty terminal)
+    dev.create_plugin_spec({
+        "your-username/luxwave.nvim",
+        priority = 1000,
+        config = function()
+            -- Use vim.schedule to ensure plugin is fully loaded
+            vim.schedule(function()
+                local status_ok, luxwave = pcall(require, 'luxwave')
+                if status_ok then
+                    luxwave.setup({
+                        transparent = false,
+                        dim_inactive = false,
+                        styles = {
+                            comments = { italic = true },
+                            keywords = { bold = false },
+                            functions = { bold = false },
+                        },
+                    })
+                    local color_status, _ = pcall(vim.cmd, 'colorscheme luxwave')
+                    if not color_status then
+                        vim.api.nvim_echo({{'LuxVim: Failed to load luxwave colorscheme', 'WarningMsg'}}, true, {})
+                    end
+                else
+                    vim.api.nvim_echo({{'LuxVim: Failed to load luxwave module: ' .. tostring(luxwave), 'ErrorMsg'}}, true, {})
+                end
+            end)
+        end,
+    }, { debug_name = "luxwave.nvim" }),
+
+    -- LuxVim theme (alternative)
     {
         "LuxVim/lux.nvim",
-        priority = 1000,
+        lazy = true,
         config = function()
             require('lux').setup({
                 variant = 'vesper',
                 transparent = false
             })
-            local status_ok, _ = pcall(vim.cmd, 'colorscheme lux')
-            if not status_ok then
-                vim.api.nvim_echo({{'LuxVim: Failed to load colorscheme', 'WarningMsg'}}, true, {})
-            end
         end,
     },
 
