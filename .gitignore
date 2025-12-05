@@ -13,18 +13,57 @@ lazy-lock.json
 LuxVim/lazy-lock.json
 lesshst
 
-# OS
+# OS - macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# OS - Windows
 Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# OS - Linux
+*~
+.directory
+.Trash-*
+.nfs*
 
 # Editor
 .vscode/
 .idea/
 *.swp
+*.swo
+*.swn
 *~
+.*.sw?
+Session.vim
+.netrwhist
 
 # Logs
 *.log
+
+# Shell
+.bash_history
+.zsh_history
+.sh_history
+.history
+.zcompdump
+.zcompdump-*
+.bashrc.swp
+.lesshst
+fish/
 
 # Node
 node_modules/
