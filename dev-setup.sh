@@ -32,7 +32,6 @@ declare -A PLUGINS=(
     ["vim-easycomment"]="https://github.com/josstei/vim-easycomment.git"
     ["vim-easyops"]="https://github.com/josstei/vim-easyops.git"
     ["vim-easyenv"]="https://github.com/josstei/vim-easyenv.git"
-    ["vim-backtrack"]="https://github.com/josstei/vim-backtrack.git"
 )
 
 # Function to clone a plugin for development
