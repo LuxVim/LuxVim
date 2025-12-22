@@ -75,14 +75,14 @@ return {
 
             filters = {
                 dotfiles = false,
-                git_ignored = false,
+                git_ignored = true,  -- Hide gitignored files
                 custom = { "^.git$", "^node_modules$", "^.cache$" }, -- Filter out heavy directories
                 exclude = {},
             },
 
-            -- Disable git integration for better performance
+            -- Enable git integration to support gitignore filtering
             git = {
-                enable = false,
+                enable = true,
                 show_on_dirs = false,
                 show_on_open_dirs = false,
                 timeout = 400,
