@@ -2,6 +2,10 @@ local dev = require('dev')
 
 return dev.create_plugin_spec({
     "josstei/vim-easyops",
+    cmd = "EasyOps",
+    keys = {
+        { "<leader>m", "<cmd>EasyOps<CR>", desc = "Command palette" },
+    },
     config = function()
         vim.g.easyops_commands_main = {
             { label = 'Git',    command = 'menu:git' },

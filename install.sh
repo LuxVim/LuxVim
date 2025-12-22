@@ -79,8 +79,12 @@ if [ -f "$LAZY_CONFIG" ]; then
     # Create a backup
     cp "$LAZY_CONFIG" "$LAZY_CONFIG.backup"
     
-    # Update the lazy path to use our custom data directory
-    sed -i "" "s|local lazypath = vim.fn.stdpath(\"data\") .. \"/lazy/lazy.nvim\"|local lazypath = \"$LUXVIM_DATA_DIR/lazy/lazy.nvim\"|" "$LAZY_CONFIG"
+    # Update the lazy path to use our custom data directory (cross-platform)
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i "" "s|local lazypath = vim.fn.stdpath(\"data\") .. \"/lazy/lazy.nvim\"|local lazypath = \"$LUXVIM_DATA_DIR/lazy/lazy.nvim\"|" "$LAZY_CONFIG"
+    else
+        sed -i "s|local lazypath = vim.fn.stdpath(\"data\") .. \"/lazy/lazy.nvim\"|local lazypath = \"$LUXVIM_DATA_DIR/lazy/lazy.nvim\"|" "$LAZY_CONFIG"
+    fi
     
     echo -e "${GREEN}✅ Updated lazy.nvim configuration${NC}"
 fi

@@ -2,6 +2,12 @@ local dev = require('dev')
 
 return dev.create_plugin_spec({
     "LuxVim/nvim-luxterm",
+    cmd = { "LuxtermToggle", "LuxtermNew", "LuxtermList", "LuxtermNext", "LuxtermPrev" },
+    keys = {
+        { "<C-/>", "<cmd>LuxtermToggle<CR>", desc = "Toggle terminal" },
+        { "<C-_>", "<cmd>LuxtermToggle<CR>", desc = "Toggle terminal" },
+        { "<C-`>", "<cmd>LuxtermToggle<CR>", desc = "Toggle terminal" },
+    },
     config = function()
         require('luxterm').setup({
             -- Manager window dimensions (0.1 to 1.0)

@@ -1,6 +1,4 @@
--- Set leader key
 vim.keymap.set('n', '<space>', '<nop>')
-vim.g.mapleader = ' '
 vim.keymap.set('i', 'jk', '<ESC>')
 
 -- File operations
@@ -19,25 +17,10 @@ vim.keymap.set('n', '<leader>4', ':4wincmd w<CR>')
 vim.keymap.set('n', '<leader>5', ':5wincmd w<CR>')
 vim.keymap.set('n', '<leader>6', ':6wincmd w<CR>')
 
--- File/Text search
-vim.keymap.set('n', '<leader><leader>', function()
-    vim.cmd('Files')
-end)
-vim.keymap.set('n', '<leader>st', ':SearchText<CR>')
-
--- EasyOps
-vim.keymap.set('n', '<leader>m', ':EasyOps<CR>', { silent = true })
-
--- LuxTerm 
-vim.keymap.set('n', '<C-_>', ':LuxtermToggle<CR>', { silent = true })
+-- LuxTerm terminal mode mappings (normal mode handled by lazy.nvim keys)
 vim.keymap.set('t', '<C-_>', '<C-\\><C-n>:LuxtermToggle<CR>', { silent = true })
-
-vim.keymap.set('n', '<C-/>', ':LuxtermToggle<CR>', { silent = true })
 vim.keymap.set('t', '<C-/>', '<C-\\><C-n>:LuxtermToggle<CR>', { silent = true })
-
-vim.keymap.set('n', '<C-`>', ':LuxtermToggle<CR>', { silent = true })
 vim.keymap.set('t', '<C-`>', '<C-\\><C-n>:LuxtermToggle<CR>', { silent = true })
-
 vim.keymap.set('t', '<c-n>', '<c-\\><c-n>')
 
 -- LuxTerm extended keymaps
@@ -57,8 +40,4 @@ vim.keymap.set('n', '<leader>td', ':LuxTermGitDiff<CR>', { silent = true }) ]]
 
 -- nvim-tree
 vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>')
-
--- EasyComment
-vim.keymap.set('n', '<leader>cc', ':EasyComment <CR>')
-vim.keymap.set('v', '<leader>cc', ':EasyComment <CR>')
 

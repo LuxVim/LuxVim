@@ -1,8 +1,8 @@
 -- Bootstrap lazy.nvim
 
-local luxvim_dir = vim.fn.expand("~/.local/share/LuxVim") 
+local luxvim_dir = vim.fn.expand("~/.local/share/LuxVim")
 if vim.env.XDG_DATA_HOME then
-    luxvim_dir = vim.env.XDG_DATA_HOME
+    luxvim_dir = vim.env.XDG_DATA_HOME .. "/LuxVim"
 end
 local lazypath = luxvim_dir .. "/data/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -30,11 +30,19 @@ require("lazy").setup({
         version = false,
     },
     install = { colorscheme = { "lux", "habamax" } },
-    checker = { enabled = true },
+    checker = { enabled = true, frequency = 86400 },
     performance = {
+        cache = {
+            enabled = true,
+        },
+        reset_packpath = true,
         rtp = {
+            reset = true,
             disabled_plugins = {
                 "gzip",
+                "matchit",
+                "matchparen",
+                "netrwPlugin",
                 "tarPlugin",
                 "tohtml",
                 "tutor",
