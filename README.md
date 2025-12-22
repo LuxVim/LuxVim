@@ -129,7 +129,7 @@ LuxVim includes an extensive collection of 30+ carefully curated colorschemes:
 #### Dashboard & Startup
 - **[nvim-luxdash](https://github.com/LuxVim/nvim-luxdash)** by [LuxVim](https://github.com/LuxVim)
   - Beautiful startup dashboard with ASCII art LuxVim logo
-  - Quick access menu with options: newfile, backtrack, fzf, closelux
+  - Quick access menu with options: newfile, fzf, closelux
   - Displays current date and time
   - Customizable logo colors and gradients
 
@@ -164,13 +164,6 @@ LuxVim includes an extensive collection of 30+ carefully curated colorschemes:
 - **[vim-easyenv](https://github.com/josstei/vim-easyenv)** by [josstei](https://github.com/josstei)
   - Environment management for project-specific configurations
   - Quick environment setup and switching
-
-#### Navigation & History
-- **[vim-backtrack](https://github.com/josstei/vim-backtrack)** by [josstei](https://github.com/josstei)
-  - File history tracking and navigation
-  - Configurable split behavior (bottom right vertical split)
-  - Maximum history count (10 files)
-  - Special handling for dashboard splits
 
 #### Window Management
 - **[vim-luxpane](https://github.com/LuxVim/vim-luxpane)** by [LuxVim](https://github.com/LuxVim)
@@ -246,8 +239,7 @@ LuxVim/
 │   │   ├── nvim-tree.lua   # File explorer
 │   │   ├── easycomment.lua # Commenting
 │   │   ├── easyops.lua     # Command palette
-│   │   ├── easyenv.lua     # Environment management
-│   │   └── backtrack.lua   # File history
+│   │   └── easyenv.lua     # Environment management
 │   ├── utils.lua        # Utility functions (search, fzf integration)
 │   └── dev.lua          # Development utilities
 ├── data/               # Plugin and cache data (auto-created)
@@ -319,7 +311,6 @@ Each plugin configuration is modularized. You can modify settings by editing the
 - `nvim-tree.lua` - File explorer settings
 - `easycomment.lua` - Commenting system
 - `easyops.lua` - Command palette configuration
-- `backtrack.lua` - File history settings
 
 ## LuxVim Ecosystem
 
@@ -332,8 +323,7 @@ LuxVim integrates several custom-built plugins designed to work together:
 5. **nvim-luxline** - Minimal statusline with context awareness
 6. **vim-easycomment** - Language-aware commenting system
 7. **vim-easyops** - Hierarchical command palette
-8. **vim-backtrack** - File navigation history
-9. **vim-easyenv** - Environment management
+8. **vim-easyenv** - Environment management
 
 ## Troubleshooting
 
