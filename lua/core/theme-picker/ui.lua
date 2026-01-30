@@ -160,25 +160,14 @@ local function on_uninstall()
 end
 
 function M.install_theme(theme)
-    vim.notify("Installing " .. theme.name .. "...", vim.log.levels.INFO)
-
-    local spec = {
-        theme.repo,
-        name = theme.name,
-        lazy = true,
-    }
-
-    require("lazy").install({ plugins = { spec } })
-
     persistence.add(theme.name)
-
-    vim.defer_fn(function()
-        preview.apply(theme.colorscheme)
-        build_items()
-        M.cursor_line = find_first_selectable()
-        render()
-        vim.notify(theme.name .. " installed!", vim.log.levels.INFO)
-    end, 1000)
+    build_items()
+    M.cursor_line = find_first_selectable()
+    render()
+    vim.notify(
+        theme.name .. " added. Run :Lazy sync to install, then restart LuxVim.",
+        vim.log.levels.INFO
+    )
 end
 
 function M.close()
