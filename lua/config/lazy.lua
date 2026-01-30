@@ -30,7 +30,7 @@ require("lazy").setup({
         version = false,
     },
     install = { colorscheme = { "lux", "habamax" } },
-    checker = { enabled = true, frequency = 86400 },
+    checker = { enabled = false },
     performance = {
         cache = {
             enabled = true,
