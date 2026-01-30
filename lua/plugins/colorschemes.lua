@@ -1,30 +1,36 @@
-return {
-    -- LuxVim theme
-    {
-        "LuxVim/lux.nvim",
+local dev = require('dev')
+
+local function get_optional_theme_specs()
+    local ok, picker = pcall(require, "core.theme-picker")
+    if ok and picker.get_installed_specs then
+        return picker.get_installed_specs()
+    end
+    return {}
+end
+
+local themes = {
+    dev.create_plugin_spec({
+        "LuxVim/nami.nvim",
         priority = 1000,
         config = function()
-            require('lux').setup({
-                variant = 'vesper',
+            require('nami').setup({
                 transparent = false
             })
-            local status_ok, _ = pcall(vim.cmd, 'colorscheme lux')
+            local status_ok, _ = pcall(vim.cmd, 'colorscheme nami')
             if not status_ok then
                 vim.api.nvim_echo({{'LuxVim: Failed to load colorscheme', 'WarningMsg'}}, true, {})
             end
         end,
-    },
+    }, { debug_name = "nami.nvim" }),
 
-    -- Custom themes
     {
-        "josstei/voidpulse.nvim",
+        "catppuccin/nvim",
+        name = "catppuccin",
         lazy = true,
     },
 
-    -- Vim-compatible themes
     {
-        "dracula/vim",
-        name = "dracula",
+        "folke/tokyonight.nvim",
         lazy = true,
     },
 
@@ -34,110 +40,15 @@ return {
     },
 
     {
-        "arcticicestudio/nord-vim",
+        "dracula/vim",
+        name = "dracula",
         lazy = true,
-    },
-
-    {
-        "altercation/vim-colors-solarized",
-        lazy = true,
-    },
-
-    {
-        "crusoexia/vim-monokai",
-        lazy = true,
-    },
-
-    {
-        "sainnhe/everforest",
-        lazy = true,
-    },
-
-    {
-        "sainnhe/sonokai",
-        lazy = true,
-    },
-
-    {
-        "NLKNguyen/papercolor-theme",
-        lazy = true,
-    },
-
-    {
-        "joshdick/onedark.vim",
-        lazy = true,
-    },
-
-    {
-        "tomasr/molokai",
-        lazy = true,
-    },
-
-    {
-        "mhartington/oceanic-next",
-        lazy = true,
-    },
-
-    -- Neovim-only themes (conditional loading)
-    {
-        "catppuccin/nvim",
-        name = "catppuccin",
-        lazy = true,
-        cond = vim.fn.has('nvim') == 1,
-    },
-
-    {
-        "folke/tokyonight.nvim",
-        lazy = true,
-        cond = vim.fn.has('nvim') == 1,
-    },
-
-    {
-        "rebelot/kanagawa.nvim",
-        lazy = true,
-        cond = vim.fn.has('nvim') == 1,
-    },
-
-    {
-        "navarasu/onedark.nvim",
-        lazy = true,
-        cond = vim.fn.has('nvim') == 1,
-    },
-
-    {
-        "EdenEast/nightfox.nvim",
-        lazy = true,
-        cond = vim.fn.has('nvim') == 1,
-    },
-
-    {
-        "rose-pine/neovim",
-        name = "rose-pine",
-        lazy = true,
-        cond = vim.fn.has('nvim') == 1,
-    },
-
-    {
-        "tanvirtin/monokai.nvim",
-        lazy = true,
-        cond = vim.fn.has('nvim') == 1,
-    },
-
-    {
-        "nyoom-engineering/oxocarbon.nvim",
-        lazy = true,
-        cond = vim.fn.has('nvim') == 1,
-    },
-
-    {
-        "sainnhe/edge",
-        lazy = true,
-        cond = vim.fn.has('nvim') == 1,
-    },
-
-    {
-        "marko-cerovac/material.nvim",
-        lazy = true,
-        cond = vim.fn.has('nvim') == 1,
     },
 }
+
+local optional = get_optional_theme_specs()
+for _, spec in ipairs(optional) do
+    table.insert(themes, spec)
+end
+
+return themes
