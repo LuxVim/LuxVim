@@ -10,18 +10,19 @@ end
 
 local themes = {
     dev.create_plugin_spec({
-        "LuxVim/nami.nvim",
+        "LuxVim/lux.nvim",
         priority = 1000,
         config = function()
-            require('nami').setup({
-                transparent = false
+            require('lux').setup({
+                variant = "vesper",
+                transparent = false 
             })
-            local status_ok, _ = pcall(vim.cmd, 'colorscheme nami')
+            local status_ok, _ = pcall(vim.cmd, 'colorscheme lux')
             if not status_ok then
                 vim.api.nvim_echo({{'LuxVim: Failed to load colorscheme', 'WarningMsg'}}, true, {})
             end
         end,
-    }, { debug_name = "nami.nvim" }),
+    }, { debug_name = "lux.nvim" }),
 
     {
         "catppuccin/nvim",
