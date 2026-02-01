@@ -1,21 +1,20 @@
 return {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile" },
+    lazy = false,
+    priority = 900,
     config = function()
-        local ok, configs = pcall(require, "nvim-treesitter.configs")
-        if not ok then
-            return
-        end
-        configs.setup({
-            ensure_installed = {
-                "bash", "c", "cpp", "css", "go", "html", "java",
-                "javascript", "json", "lua", "markdown", "markdown_inline",
-                "python", "rust", "swift", "tsx", "typescript", "vim", "vimdoc", "yaml",
-            },
-            auto_install = true,
-            highlight = { enable = true },
-            indent = { enable = true },
+        local data_dir = vim.env.XDG_DATA_HOME or vim.fn.stdpath("data")
+        local parser_install_dir = data_dir .. "/data/site"
+
+        require("nvim-treesitter.config").setup({
+            install_dir = parser_install_dir,
+        })
+
+        vim.api.nvim_create_autocmd("FileType", {
+            callback = function(args)
+                pcall(vim.treesitter.start, args.buf)
+            end,
         })
     end,
 }

@@ -1,9 +1,6 @@
 -- Bootstrap lazy.nvim
 
-local luxvim_dir = vim.fn.expand("~/.local/share/LuxVim")
-if vim.env.XDG_DATA_HOME then
-    luxvim_dir = vim.env.XDG_DATA_HOME .. "/LuxVim"
-end
+local luxvim_dir = vim.env.XDG_DATA_HOME or vim.fn.expand("~/.local/share/LuxVim")
 local lazypath = luxvim_dir .. "/data/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
     local lazyrepo = "https://github.com/folke/lazy.nvim.git"
