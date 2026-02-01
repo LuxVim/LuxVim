@@ -54,12 +54,12 @@ function M.load_plugin_specs(category_path, category_name, defaults)
   end
 
   while true do
-    local name, type = vim.uv.fs_scandir_next(handle)
+    local name, entry_type = vim.uv.fs_scandir_next(handle)
     if not name then
       break
     end
 
-    if type == "file" and name:match("%.lua$") and name ~= "_defaults.lua" then
+    if entry_type == "file" and name:match("%.lua$") and name ~= "_defaults.lua" then
       local file_path = category_path .. "/" .. name
       local ok, spec = pcall(dofile, file_path)
 
@@ -173,7 +173,11 @@ function M.transform_to_lazy(spec)
   end
 
   if spec.lazy then
-    lazy_spec = vim.tbl_deep_extend("force", lazy_spec, spec.lazy)
+    if type(spec.lazy) == "table" then
+      lazy_spec = vim.tbl_deep_extend("force", lazy_spec, spec.lazy)
+    elseif spec.lazy == true then
+      lazy_spec.lazy = true
+    end
   end
 
   M._specs_by_name[debug_name] = spec
