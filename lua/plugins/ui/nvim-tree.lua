@@ -77,12 +77,12 @@ return {
     },
     filters = {
       dotfiles = false,
-      git_ignored = false,
+      git_ignored = true,
       custom = { "^.git$", "^node_modules$", "^.cache$" },
       exclude = {},
     },
     git = {
-      enable = false,
+      enable = true,
       show_on_dirs = false,
       show_on_open_dirs = false,
       timeout = 400,
