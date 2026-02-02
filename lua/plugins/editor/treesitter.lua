@@ -2,8 +2,8 @@ return {
   source = "nvim-treesitter/nvim-treesitter",
   build = ":TSUpdate",
   lazy = {
-    priority = 900,
     lazy = false,
+    priority = 900,
   },
   config = function()
     local data_dir = vim.env.XDG_DATA_HOME or vim.fn.stdpath("data")

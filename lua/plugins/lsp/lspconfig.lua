@@ -2,6 +2,7 @@ return {
   source = "neovim/nvim-lspconfig",
   debug_name = "nvim-lspconfig",
   dependencies = { "plenary.nvim" },
+  event = { "BufReadPre", "BufNewFile" },
   config = function()
     local ok, luxlsp = pcall(require, "luxlsp")
     if ok then
