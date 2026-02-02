@@ -76,9 +76,6 @@ function M.load_plugin_specs(category_path, category_name, defaults)
           message = "spec must be a table, got " .. type(spec),
         })
       else
-        spec._file = file_path
-        spec._category = category_name
-
         local errors, warnings = validate.validate_plugin_spec(spec, file_path)
         for _, e in ipairs(errors) do
           table.insert(M._errors, { level = e.level, file = file_path, message = e.message })
@@ -88,6 +85,8 @@ function M.load_plugin_specs(category_path, category_name, defaults)
         end
 
         if #errors == 0 then
+          spec._file = file_path
+          spec._category = category_name
           spec = vim.tbl_deep_extend("keep", spec, defaults)
           table.insert(specs, spec)
         end

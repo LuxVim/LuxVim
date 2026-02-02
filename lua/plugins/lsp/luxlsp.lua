@@ -1,7 +1,7 @@
 return {
   source = "LuxVim/nvim-luxlsp",
   debug_name = "nvim-luxlsp",
-  dependencies = { "plenary" },
+  dependencies = { "plenary.nvim" },
   cmd = { "LuxLsp", "LuxLspInstall", "LuxLspUninstall", "LuxLspList" },
   lazy = {
     keys = {

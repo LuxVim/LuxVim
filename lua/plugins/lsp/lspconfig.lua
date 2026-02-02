@@ -1,7 +1,7 @@
 return {
   source = "neovim/nvim-lspconfig",
   debug_name = "nvim-lspconfig",
-  dependencies = { "plenary" },
+  dependencies = { "plenary.nvim" },
   config = function()
     local ok, luxlsp = pcall(require, "luxlsp")
     if ok then
