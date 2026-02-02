@@ -7,16 +7,20 @@ function M.get_luxvim_root()
     return _luxvim_root
   end
 
-  local config_path = vim.fn.stdpath("config")
-  if config_path and vim.fn.isdirectory(config_path) == 1 then
-    _luxvim_root = config_path
-    return _luxvim_root
+  local info = debug.getinfo(1, "S")
+  if info and info.source and info.source:sub(1, 1) == "@" then
+    local this_file = info.source:sub(2)
+    _luxvim_root = vim.fn.fnamemodify(this_file, ":p:h:h:h:h")
+    if vim.fn.isdirectory(_luxvim_root .. "/debug") == 1 then
+      return _luxvim_root
+    end
   end
 
-  local init_path = vim.fn.findfile("init.lua", ".;")
-  if init_path ~= "" then
-    _luxvim_root = vim.fn.fnamemodify(init_path, ":p:h")
-    return _luxvim_root
+  for _, path in ipairs(vim.opt.runtimepath:get()) do
+    if vim.fn.isdirectory(path .. "/debug") == 1 and vim.fn.filereadable(path .. "/init.lua") == 1 then
+      _luxvim_root = path
+      return _luxvim_root
+    end
   end
 
   _luxvim_root = vim.fn.getcwd()

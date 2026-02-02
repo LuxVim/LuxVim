@@ -1,16 +1,17 @@
 return {
-  source = "LuxVim/lux.nvim",
-  debug_name = "lux.nvim",
+  source = "josstei/voidpulse.nvim",
+  debug_name = "voidpulse.nvim",
   lazy = {
+    lazy = false,
     priority = 1000,
   },
   opts = {
-    variant = "vesper",
+    palette = "fathom",
     transparent = false,
   },
   config = function(_, opts)
-    require("lux").setup(opts)
-    local status_ok, _ = pcall(vim.cmd, "colorscheme lux")
+    require("voidpulse").setup(opts)
+    local status_ok, _ = pcall(vim.cmd, "colorscheme voidpulse")
     if not status_ok then
       vim.api.nvim_echo({ { "LuxVim: Failed to load colorscheme", "WarningMsg" } }, true, {})
     end
