@@ -10,46 +10,73 @@ return {
         bottom = "#db2dee",
       },
     },
-    options = { "newfile", "fzf", "closelux" },
-    bottom_sections = { "menu", "recent_files", "git_status" },
-    section_configs = {
-      menu = {
-        title = "Actions",
-        show_title = true,
-        show_underline = true,
-        alignment = {
-          horizontal = "center",
-          vertical = "top",
-          title_horizontal = "center",
-          content_horizontal = "center",
+    sections = {
+      main = {
+        type = "logo",
+        config = {
+          alignment = {
+            horizontal = "center",
+            vertical = "center",
+          },
         },
-        padding = { left = 2, right = 2 },
       },
-      recent_files = {
-        title = "Recent Files",
-        max_files = 8,
-        show_title = true,
-        show_underline = true,
-        alignment = {
-          horizontal = "center",
-          vertical = "top",
-          title_horizontal = "center",
-          content_horizontal = "left",
+      bottom = {
+        {
+          id = "actions",
+          type = "menu",
+          title = "Actions",
+          config = {
+            show_title = true,
+            show_underline = true,
+            menu_items = { "newfile", "fzf", "closelux" },
+            alignment = {
+              horizontal = "center",
+              vertical = "top",
+              title_horizontal = "center",
+              content_horizontal = "center",
+            },
+            padding = { left = 2, right = 2 },
+          },
         },
-        padding = { left = 2, right = 2 },
-      },
-      git_status = {
-        title = "Git Status",
-        show_title = true,
-        show_underline = true,
-        alignment = {
-          horizontal = "center",
-          vertical = "top",
-          title_horizontal = "center",
-          content_horizontal = "left",
+        {
+          id = "recent",
+          type = "recent_files",
+          title = "Recent Files",
+          config = {
+            show_title = true,
+            show_underline = true,
+            max_files = 8,
+            alignment = {
+              horizontal = "center",
+              vertical = "top",
+              title_horizontal = "center",
+              content_horizontal = "left",
+            },
+            padding = { left = 2, right = 2 },
+          },
         },
-        padding = { left = 2, right = 2 },
+        {
+          id = "git",
+          type = "git_status",
+          title = "Git Status",
+          config = {
+            show_title = true,
+            show_underline = true,
+            alignment = {
+              horizontal = "center",
+              vertical = "top",
+              title_horizontal = "center",
+              content_horizontal = "left",
+            },
+            padding = { left = 2, right = 2 },
+          },
+        },
       },
+    },
+    layout_config = {
+      main_height_ratio = 0.4,
+      bottom_sections_equal_width = true,
+      section_spacing = 2,
     },
     logo = {
       "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
