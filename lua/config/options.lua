@@ -1,3 +1,9 @@
+-- Disable space default behavior (before leader assignment in init.lua)
+vim.keymap.set('n', '<space>', '<nop>')
+
+-- Quick escape from insert mode
+vim.keymap.set('i', 'jk', '<ESC>')
+
 -- General settings
 vim.opt.compatible = false 	     -- Enables full Vim features (modern mode)
 vim.opt.relativenumber = true        -- Display line numbers relative to current line

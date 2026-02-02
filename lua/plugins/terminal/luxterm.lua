@@ -7,6 +7,10 @@ return {
       { "<C-/>", "<cmd>LuxtermToggle<CR>", desc = "Toggle terminal" },
       { "<C-_>", "<cmd>LuxtermToggle<CR>", desc = "Toggle terminal" },
       { "<C-`>", "<cmd>LuxtermToggle<CR>", desc = "Toggle terminal" },
+      { "<C-/>", "<C-\\><C-n><cmd>LuxtermToggle<CR>", mode = "t", desc = "Toggle terminal" },
+      { "<C-_>", "<C-\\><C-n><cmd>LuxtermToggle<CR>", mode = "t", desc = "Toggle terminal" },
+      { "<C-`>", "<C-\\><C-n><cmd>LuxtermToggle<CR>", mode = "t", desc = "Toggle terminal" },
+      { "<C-n>", "<C-\\><C-n>", mode = "t", desc = "Exit terminal mode" },
     },
   },
   opts = {
