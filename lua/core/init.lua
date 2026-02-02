@@ -31,6 +31,11 @@ function M.setup()
 end
 
 function M._create_commands()
+  vim.api.nvim_create_user_command("SearchText", function()
+    local actions = require("core.lib.actions")
+    actions.invoke("core.search_text")
+  end, { desc = "Search text in current directory" })
+
   vim.api.nvim_create_user_command("LuxVimErrors", function()
     local loader = require("core.lib.loader")
     local errors = loader.get_errors()
