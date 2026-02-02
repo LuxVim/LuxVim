@@ -10,10 +10,17 @@ return {
         bottom = "#db2dee",
       },
     },
+    performance = {
+      debounce_resize = 100,
+      lazy_render = true,
+      cache_logo = true,
+    },
     sections = {
       main = {
         type = "logo",
         config = {
+          show_title = false,
+          show_underline = false,
           alignment = {
             horizontal = "center",
             vertical = "center",
@@ -24,7 +31,7 @@ return {
         {
           id = "actions",
           type = "menu",
-          title = "Actions",
+          title = "⚡ Actions",
           config = {
             show_title = true,
             show_underline = true,
@@ -41,7 +48,7 @@ return {
         {
           id = "recent",
           type = "recent_files",
-          title = "Recent Files",
+          title = "📁 Recent Files",
           config = {
             show_title = true,
             show_underline = true,
@@ -58,7 +65,7 @@ return {
         {
           id = "git",
           type = "git_status",
-          title = "Git Status",
+          title = "🌿 Git Status",
           config = {
             show_title = true,
             show_underline = true,
@@ -74,9 +81,9 @@ return {
       },
     },
     layout_config = {
-      main_height_ratio = 0.4,
+      main_height_ratio = 0.8,
       bottom_sections_equal_width = true,
-      section_spacing = 2,
+      section_spacing = 4,
     },
     logo = {
       "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
