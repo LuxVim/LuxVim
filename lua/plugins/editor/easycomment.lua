@@ -7,5 +7,4 @@ return {
       { "<leader>cc", "<cmd>EasyComment<CR>", mode = { "n", "v" }, desc = "Toggle comment" },
     },
   },
-  opts = {},
 }

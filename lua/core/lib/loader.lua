@@ -144,9 +144,9 @@ function M.transform_to_lazy(spec)
     lazy_spec.opts = spec.opts
   end
 
-  if spec.config then
+  if spec.config ~= nil then
     lazy_spec.config = spec.config
-  elseif spec.opts and not spec.config then
+  elseif spec.opts then
     lazy_spec.config = true
   end
 
