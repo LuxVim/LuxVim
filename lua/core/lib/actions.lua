@@ -91,28 +91,34 @@ function M.register_core_actions()
     vim.cmd("rightbelow split new")
   end)
 
+  local function goto_win(n)
+    if n <= vim.fn.winnr("$") then
+      vim.cmd(n .. "wincmd w")
+    end
+  end
+
   M.register("core", "win1", function()
-    vim.cmd("1wincmd w")
+    goto_win(1)
   end)
 
   M.register("core", "win2", function()
-    vim.cmd("2wincmd w")
+    goto_win(2)
   end)
 
   M.register("core", "win3", function()
-    vim.cmd("3wincmd w")
+    goto_win(3)
   end)
 
   M.register("core", "win4", function()
-    vim.cmd("4wincmd w")
+    goto_win(4)
   end)
 
   M.register("core", "win5", function()
-    vim.cmd("5wincmd w")
+    goto_win(5)
   end)
 
   M.register("core", "win6", function()
-    vim.cmd("6wincmd w")
+    goto_win(6)
   end)
 
   M.register("core", "search_text", function()
