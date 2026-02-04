@@ -40,12 +40,13 @@ if (!(Test-Path -Path $AliasScriptDir)) {
 }
 
 # Create the lux.bat script
+$LuxVimDirEscaped = $LuxVimDir -replace ' ', '\ ' -replace '\\', '/'
 $BatchContent = @"
 @echo off
 set NVIM_APPNAME=LuxVim
-set XDG_DATA_HOME=$($LuxVimDir)
-set XDG_CONFIG_HOME=$($LuxVimDir)
-nvim --cmd "set rtp+=$($LuxVimDir)" -u "$($LuxVimDir)\init.lua" %*
+set "XDG_DATA_HOME=$($LuxVimDir)"
+set "XDG_CONFIG_HOME=$($LuxVimDir)"
+nvim --cmd "set rtp+=$($LuxVimDirEscaped)" -u "$($LuxVimDir)\init.lua" %*
 "@
 
 $BatchContent | Out-File -FilePath $AliasScript -Encoding ASCII

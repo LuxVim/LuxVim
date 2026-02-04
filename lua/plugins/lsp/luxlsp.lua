@@ -1,4 +1,5 @@
 return {
+  enabled = false,
   source = "LuxVim/nvim-luxlsp",
   debug_name = "nvim-luxlsp",
   dependencies = { "plenary.nvim" },
