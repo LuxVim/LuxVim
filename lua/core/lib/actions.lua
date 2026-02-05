@@ -1,4 +1,5 @@
 local M = {}
+local paths = require("core.lib.paths")
 
 M._registry = {}
 M._cache = {}
@@ -14,7 +15,7 @@ function M.register_from_spec(spec)
     return
   end
 
-  local plugin_name = spec.debug_name or spec.source:match("([^/]+)$")
+  local plugin_name = spec.debug_name or paths.basename(spec.source)
   for action_name, fn in pairs(spec.actions) do
     M.register(plugin_name, action_name, fn)
   end
