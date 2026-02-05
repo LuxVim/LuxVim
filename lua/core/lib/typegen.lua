@@ -1,5 +1,6 @@
 local schema = require("core.lib.schema")
 local debug_mod = require("core.lib.debug")
+local paths = require("core.lib.paths")
 
 local M = {}
 
@@ -67,8 +68,8 @@ end
 
 function M.write()
   local root = debug_mod.get_luxvim_root()
-  local types_dir = root .. "/lua/types"
-  local output_path = types_dir .. "/plugin.lua"
+  local types_dir = paths.join(root, "lua", "types")
+  local output_path = paths.join(types_dir, "plugin.lua")
 
   vim.fn.mkdir(types_dir, "p")
 
