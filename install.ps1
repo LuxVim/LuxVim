@@ -48,7 +48,7 @@ $LuxVimDirForward = $LuxVimDir -replace '\\', '/'
 $launcherPs1 = Join-Path $LuxVimDir "lux.ps1"
 $ps1Content = @"
 `$env:NVIM_APPNAME = "LuxVim"
-& nvim --cmd "set rtp+=$LuxVimDirForward" -u "$LuxVimDir\init.lua" @args
+& nvim --cmd "set rtp+=$LuxVimDirForward" -u "$LuxVimDirForward/init.lua" @args
 "@
 Set-Content -Path $launcherPs1 -Value $ps1Content -Encoding UTF8
 Write-Host "Created lux.ps1" -ForegroundColor Green
@@ -58,7 +58,7 @@ $launcherCmd = Join-Path $LuxVimDir "lux.cmd"
 $cmdContent = @"
 @echo off
 set "NVIM_APPNAME=LuxVim"
-nvim --cmd "set rtp+=$LuxVimDirForward" -u "$LuxVimDir\init.lua" %*
+nvim --cmd "set rtp+=$LuxVimDirForward" -u "$LuxVimDirForward/init.lua" %*
 "@
 Set-Content -Path $launcherCmd -Value $cmdContent -Encoding ASCII
 Write-Host "Created lux.cmd" -ForegroundColor Green
