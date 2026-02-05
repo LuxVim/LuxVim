@@ -73,22 +73,6 @@ else
     echo -e "${GREEN}✅ lazy.nvim already exists${NC}"
 fi
 
-# Update the lazy.nvim configuration to use our custom path
-LAZY_CONFIG="$LUXVIM_DIR/lua/config/lazy.lua"
-if [ -f "$LAZY_CONFIG" ]; then
-    # Create a backup
-    cp "$LAZY_CONFIG" "$LAZY_CONFIG.backup"
-    
-    # Update the lazy path to use our custom data directory (cross-platform)
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i "" "s|local lazypath = vim.fn.stdpath(\"data\") .. \"/lazy/lazy.nvim\"|local lazypath = \"$LUXVIM_DATA_DIR/lazy/lazy.nvim\"|" "$LAZY_CONFIG"
-    else
-        sed -i "s|local lazypath = vim.fn.stdpath(\"data\") .. \"/lazy/lazy.nvim\"|local lazypath = \"$LUXVIM_DATA_DIR/lazy/lazy.nvim\"|" "$LAZY_CONFIG"
-    fi
-    
-    echo -e "${GREEN}✅ Updated lazy.nvim configuration${NC}"
-fi
-
 echo -e "${GREEN}🎉 LuxVim installation complete!${NC}"
 echo -e "${BLUE}Usage: lux [file]${NC}"
 echo -e "${YELLOW}Note: Plugins will auto-download on first run${NC}"
