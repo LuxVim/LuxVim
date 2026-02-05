@@ -1,11 +1,13 @@
+local paths = require("core.lib.paths")
+
 local M = {}
 
 local function get_data_path()
-    local luxvim_dir = vim.fn.expand("~/.local/share/LuxVim")
-    if vim.env.XDG_DATA_HOME then
-        luxvim_dir = vim.env.XDG_DATA_HOME .. "/LuxVim"
-    end
-    return luxvim_dir .. "/data/installed-themes.lua"
+  local luxvim_dir = vim.fn.expand("~/.local/share/LuxVim")
+  if vim.env.XDG_DATA_HOME then
+    luxvim_dir = paths.join(vim.env.XDG_DATA_HOME, "LuxVim")
+  end
+  return paths.join(luxvim_dir, "data", "installed-themes.lua")
 end
 
 function M.load()
