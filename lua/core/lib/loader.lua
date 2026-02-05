@@ -1,6 +1,7 @@
 local debug_mod = require("core.lib.debug")
 local validate = require("core.lib.validate")
 local conditions = require("core.registry.conditions")
+local paths = require("core.lib.paths")
 
 local M = {}
 
@@ -11,11 +12,18 @@ M._warnings = {}
 
 function M.get_plugin_dirs()
   local root = debug_mod.get_luxvim_root()
-  local plugins_dir = root .. "/lua/plugins"
+  local plugins_dir = paths.join(root, "lua", "plugins")
   local dirs = {}
 
   local handle = vim.uv.fs_scandir(plugins_dir)
   if not handle then
+    table.insert(M._errors, {
+      level = "critical",
+      file = "core.lib.loader",
+      message = "Plugin directory not found: " .. plugins_dir ..
+          "\nLuxVim root detected as: " .. root ..
+          "\nLaunch LuxVim from its directory or check installation.",
+    })
     return dirs
   end
 
@@ -25,7 +33,7 @@ function M.get_plugin_dirs()
       break
     end
     if type == "directory" then
-      table.insert(dirs, { name = name, path = plugins_dir .. "/" .. name })
+      table.insert(dirs, { name = name, path = paths.join(plugins_dir, name) })
     end
   end
 
@@ -33,7 +41,7 @@ function M.get_plugin_dirs()
 end
 
 function M.load_category_defaults(category_path)
-  local defaults_path = category_path .. "/_defaults.lua"
+  local defaults_path = paths.join(category_path, "_defaults.lua")
   local stat = vim.uv.fs_stat(defaults_path)
   if not stat then
     return {}
@@ -60,7 +68,7 @@ function M.load_plugin_specs(category_path, category_name, defaults)
     end
 
     if entry_type == "file" and name:match("%.lua$") and name ~= "_defaults.lua" then
-      local file_path = category_path .. "/" .. name
+      local file_path = paths.join(category_path, name)
       local ok, spec = pcall(dofile, file_path)
 
       if not ok then
