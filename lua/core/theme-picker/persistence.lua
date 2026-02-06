@@ -1,13 +1,11 @@
+local data = require("core.lib.data")
 local paths = require("core.lib.paths")
+local notify = require("core.lib.notify")
 
 local M = {}
 
 local function get_data_path()
-  local luxvim_dir = vim.fn.expand("~/.local/share/LuxVim")
-  if vim.env.XDG_DATA_HOME then
-    luxvim_dir = paths.join(vim.env.XDG_DATA_HOME, "LuxVim")
-  end
-  return paths.join(luxvim_dir, "data", "installed-themes.lua")
+  return paths.join(data.root(), "data", "installed-themes.lua")
 end
 
 function M.load()
@@ -39,7 +37,7 @@ function M.save(installed_names)
 
     local file = io.open(path, "w")
     if not file then
-        vim.notify("Failed to save installed themes", vim.log.levels.ERROR)
+        notify.error("Failed to save installed themes")
         return false
     end
 

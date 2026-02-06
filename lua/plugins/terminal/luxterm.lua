@@ -1,21 +1,20 @@
+local function exit_terminal()
+  local esc = vim.api.nvim_replace_termcodes("<C-\\><C-n>", true, true, true)
+  vim.api.nvim_feedkeys(esc, "n", false)
+end
+
 return {
   source = "LuxVim/nvim-luxterm",
   cmd = { "LuxtermToggle", "LuxtermNew", "LuxtermList", "LuxtermNext", "LuxtermPrev" },
   actions = {
-    toggle = function()
-      vim.cmd("LuxtermToggle")
-    end,
+    toggle = ":LuxtermToggle",
     toggle_from_terminal = function()
-      local esc = vim.api.nvim_replace_termcodes("<C-\\><C-n>", true, true, true)
-      vim.api.nvim_feedkeys(esc, "n", false)
+      exit_terminal()
       vim.schedule(function()
         vim.cmd("LuxtermToggle")
       end)
     end,
-    exit_terminal_mode = function()
-      local esc = vim.api.nvim_replace_termcodes("<C-\\><C-n>", true, true, true)
-      vim.api.nvim_feedkeys(esc, "n", false)
-    end,
+    exit_terminal_mode = exit_terminal,
   },
   opts = {
     manager_width = 0.8,

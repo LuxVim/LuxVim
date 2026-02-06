@@ -96,14 +96,24 @@ M.optional = {
     },
 }
 
-function M.get_by_name(name)
+local _index = nil
+
+local function get_index()
+    if _index then
+        return _index
+    end
+    _index = {}
     for _, theme in ipairs(M.default_bundle) do
-        if theme.name == name then return theme end
+        _index[theme.name] = theme
     end
     for _, theme in ipairs(M.optional) do
-        if theme.name == name then return theme end
+        _index[theme.name] = theme
     end
-    return nil
+    return _index
+end
+
+function M.get_by_name(name)
+    return get_index()[name]
 end
 
 return M

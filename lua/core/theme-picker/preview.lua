@@ -1,3 +1,5 @@
+local notify = require("core.lib.notify")
+
 local M = {}
 
 M.original_colorscheme = nil
@@ -9,7 +11,7 @@ end
 function M.apply(colorscheme)
     local ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
     if not ok then
-        vim.notify("Failed to preview: " .. colorscheme, vim.log.levels.WARN)
+        notify.warn("Failed to preview: " .. colorscheme)
         return false
     end
     return true

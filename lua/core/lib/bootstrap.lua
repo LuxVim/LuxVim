@@ -2,20 +2,8 @@ local data = require("core.lib.data")
 
 local M = {}
 
-function M.get_lazy_path()
-  return data.lazy_path()
-end
-
-function M.get_lazy_root()
-  return data.lazy_root()
-end
-
-function M.get_lockfile_path()
-  return data.lockfile_path()
-end
-
 function M.ensure_lazy()
-  local lazypath = M.get_lazy_path()
+  local lazypath = data.lazy_path()
 
   if not vim.uv.fs_stat(lazypath) then
     local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -70,8 +58,8 @@ function M.setup_lazy(specs)
         },
       },
     },
-    root = M.get_lazy_root(),
-    lockfile = M.get_lockfile_path(),
+    root = data.lazy_root(),
+    lockfile = data.lockfile_path(),
   })
 end
 

@@ -31,6 +31,8 @@ function M.setup()
 end
 
 function M._create_commands()
+  local notify = require("core.lib.notify")
+
   vim.api.nvim_create_user_command("SearchText", function()
     local actions = require("core.lib.actions")
     actions.invoke("core.search_text")
@@ -42,38 +44,45 @@ function M._create_commands()
     local warnings = loader.get_warnings()
 
     if #errors == 0 and #warnings == 0 then
-      print("No errors or warnings")
+      notify.info("No errors or warnings")
       return
     end
 
-    print("=== LuxVim Errors ===")
+    local lines = { "=== LuxVim Errors ===" }
     for _, e in ipairs(errors) do
-      print(string.format("[%s] %s: %s", e.level:upper(), e.file, e.message))
+      table.insert(lines, string.format("[%s] %s: %s", e.level:upper(), e.file, e.message))
+    end
+    table.insert(lines, "\n=== LuxVim Warnings ===")
+    for _, w in ipairs(warnings) do
+      table.insert(lines, string.format("[%s] %s: %s", w.level:upper(), w.file, w.message))
     end
 
-    print("\n=== LuxVim Warnings ===")
-    for _, w in ipairs(warnings) do
-      print(string.format("[%s] %s: %s", w.level:upper(), w.file, w.message))
-    end
+    notify.warn(table.concat(lines, "\n"))
   end, { desc = "Show LuxVim errors and warnings" })
 
   vim.api.nvim_create_user_command("LuxDevStatus", function()
     local debug_mod = require("core.lib.debug")
     local plugins = debug_mod.list_debug_plugins()
 
-    print("LuxVim Development Status")
-    print("============================")
+    local lines = { "LuxVim Development Status", "============================" }
 
     if #plugins == 0 then
-      print("No debug plugins found in /debug directory")
+      table.insert(lines, "No debug plugins found in /debug directory")
     else
-      print("Active debug plugins:")
+      table.insert(lines, "Active debug plugins:")
       for _, plugin in ipairs(plugins) do
         local path = debug_mod.get_debug_path(plugin)
-        print("  " .. plugin .. " -> " .. path)
+        table.insert(lines, "  " .. plugin .. " -> " .. path)
       end
     end
+
+    notify.info(table.concat(lines, "\n"))
   end, { desc = "Show LuxVim development status" })
+
+  vim.api.nvim_create_user_command("LuxVimGenerateTypes", function()
+    local typegen = require("core.lib.typegen")
+    typegen.write()
+  end, { desc = "Generate LuxVim type annotations" })
 end
 
 return M

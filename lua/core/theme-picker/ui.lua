@@ -1,6 +1,7 @@
 local catalog = require("core.theme-picker.catalog")
 local preview = require("core.theme-picker.preview")
 local persistence = require("core.theme-picker.persistence")
+local notify = require("core.lib.notify")
 
 local M = {}
 
@@ -85,7 +86,7 @@ end
 local function render()
     if not M.buf or not vim.api.nvim_buf_is_valid(M.buf) then return end
 
-    vim.api.nvim_buf_set_option(M.buf, "modifiable", true)
+    vim.bo[M.buf].modifiable = true
 
     local lines = {}
     for _, item in ipairs(M.items) do
@@ -95,7 +96,7 @@ local function render()
     table.insert(lines, "  [Enter] Apply  [x] Uninstall  [q] Close")
 
     vim.api.nvim_buf_set_lines(M.buf, 0, -1, false, lines)
-    vim.api.nvim_buf_set_option(M.buf, "modifiable", false)
+    vim.bo[M.buf].modifiable = false
 
     if M.win and vim.api.nvim_win_is_valid(M.win) then
         vim.api.nvim_win_set_cursor(M.win, { M.cursor_line, 0 })
@@ -148,12 +149,12 @@ local function on_uninstall()
     if not item or item.type ~= "installed" then return end
 
     if item.is_default then
-        vim.notify("Cannot uninstall default theme", vim.log.levels.WARN)
+        notify.warn("Cannot uninstall default theme")
         return
     end
 
     persistence.remove(item.theme.name)
-    vim.notify("Removed " .. item.theme.name .. ". Run :Lazy clean to delete files.", vim.log.levels.INFO)
+    notify.info("Removed " .. item.theme.name .. ". Run :Lazy clean to delete files.")
     build_items()
     M.cursor_line = find_first_selectable()
     render()
@@ -164,10 +165,7 @@ function M.install_theme(theme)
     build_items()
     M.cursor_line = find_first_selectable()
     render()
-    vim.notify(
-        theme.name .. " added. Run :Lazy sync to install, then restart LuxVim.",
-        vim.log.levels.INFO
-    )
+    notify.info(theme.name .. " added. Run :Lazy sync to install, then restart LuxVim.")
 end
 
 function M.close()
@@ -204,8 +202,8 @@ function M.open()
         title_pos = "center",
     })
 
-    vim.api.nvim_buf_set_option(M.buf, "bufhidden", "wipe")
-    vim.api.nvim_win_set_option(M.win, "cursorline", true)
+    vim.bo[M.buf].bufhidden = "wipe"
+    vim.wo[M.win].cursorline = true
 
     M.cursor_line = find_first_selectable()
     render()

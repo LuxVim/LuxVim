@@ -1,6 +1,7 @@
 local schema = require("core.lib.schema")
 local debug_mod = require("core.lib.debug")
 local paths = require("core.lib.paths")
+local notify = require("core.lib.notify")
 
 local M = {}
 
@@ -78,14 +79,10 @@ function M.write()
   if file then
     file:write(content)
     file:close()
-    print("Generated: " .. output_path)
+    notify.info("Generated: " .. output_path)
   else
-    print("Failed to write: " .. output_path)
+    notify.error("Failed to write: " .. output_path)
   end
 end
-
-vim.api.nvim_create_user_command("LuxVimGenerateTypes", function()
-  M.write()
-end, { desc = "Generate LuxVim type annotations" })
 
 return M

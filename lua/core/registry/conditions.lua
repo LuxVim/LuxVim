@@ -1,47 +1,23 @@
 local platform = require("core.lib.platform")
 
+local function has_executable(name)
+  return function()
+    return vim.fn.executable(name) == 1
+  end
+end
+
 return {
-  is_mac = function()
-    return platform.is_mac
-  end,
+  is_mac = function() return platform.is_mac end,
+  is_linux = function() return platform.is_linux end,
+  is_windows = function() return platform.is_windows end,
 
-  is_linux = function()
-    return platform.is_linux
-  end,
+  has_git = has_executable("git"),
+  has_node = has_executable("node"),
+  has_npm = has_executable("npm"),
+  has_cargo = has_executable("cargo"),
+  has_make = has_executable("make"),
+  has_go = has_executable("go"),
 
-  is_windows = function()
-    return platform.is_windows
-  end,
-
-  has_git = function()
-    return vim.fn.executable("git") == 1
-  end,
-
-  has_node = function()
-    return vim.fn.executable("node") == 1
-  end,
-
-  has_npm = function()
-    return vim.fn.executable("npm") == 1
-  end,
-
-  has_cargo = function()
-    return vim.fn.executable("cargo") == 1
-  end,
-
-  has_make = function()
-    return vim.fn.executable("make") == 1
-  end,
-
-  has_go = function()
-    return vim.fn.executable("go") == 1
-  end,
-
-  is_gui = function()
-    return vim.fn.has("gui_running") == 1
-  end,
-
-  is_vscode = function()
-    return vim.g.vscode ~= nil
-  end,
+  is_gui = function() return vim.fn.has("gui_running") == 1 end,
+  is_vscode = function() return vim.g.vscode ~= nil end,
 }

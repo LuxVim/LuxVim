@@ -1,5 +1,4 @@
 local M = {}
-local paths = require("core.lib.paths")
 local notify = require("core.lib.notify")
 local platform = require("core.lib.platform")
 
@@ -17,10 +16,33 @@ function M.register_from_spec(spec)
     return
   end
 
-  local plugin_name = spec.debug_name or paths.basename(spec.source)
+  local debug_mod = require("core.lib.debug")
+  local plugin_name = debug_mod.resolve_debug_name(spec)
   for action_name, fn in pairs(spec.actions) do
-    M.register(plugin_name, action_name, fn)
+    if type(fn) == "string" and fn:sub(1, 1) == ":" then
+      local cmd = fn:sub(2)
+      fn = function()
+        vim.cmd(cmd)
+      end
+    elseif type(fn) ~= "function" then
+      notify.warn("Invalid action type for " .. plugin_name .. "." .. action_name .. ": expected function or :command string")
+      fn = nil
+    end
+    if fn then
+      M.register(plugin_name, action_name, fn)
+    end
   end
+end
+
+local function split_action(action_string)
+  for ns, _ in pairs(M._registry) do
+    if action_string:sub(1, #ns + 1) == ns .. "." then
+      return ns, action_string:sub(#ns + 2)
+    end
+  end
+
+  local namespace, method = action_string:match("^([^.]+)%.(.+)$")
+  return namespace, method
 end
 
 function M.resolve(action_string)
@@ -28,7 +50,7 @@ function M.resolve(action_string)
     return M._cache[action_string]
   end
 
-  local namespace, method = action_string:match("^([^.]+)%.(.+)$")
+  local namespace, method = split_action(action_string)
   if not namespace or not method then
     return nil, "invalid action format: " .. action_string
   end
@@ -65,35 +87,25 @@ function M.invoke(action_string)
   return true
 end
 
-function M.register_core_actions()
-  M.register("core", "save", function()
-    vim.cmd("write")
-  end)
+local function register_cmd_actions()
+  local cmd_actions = {
+    save = "write",
+    quit = "quit",
+    force_quit = "quit!",
+    quit_all = "quitall!",
+    save_quit = "wq",
+    vsplit = "rightbelow vs new",
+    hsplit = "rightbelow split new",
+  }
 
-  M.register("core", "quit", function()
-    vim.cmd("quit")
-  end)
+  for name, cmd in pairs(cmd_actions) do
+    M.register("core", name, function()
+      vim.cmd(cmd)
+    end)
+  end
+end
 
-  M.register("core", "force_quit", function()
-    vim.cmd("quit!")
-  end)
-
-  M.register("core", "quit_all", function()
-    vim.cmd("quitall!")
-  end)
-
-  M.register("core", "save_quit", function()
-    vim.cmd("wq")
-  end)
-
-  M.register("core", "vsplit", function()
-    vim.cmd("rightbelow vs new")
-  end)
-
-  M.register("core", "hsplit", function()
-    vim.cmd("rightbelow split new")
-  end)
-
+local function register_window_actions()
   local function goto_win(n)
     if n <= vim.fn.winnr("$") then
       vim.cmd(n .. "wincmd w")
@@ -105,11 +117,13 @@ function M.register_core_actions()
       goto_win(i)
     end)
   end
+end
 
+local function register_search_actions()
   M.register("core", "search_text", function()
     local search_text = vim.fn.input("Search For Text (Current Directory): ")
     if search_text == "" then
-      print("Cancelled.")
+      notify.info("Cancelled.")
       return
     end
 
@@ -122,14 +136,16 @@ function M.register_core_actions()
 
     local results = vim.fn.systemlist(cmd)
     if #results == 0 then
-      print("  - No Matches Found - ")
+      notify.info("No matches found.")
       return
     end
 
     vim.fn.setqflist({}, "r", { lines = results, title = "Search Results" })
     vim.cmd("copen")
   end)
+end
 
+local function register_filetype_actions()
   M.register("core", "filetype_setup", function()
     local ft = vim.bo.filetype
     if ft == "fzf" then
@@ -151,7 +167,9 @@ function M.register_core_actions()
       vim.opt.ruler = true
     end
   end)
+end
 
+local function register_diagnostic_actions()
   M.register("core", "ensure_diagnostic_virtual_text", function()
     vim.defer_fn(function()
       local current_config = vim.diagnostic.config()
@@ -171,6 +189,14 @@ function M.register_core_actions()
       end
     end, 100)
   end)
+end
+
+function M.register_core_actions()
+  register_cmd_actions()
+  register_window_actions()
+  register_search_actions()
+  register_filetype_actions()
+  register_diagnostic_actions()
 end
 
 return M

@@ -1,7 +1,5 @@
 local M = {}
 
-M.is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
-
 function M.normalize(path)
   if not path then
     return nil
@@ -26,6 +24,24 @@ function M.basename(path)
     return nil
   end
   return M.normalize(path):match("([^/]+)$")
+end
+
+function M.scandir(dir, filter_fn)
+  local results = {}
+  local handle = vim.uv.fs_scandir(dir)
+  if not handle then
+    return results
+  end
+  while true do
+    local name, entry_type = vim.uv.fs_scandir_next(handle)
+    if not name then
+      break
+    end
+    if not filter_fn or filter_fn(name, entry_type) then
+      table.insert(results, { name = name, type = entry_type })
+    end
+  end
+  return results
 end
 
 return M

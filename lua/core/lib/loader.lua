@@ -12,33 +12,44 @@ M._specs_by_name = {}
 M._errors = {}
 M._warnings = {}
 
+local function add_error(file, message, level)
+  table.insert(M._errors, { level = level or "critical", file = file, message = message })
+end
+
+local function add_warning(file, message)
+  table.insert(M._warnings, { level = "warning", file = file, message = message })
+end
+
+local function collect_results(file, errors, warnings)
+  for _, e in ipairs(errors) do
+    add_error(file, e.message, e.level)
+  end
+  for _, w in ipairs(warnings) do
+    add_warning(file, w.message)
+  end
+end
+
+local passthrough_fields = { "event", "cmd", "ft", "keys" }
+
 function M.get_plugin_dirs()
   local root = debug_mod.get_luxvim_root()
   local plugins_dir = paths.join(root, "lua", "plugins")
+
+  local entries = paths.scandir(plugins_dir, function(_, entry_type)
+    return entry_type == "directory"
+  end)
+
+  if #entries == 0 then
+    add_error("core.lib.loader",
+      "Plugin directory not found: " .. plugins_dir ..
+      "\nLuxVim root detected as: " .. root ..
+      "\nLaunch LuxVim from its directory or check installation.")
+  end
+
   local dirs = {}
-
-  local handle = vim.uv.fs_scandir(plugins_dir)
-  if not handle then
-    table.insert(M._errors, {
-      level = "critical",
-      file = "core.lib.loader",
-      message = "Plugin directory not found: " .. plugins_dir ..
-          "\nLuxVim root detected as: " .. root ..
-          "\nLaunch LuxVim from its directory or check installation.",
-    })
-    return dirs
+  for _, entry in ipairs(entries) do
+    table.insert(dirs, { name = entry.name, path = paths.join(plugins_dir, entry.name) })
   end
-
-  while true do
-    local name, type = vim.uv.fs_scandir_next(handle)
-    if not name then
-      break
-    end
-    if type == "directory" then
-      table.insert(dirs, { name = name, path = paths.join(plugins_dir, name) })
-    end
-  end
-
   return dirs
 end
 
@@ -58,48 +69,28 @@ end
 
 function M.load_plugin_specs(category_path, category_name, defaults)
   local specs = {}
-  local handle = vim.uv.fs_scandir(category_path)
-  if not handle then
-    return specs
-  end
 
-  while true do
-    local name, entry_type = vim.uv.fs_scandir_next(handle)
-    if not name then
-      break
-    end
+  local entries = paths.scandir(category_path, function(name, entry_type)
+    return entry_type == "file" and name:match("%.lua$") and name ~= "_defaults.lua"
+  end)
 
-    if entry_type == "file" and name:match("%.lua$") and name ~= "_defaults.lua" then
-      local file_path = paths.join(category_path, name)
-      local ok, spec = pcall(dofile, file_path)
+  for _, entry in ipairs(entries) do
+    local file_path = paths.join(category_path, entry.name)
+    local ok, spec = pcall(dofile, file_path)
 
-      if not ok then
-        table.insert(M._errors, {
-          level = "critical",
-          file = file_path,
-          message = "failed to load: " .. tostring(spec),
-        })
-      elseif type(spec) ~= "table" then
-        table.insert(M._errors, {
-          level = "critical",
-          file = file_path,
-          message = "spec must be a table, got " .. type(spec),
-        })
-      else
-        local errors, warnings = validate.validate_plugin_spec(spec, file_path)
-        for _, e in ipairs(errors) do
-          table.insert(M._errors, { level = e.level, file = file_path, message = e.message })
-        end
-        for _, w in ipairs(warnings) do
-          table.insert(M._warnings, { level = w.level, file = file_path, message = w.message })
-        end
+    if not ok then
+      add_error(file_path, "failed to load: " .. tostring(spec))
+    elseif type(spec) ~= "table" then
+      add_error(file_path, "spec must be a table, got " .. type(spec))
+    else
+      local errors, warnings = validate.validate_plugin_spec(spec, file_path)
+      collect_results(file_path, errors, warnings)
 
-        if #errors == 0 then
-          spec._file = file_path
-          spec._category = category_name
-          spec = vim.tbl_deep_extend("keep", spec, defaults)
-          table.insert(specs, spec)
-        end
+      if #errors == 0 then
+        spec._file = file_path
+        spec._category = category_name
+        spec = vim.tbl_deep_extend("keep", spec, defaults)
+        table.insert(specs, spec)
       end
     end
   end
@@ -167,17 +158,10 @@ function M.transform_to_lazy(spec)
     lazy_spec.dependencies = M.resolve_dependencies(spec.dependencies)
   end
 
-  if spec.event then
-    lazy_spec.event = spec.event
-  end
-  if spec.cmd then
-    lazy_spec.cmd = spec.cmd
-  end
-  if spec.ft then
-    lazy_spec.ft = spec.ft
-  end
-  if spec.keys then
-    lazy_spec.keys = spec.keys
+  for _, field in ipairs(passthrough_fields) do
+    if spec[field] then
+      lazy_spec[field] = spec[field]
+    end
   end
 
   if spec.build then
@@ -189,6 +173,18 @@ function M.transform_to_lazy(spec)
       lazy_spec = vim.tbl_deep_extend("force", lazy_spec, spec.lazy)
     elseif spec.lazy == true then
       lazy_spec.lazy = true
+    end
+  end
+
+  if spec.globals then
+    local lazy_init = lazy_spec.init
+    lazy_spec.init = function()
+      for key, value in pairs(spec.globals) do
+        vim.g[key] = value
+      end
+      if lazy_init then
+        lazy_init()
+      end
     end
   end
 

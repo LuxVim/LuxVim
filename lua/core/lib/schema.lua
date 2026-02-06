@@ -21,11 +21,13 @@ M.plugin_spec = {
   config = { type = "function", desc = "Custom config function" },
   build = { type = { "string", "table" }, desc = "Build configuration" },
   actions = { type = "table", desc = "Action overrides for keymap resolution" },
+  globals = { type = "table", desc = "vim.g variables set before plugin loads" },
   dependencies = { type = "list", of = "string", desc = "References to other plugin specs" },
   cond = { type = { "string", "function" }, desc = "Load condition" },
   event = { type = { "string", "list" }, desc = "Lazy-load on event" },
   cmd = { type = { "string", "list" }, desc = "Lazy-load on command" },
   ft = { type = { "string", "list" }, desc = "Lazy-load on filetype" },
+  keys = { type = { "string", "list", "table" }, desc = "Lazy-load on keymap" },
   enabled = { type = "boolean", default = true, desc = "Enable/disable plugin" },
   lazy = { type = "table", passthrough = true, desc = "Lazy.nvim native fields" },
 }
