@@ -1,13 +1,13 @@
 return {
   source = "neovim/nvim-lspconfig",
-  debug_name = "nvim-lspconfig",
   dependencies = { "plenary.nvim" },
   event = { "BufReadPre", "BufNewFile" },
   config = function()
     local ok, luxlsp = pcall(require, "luxlsp")
     if ok then
+      local data = require("core.lib.data")
       luxlsp.setup({
-        install_root = vim.fs.joinpath(vim.fs.dirname(vim.fn.stdpath("config")), "data", "luxlsp"),
+        install_root = data.luxlsp_path(),
       })
     end
   end,

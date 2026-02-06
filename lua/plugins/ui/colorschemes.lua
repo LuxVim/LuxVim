@@ -1,19 +1,17 @@
 return {
-  source = "LuxVim/lux.nvim",
-  debug_name = "lux.nvim",
+  source = "josstei/nami.nvim",
   lazy = {
     lazy = false,
     priority = 1000,
   },
   opts = {
-    variant = "vesper",
-    transparent = false,
+    transparent = true
   },
   config = function(_, opts)
-    require("lux").setup(opts)
-    local status_ok, _ = pcall(vim.cmd, "colorscheme lux")
+    require("nami").setup(opts)
+    local status_ok, _ = pcall(vim.cmd, "colorscheme nami")
     if not status_ok then
-      vim.api.nvim_echo({ { "LuxVim: Failed to load colorscheme", "WarningMsg" } }, true, {})
+      require("core.lib.notify").warn("Failed to load colorscheme")
     end
   end,
 }

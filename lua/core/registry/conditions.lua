@@ -1,14 +1,16 @@
+local platform = require("core.lib.platform")
+
 return {
   is_mac = function()
-    return vim.fn.has("mac") == 1
+    return platform.is_mac
   end,
 
   is_linux = function()
-    return vim.fn.has("linux") == 1
+    return platform.is_linux
   end,
 
   is_windows = function()
-    return vim.fn.has("win32") == 1
+    return platform.is_windows
   end,
 
   has_git = function()

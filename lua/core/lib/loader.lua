@@ -2,6 +2,8 @@ local debug_mod = require("core.lib.debug")
 local validate = require("core.lib.validate")
 local conditions = require("core.registry.conditions")
 local paths = require("core.lib.paths")
+local platform = require("core.lib.platform")
+local notify = require("core.lib.notify")
 
 local M = {}
 
@@ -105,21 +107,24 @@ function M.load_plugin_specs(category_path, category_name, defaults)
   return specs
 end
 
+local function safe_eval(fn)
+  local ok, result = pcall(fn)
+  return ok and result
+end
+
 function M.evaluate_condition(cond)
   if cond == nil then
     return true
   end
 
   if type(cond) == "function" then
-    local ok, result = pcall(cond)
-    return ok and result
+    return safe_eval(cond)
   end
 
   if type(cond) == "string" then
     local condition_fn = conditions[cond]
     if condition_fn then
-      local ok, result = pcall(condition_fn)
-      return ok and result
+      return safe_eval(condition_fn)
     end
     return false
   end
@@ -220,11 +225,8 @@ function M.transform_build(build)
   if type(build) == "table" then
     local cmd = build.cmd
     if build.platforms then
-      local platform = vim.fn.has("mac") == 1 and "mac"
-          or vim.fn.has("linux") == 1 and "linux"
-          or vim.fn.has("win32") == 1 and "windows"
-      if build.platforms[platform] then
-        cmd = build.platforms[platform]
+      if build.platforms[platform.os] then
+        cmd = build.platforms[platform.os]
       end
     end
 
@@ -234,7 +236,7 @@ function M.transform_build(build)
           if build.on_fail == "error" then
             error("Build requires " .. exe .. " but it's not available")
           elseif build.on_fail ~= "ignore" then
-            vim.notify("[LuxVim] Build skipped: missing " .. exe, vim.log.levels.WARN)
+            notify.warn("Build skipped: missing " .. exe)
           end
           return nil
         end
@@ -307,12 +309,12 @@ function M.report_errors()
   end, M._errors)
 
   for _, e in ipairs(non_critical) do
-    vim.notify("[LuxVim] Plugin skipped: " .. e.file .. "\n  " .. e.message, vim.log.levels.WARN)
+    notify.warn("Plugin skipped: " .. e.file .. "\n  " .. e.message)
   end
 
   if #M._warnings > 0 then
     vim.defer_fn(function()
-      vim.notify("[LuxVim] Started with " .. #M._warnings .. " warnings. Run :LuxVimErrors for details.", vim.log.levels.INFO)
+      notify.info("Started with " .. #M._warnings .. " warnings. Run :LuxVimErrors for details.")
     end, 100)
   end
 

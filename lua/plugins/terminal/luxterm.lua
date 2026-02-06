@@ -1,17 +1,21 @@
 return {
   source = "LuxVim/nvim-luxterm",
-  debug_name = "nvim-luxterm",
   cmd = { "LuxtermToggle", "LuxtermNew", "LuxtermList", "LuxtermNext", "LuxtermPrev" },
-  lazy = {
-    keys = {
-      { "<C-/>", "<cmd>LuxtermToggle<CR>", desc = "Toggle terminal" },
-      { "<C-_>", "<cmd>LuxtermToggle<CR>", desc = "Toggle terminal" },
-      { "<C-`>", "<cmd>LuxtermToggle<CR>", desc = "Toggle terminal" },
-      { "<C-/>", "<C-\\><C-n><cmd>LuxtermToggle<CR>", mode = "t", desc = "Toggle terminal" },
-      { "<C-_>", "<C-\\><C-n><cmd>LuxtermToggle<CR>", mode = "t", desc = "Toggle terminal" },
-      { "<C-`>", "<C-\\><C-n><cmd>LuxtermToggle<CR>", mode = "t", desc = "Toggle terminal" },
-      { "<C-n>", "<C-\\><C-n>", mode = "t", desc = "Exit terminal mode" },
-    },
+  actions = {
+    toggle = function()
+      vim.cmd("LuxtermToggle")
+    end,
+    toggle_from_terminal = function()
+      local esc = vim.api.nvim_replace_termcodes("<C-\\><C-n>", true, true, true)
+      vim.api.nvim_feedkeys(esc, "n", false)
+      vim.schedule(function()
+        vim.cmd("LuxtermToggle")
+      end)
+    end,
+    exit_terminal_mode = function()
+      local esc = vim.api.nvim_replace_termcodes("<C-\\><C-n>", true, true, true)
+      vim.api.nvim_feedkeys(esc, "n", false)
+    end,
   },
   opts = {
     manager_width = 0.8,

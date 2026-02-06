@@ -1,21 +1,17 @@
-local debug_mod = require("core.lib.debug")
-local paths = require("core.lib.paths")
+local data = require("core.lib.data")
 
 local M = {}
 
 function M.get_lazy_path()
-  local data_dir = vim.env.XDG_DATA_HOME or debug_mod.get_luxvim_root()
-  return paths.join(data_dir, "data", "lazy", "lazy.nvim")
+  return data.lazy_path()
 end
 
 function M.get_lazy_root()
-  local data_dir = vim.env.XDG_DATA_HOME or debug_mod.get_luxvim_root()
-  return paths.join(data_dir, "data", "lazy")
+  return data.lazy_root()
 end
 
 function M.get_lockfile_path()
-  local data_dir = vim.env.XDG_DATA_HOME or debug_mod.get_luxvim_root()
-  return paths.join(data_dir, "lazy-lock.json")
+  return data.lockfile_path()
 end
 
 function M.ensure_lazy()

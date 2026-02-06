@@ -1,5 +1,7 @@
 local M = {}
 local paths = require("core.lib.paths")
+local notify = require("core.lib.notify")
+local platform = require("core.lib.platform")
 
 M._registry = {}
 M._cache = {}
@@ -51,13 +53,13 @@ end
 function M.invoke(action_string)
   local fn, err = M.resolve(action_string)
   if not fn then
-    vim.notify("[LuxVim] " .. err, vim.log.levels.WARN)
+    notify.warn(err)
     return false
   end
 
   local ok, result = pcall(fn)
   if not ok then
-    vim.notify("[LuxVim] Action error: " .. tostring(result), vim.log.levels.ERROR)
+    notify.error("Action error: " .. tostring(result))
     return false
   end
   return true
@@ -98,29 +100,11 @@ function M.register_core_actions()
     end
   end
 
-  M.register("core", "win1", function()
-    goto_win(1)
-  end)
-
-  M.register("core", "win2", function()
-    goto_win(2)
-  end)
-
-  M.register("core", "win3", function()
-    goto_win(3)
-  end)
-
-  M.register("core", "win4", function()
-    goto_win(4)
-  end)
-
-  M.register("core", "win5", function()
-    goto_win(5)
-  end)
-
-  M.register("core", "win6", function()
-    goto_win(6)
-  end)
+  for i = 1, 6 do
+    M.register("core", "win" .. i, function()
+      goto_win(i)
+    end)
+  end
 
   M.register("core", "search_text", function()
     local search_text = vim.fn.input("Search For Text (Current Directory): ")
@@ -130,7 +114,7 @@ function M.register_core_actions()
     end
 
     local cmd
-    if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then
+    if platform.is_windows then
       cmd = "findstr /S /N /I /P /C:" .. vim.fn.shellescape(search_text) .. " *"
     else
       cmd = "grep -rniI --exclude-dir=.git " .. vim.fn.shellescape(search_text) .. " ."

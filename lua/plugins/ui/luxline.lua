@@ -1,6 +1,5 @@
 return {
   source = "LuxVim/nvim-luxline",
-  debug_name = "nvim-luxline",
   event = "VeryLazy",
   opts = {
     right_active_items_winbar_NvimTree = {},

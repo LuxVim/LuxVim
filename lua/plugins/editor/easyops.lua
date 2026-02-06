@@ -1,11 +1,10 @@
 return {
   source = "josstei/vim-easyops",
-  debug_name = "vim-easyops",
   cmd = { "EasyOps" },
-  lazy = {
-    keys = {
-      { "<leader>m", "<cmd>EasyOps<CR>", desc = "Command palette" },
-    },
+  actions = {
+    open = function()
+      vim.cmd("EasyOps")
+    end,
   },
   config = function()
     vim.g.easyops_commands_main = {

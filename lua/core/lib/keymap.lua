@@ -1,11 +1,18 @@
 local actions = require("core.lib.actions")
+local notify = require("core.lib.notify")
 
 local M = {}
 
 function M.register_all(registry)
   for section_name, section in pairs(registry) do
-    for lhs, mapping in pairs(section) do
-      M.register_one(lhs, mapping, section_name)
+    if #section > 0 then
+      for _, mapping in ipairs(section) do
+        M.register_one(mapping.lhs, mapping, section_name)
+      end
+    else
+      for lhs, mapping in pairs(section) do
+        M.register_one(lhs, mapping, section_name)
+      end
     end
   end
 end
@@ -36,11 +43,10 @@ end
 function M.setup()
   local ok, registry = pcall(require, "core.registry.keymaps")
   if not ok then
-    vim.notify("[LuxVim] Failed to load keymap registry: " .. tostring(registry), vim.log.levels.WARN)
+    notify.warn("Failed to load keymap registry: " .. tostring(registry))
     return
   end
 
-  actions.register_core_actions()
   M.register_all(registry)
 end
 
