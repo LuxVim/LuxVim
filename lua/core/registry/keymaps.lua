@@ -13,7 +13,6 @@ return {
     ["<leader>fq"] = { action = "core.quit", desc = "Quit" },
     ["<leader>FQ"] = { action = "core.force_quit", desc = "Force quit" },
     ["<leader>bye"] = { action = "core.quit_all", desc = "Quit all" },
-    ["<leader>m"] = { action = "vim-easyops.open", desc = "Command palette" },
     ["<leader><leader>"] = { action = "fzf.vim.files", desc = "Find files" },
     ["<leader>st"] = { action = "fzf.vim.search_text", desc = "Search text" },
   },
