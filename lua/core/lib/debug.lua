@@ -4,6 +4,11 @@ local M = {}
 
 local _luxvim_root = nil
 
+function M._is_luxvim_root(candidate)
+  return vim.fn.filereadable(paths.join(candidate, "init.lua")) == 1
+      and vim.fn.isdirectory(paths.join(candidate, "lua", "core")) == 1
+end
+
 function M.get_luxvim_root()
   if _luxvim_root then
     return _luxvim_root
@@ -12,16 +17,16 @@ function M.get_luxvim_root()
   local info = debug.getinfo(1, "S")
   if info and info.source and info.source:sub(1, 1) == "@" then
     local this_file = info.source:sub(2)
-    _luxvim_root = paths.normalize(vim.fn.fnamemodify(this_file, ":p:h:h:h:h"))
-    if vim.fn.isdirectory(paths.join(_luxvim_root, "debug")) == 1 then
+    local candidate = paths.normalize(vim.fn.fnamemodify(this_file, ":p:h:h:h:h"))
+    if M._is_luxvim_root(candidate) then
+      _luxvim_root = candidate
       return _luxvim_root
     end
   end
 
   for _, path in ipairs(vim.opt.runtimepath:get()) do
     local normalized = paths.normalize(path)
-    if vim.fn.isdirectory(paths.join(normalized, "debug")) == 1
-        and vim.fn.filereadable(paths.join(normalized, "init.lua")) == 1 then
+    if M._is_luxvim_root(normalized) then
       _luxvim_root = normalized
       return _luxvim_root
     end
