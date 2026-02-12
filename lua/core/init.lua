@@ -18,7 +18,8 @@ function M.setup()
 
   actions.register_core_actions()
 
-  for _, spec in ipairs(loader._specs) do
+  local discover = require("core.lib.discover")
+  for _, spec in ipairs(discover._specs) do
     actions.register_from_spec(spec)
   end
 

@@ -42,18 +42,12 @@ end
 
 function M.has_debug_plugin(plugin_name)
   local debug_path = M.get_debug_path(plugin_name)
-  local stat = vim.uv.fs_stat(debug_path)
-  if not stat or stat.type ~= "directory" then
+  if not paths.is_dir(debug_path) then
     return false
   end
 
-  local plugin_dir = paths.join(debug_path, "plugin")
-  local lua_dir = paths.join(debug_path, "lua")
-  local plugin_stat = vim.uv.fs_stat(plugin_dir)
-  local lua_stat = vim.uv.fs_stat(lua_dir)
-
-  return (plugin_stat and plugin_stat.type == "directory")
-      or (lua_stat and lua_stat.type == "directory")
+  return paths.is_dir(paths.join(debug_path, "plugin"))
+      or paths.is_dir(paths.join(debug_path, "lua"))
 end
 
 function M.resolve_debug_name(spec)
