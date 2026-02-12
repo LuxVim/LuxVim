@@ -26,6 +26,20 @@ function M.basename(path)
   return M.normalize(path):match("([^/]+)$")
 end
 
+function M.exists(path)
+  return vim.uv.fs_stat(path) ~= nil
+end
+
+function M.is_dir(path)
+  local stat = vim.uv.fs_stat(path)
+  return stat ~= nil and stat.type == "directory"
+end
+
+function M.is_file(path)
+  local stat = vim.uv.fs_stat(path)
+  return stat ~= nil and stat.type == "file"
+end
+
 function M.scandir(dir, filter_fn)
   local results = {}
   local handle = vim.uv.fs_scandir(dir)
