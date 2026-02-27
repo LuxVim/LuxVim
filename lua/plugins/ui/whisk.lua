@@ -1,5 +1,5 @@
 return {
-  source = "LuxVim/nvim-luxmotion",
+  source = "josstei/whisk.nvim",
   event = "VeryLazy",
   opts = {},
 }
