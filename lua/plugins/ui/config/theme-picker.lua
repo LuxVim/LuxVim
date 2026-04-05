@@ -324,6 +324,7 @@ local function on_uninstall()
   end
   save_installed(new_list)
   delete_dynamic_spec(item.theme.name)
+  preview_restore()
   notify.info("Removed " .. item.theme.name .. ". Run :Lazy clean to delete files.")
   build_items()
   _cursor_line = find_first_selectable()
