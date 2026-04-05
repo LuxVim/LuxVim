@@ -275,17 +275,32 @@ local function install_theme(theme)
   save_installed(installed)
   write_dynamic_spec(theme)
 
-  -- Close picker temporarily for headless install
-  close()
+  -- Clone directly into lazy's plugin directory — no lazy UI involved
+  local lazy_root = data.lazy_root()
+  local plugin_name = theme.repo:match("[^/]+$")
+  local install_path = paths.join(lazy_root, plugin_name)
 
-  -- Install immediately via lazy.nvim headless mode
-  notify.info("Installing " .. theme.name .. "...")
-  vim.cmd("Lazy! install " .. theme.repo)
+  if not vim.uv.fs_stat(install_path) then
+    notify.info("Installing " .. theme.name .. "...")
+    vim.fn.system({
+      "git", "clone", "--filter=blob:none",
+      "https://github.com/" .. theme.repo .. ".git",
+      install_path,
+    })
+    if vim.v.shell_error ~= 0 then
+      notify.error("Failed to install " .. theme.name)
+      return
+    end
+  end
 
-  -- Re-open picker after install completes
-  vim.schedule(function()
-    open()
-  end)
+  -- Add to runtimepath so colorscheme is available immediately
+  vim.opt.rtp:prepend(install_path)
+
+  -- Rebuild picker UI — theme moves from AVAILABLE to INSTALLED
+  build_items()
+  _cursor_line = find_first_selectable()
+  render()
+  notify.info(theme.name .. " installed! Navigate to it and press Enter to apply.")
 end
 
 local function on_select()
