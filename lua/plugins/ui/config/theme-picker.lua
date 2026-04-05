@@ -73,16 +73,7 @@ local function delete_dynamic_spec(theme_name)
   os.remove(path)
 end
 
--- Theme detection
-
-local function get_available_colorschemes()
-  return vim.fn.getcompletion("", "color")
-end
-
-local function is_colorscheme_available(colorscheme)
-  local available = get_available_colorschemes()
-  return vim.tbl_contains(available, colorscheme)
-end
+-- Theme lookup
 
 local function find_theme(name)
   for _, t in ipairs(_opts.themes or {}) do
@@ -111,50 +102,45 @@ end
 local function get_installed_themes()
   local installed = {}
   local seen = {}
+
+  -- Picker-managed themes from persistence file
   local managed = load_installed()
-  local managed_set = {}
   for _, name in ipairs(managed) do
-    managed_set[name] = true
+    local theme = find_theme(name)
+    if theme then
+      seen[theme.name] = true
+      table.insert(installed, { theme = theme, is_managed = true })
+    end
   end
 
-  -- Show themes from catalog that are actually available
-  for _, theme in ipairs(_opts.themes or {}) do
-    local available = is_colorscheme_available(theme.colorscheme)
-    if not available and theme.variants then
-      for _, v in ipairs(theme.variants) do
-        if is_colorscheme_available(v) then
-          available = true
-          break
+  -- Current active colorscheme (from plugin specs like colorschemes.lua)
+  local current = vim.g.colors_name
+  if current and not seen[current] then
+    -- Check if it matches a catalog theme
+    for _, theme in ipairs(_opts.themes or {}) do
+      if theme.colorscheme == current or
+          (theme.variants and vim.tbl_contains(theme.variants, current)) then
+        if not seen[theme.name] then
+          seen[theme.name] = true
+          table.insert(installed, 1, { theme = theme, is_managed = false })
         end
+        break
       end
     end
-    if available or managed_set[theme.name] then
-      seen[theme.name] = true
-      table.insert(installed, {
-        theme = theme,
-        is_managed = managed_set[theme.name] or false,
+    -- If not in catalog, show raw colorscheme name
+    if not seen[current] then
+      table.insert(installed, 1, {
+        theme = { name = current, colorscheme = current },
+        is_managed = false,
       })
     end
   end
 
-  -- Show current colorscheme even if it's not in the catalog
-  local current = vim.g.colors_name
-  if current and not seen[current] then
-    table.insert(installed, 1, {
-      theme = { name = current, colorscheme = current },
-      is_managed = false,
-    })
-  end
-
-  return installed
+  return installed, seen
 end
 
 local function get_available_themes()
-  local installed = get_installed_themes()
-  local installed_set = {}
-  for _, entry in ipairs(installed) do
-    installed_set[entry.theme.name] = true
-  end
+  local _, installed_set = get_installed_themes()
 
   local available = {}
   for _, theme in ipairs(_opts.themes or {}) do
