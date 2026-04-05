@@ -4,7 +4,7 @@ return {
   cmd = { "Files", "GFiles", "Buffers", "Rg", "Lines", "History", "Commits", "Commands" },
   actions = {
     files = ":Files",
-    search_text = ":SearchText",
+    search_text = ":Rg",
   },
   globals = {
     fzf_layout = { down = "20%" },
