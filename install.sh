@@ -39,7 +39,7 @@ mkdir -p "$ALIAS_SCRIPT_DIR"
 cat > "$ALIAS_SCRIPT" << EOF
 #!/bin/bash
 # LuxVim launcher script
-NVIM_APPNAME="LuxVim" XDG_DATA_HOME="${LUXVIM_DIR}" XDG_CONFIG_HOME="${LUXVIM_DIR}" nvim --cmd "set rtp+=${LUXVIM_DIR}" -u "${LUXVIM_DIR}/init.lua" "\$@"
+NVIM_APPNAME="LuxVim" XDG_DATA_HOME="${LUXVIM_DIR}" nvim --cmd "set rtp+=${LUXVIM_DIR}" -u "${LUXVIM_DIR}/init.lua" "\$@"
 EOF
 
 # Make the script executable
@@ -58,8 +58,8 @@ fi
 # Create data directories within LuxVim
 LUXVIM_DATA_DIR="$LUXVIM_DIR/data"
 mkdir -p "$LUXVIM_DATA_DIR/lazy"
-mkdir -p "$LUXVIM_DATA_DIR/mason"
-mkdir -p "$LUXVIM_DATA_DIR/nvim"
+mkdir -p "$LUXVIM_DATA_DIR/luxlsp"
+mkdir -p "$LUXVIM_DATA_DIR/site"
 
 echo -e "${GREEN}✅ Created data directories in LuxVim${NC}"
 
