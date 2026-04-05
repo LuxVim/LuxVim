@@ -79,8 +79,21 @@ function M.setup()
 
   bootstrap.setup_lazy(result.lazy_specs)
 
+  -- Register actions from all specs (including virtual ones)
   for _, spec in ipairs(result.raw_specs) do
     actions.register_from_spec(spec)
+  end
+
+  -- Run config functions for virtual specs directly — they have no plugin code
+  -- so lazy.nvim doesn't handle them. This runs at a deterministic time during
+  -- framework setup, before keymaps are bound.
+  for _, spec in ipairs(result.raw_specs) do
+    if spec.source == "virtual" and spec.config then
+      local ok, err = pcall(spec.config, nil, spec.opts)
+      if not ok then
+        require("core.lib.notify").warn("Virtual spec config error: " .. tostring(err))
+      end
+    end
   end
 
   keymap.setup()

@@ -91,6 +91,12 @@ function M.resolve_dependencies(deps, specs_by_name)
 end
 
 function M.transform_one(spec, specs_by_name)
+  -- Virtual specs have no plugin code — they're framework-internal containers
+  -- for actions and config. Processed directly by core/init.lua, not lazy.nvim.
+  if spec.source == "virtual" then
+    return nil
+  end
+
   local debug_name = debug_mod.resolve_debug_name(spec)
   local use_debug = debug_mod.has_debug_plugin(debug_name)
 
@@ -99,9 +105,6 @@ function M.transform_one(spec, specs_by_name)
   if use_debug then
     lazy_spec.dir = debug_mod.get_debug_path(debug_name)
     lazy_spec.name = debug_name .. "-debug"
-  elseif spec.source == "virtual" then
-    lazy_spec.dir = debug_mod.get_luxvim_root()
-    lazy_spec.name = spec.debug_name or "virtual"
   else
     lazy_spec[1] = spec.source
   end
