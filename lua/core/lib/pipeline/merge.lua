@@ -35,7 +35,6 @@ function M.run(context)
       if target then
         local base = merged[target.index]
         user_spec.extends = nil
-        user_spec._source = nil
         user_spec._category = base._category
         merged[target.index] = vim.tbl_deep_extend("force", base, user_spec)
       else

@@ -96,9 +96,4 @@ function M.register_from_spec(spec)
   end
 end
 
--- Temporary: kept for backward compat until Task 10 removes the call
-function M.register_core_actions()
-  -- no-op: core actions now come from plugins/editor/core-actions.lua spec
-end
-
 return M
