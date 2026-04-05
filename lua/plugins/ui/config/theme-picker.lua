@@ -73,22 +73,22 @@ local function delete_dynamic_spec(theme_name)
   os.remove(path)
 end
 
--- Theme lookup
+-- Theme detection
+
+local function get_available_colorschemes()
+  return vim.fn.getcompletion("", "color")
+end
+
+local function is_colorscheme_available(colorscheme)
+  local available = get_available_colorschemes()
+  return vim.tbl_contains(available, colorscheme)
+end
 
 local function find_theme(name)
   for _, t in ipairs(_opts.themes or {}) do
     if t.name == name then return t end
   end
   return nil
-end
-
-local function is_colorscheme_available(colorscheme)
-  local ok = pcall(vim.api.nvim_exec2, "colorscheme " .. colorscheme, { output = true })
-  -- Restore current colorscheme since the check may have changed it
-  if ok and _original_colorscheme then
-    pcall(vim.cmd, "colorscheme " .. _original_colorscheme)
-  end
-  return ok
 end
 
 -- Preview
@@ -110,18 +110,42 @@ end
 
 local function get_installed_themes()
   local installed = {}
-  local user_installed = load_installed()
-  local installed_set = {}
-  for _, name in ipairs(user_installed) do
-    installed_set[name] = true
+  local seen = {}
+  local managed = load_installed()
+  local managed_set = {}
+  for _, name in ipairs(managed) do
+    managed_set[name] = true
   end
 
+  -- Show themes from catalog that are actually available
   for _, theme in ipairs(_opts.themes or {}) do
-    -- A theme is installed if it's in the persistence file OR its colorscheme is available
-    if installed_set[theme.name] or is_colorscheme_available(theme.colorscheme) then
-      table.insert(installed, { theme = theme, is_managed = installed_set[theme.name] or false })
+    local available = is_colorscheme_available(theme.colorscheme)
+    if not available and theme.variants then
+      for _, v in ipairs(theme.variants) do
+        if is_colorscheme_available(v) then
+          available = true
+          break
+        end
+      end
+    end
+    if available or managed_set[theme.name] then
+      seen[theme.name] = true
+      table.insert(installed, {
+        theme = theme,
+        is_managed = managed_set[theme.name] or false,
+      })
     end
   end
+
+  -- Show current colorscheme even if it's not in the catalog
+  local current = vim.g.colors_name
+  if current and not seen[current] then
+    table.insert(installed, 1, {
+      theme = { name = current, colorscheme = current },
+      is_managed = false,
+    })
+  end
+
   return installed
 end
 
@@ -196,7 +220,7 @@ local function render()
     table.insert(lines, item.text)
   end
   table.insert(lines, "")
-  table.insert(lines, "  [Enter] Apply  [x] Uninstall  [q] Close")
+  table.insert(lines, "  [Enter] Apply  [i] Install  [x] Uninstall  [q] Close")
 
   vim.api.nvim_buf_set_lines(_buf, 0, -1, false, lines)
   vim.bo[_buf].modifiable = false
@@ -244,6 +268,26 @@ local function close()
   _buf = nil
 end
 
+local function install_theme(theme)
+  -- Save to persistence and write dynamic spec for next startup
+  local installed = load_installed()
+  table.insert(installed, theme.name)
+  save_installed(installed)
+  write_dynamic_spec(theme)
+
+  -- Close picker temporarily for headless install
+  close()
+
+  -- Install immediately via lazy.nvim headless mode
+  notify.info("Installing " .. theme.name .. "...")
+  vim.cmd("Lazy! install " .. theme.repo)
+
+  -- Re-open picker after install completes
+  vim.schedule(function()
+    open()
+  end)
+end
+
 local function on_select()
   local item = _items[_cursor_line]
   if not item then return end
@@ -252,16 +296,13 @@ local function on_select()
     preview_apply(item.theme.colorscheme)
     _original_colorscheme = vim.g.colors_name
     close()
-  elseif item.type == "available" then
-    local installed = load_installed()
-    table.insert(installed, item.theme.name)
-    save_installed(installed)
-    write_dynamic_spec(item.theme)
-    build_items()
-    _cursor_line = find_first_selectable()
-    render()
-    notify.info(item.theme.name .. " added. Restart LuxVim to activate.")
   end
+end
+
+local function on_install()
+  local item = _items[_cursor_line]
+  if not item or item.type ~= "available" then return end
+  install_theme(item.theme)
 end
 
 local function on_uninstall()
@@ -288,7 +329,7 @@ local function on_uninstall()
   render()
 end
 
-local function open()
+function open()
   _original_colorscheme = vim.g.colors_name
   build_items()
 
@@ -323,6 +364,7 @@ local function open()
   vim.keymap.set("n", "<Down>", function() move_cursor(1) end, kopts)
   vim.keymap.set("n", "<Up>", function() move_cursor(-1) end, kopts)
   vim.keymap.set("n", "<CR>", on_select, kopts)
+  vim.keymap.set("n", "i", on_install, kopts)
   vim.keymap.set("n", "x", on_uninstall, kopts)
   vim.keymap.set("n", "q", function() preview_restore(); close() end, kopts)
   vim.keymap.set("n", "<Esc>", function() preview_restore(); close() end, kopts)
