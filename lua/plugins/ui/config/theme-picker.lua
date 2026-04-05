@@ -1,4 +1,3 @@
--- lua/plugins/ui/config/theme-picker.lua
 local notify = require("core.lib.notify")
 local data = require("core.lib.data")
 local paths = require("core.lib.paths")
@@ -77,13 +76,19 @@ end
 -- Theme lookup
 
 local function find_theme(name)
-  for _, t in ipairs(_opts.default_themes or {}) do
-    if t.name == name then return t end
-  end
-  for _, t in ipairs(_opts.optional_themes or {}) do
+  for _, t in ipairs(_opts.themes or {}) do
     if t.name == name then return t end
   end
   return nil
+end
+
+local function is_colorscheme_available(colorscheme)
+  local ok = pcall(vim.api.nvim_exec2, "colorscheme " .. colorscheme, { output = true })
+  -- Restore current colorscheme since the check may have changed it
+  if ok and _original_colorscheme then
+    pcall(vim.cmd, "colorscheme " .. _original_colorscheme)
+  end
+  return ok
 end
 
 -- Preview
@@ -105,28 +110,30 @@ end
 
 local function get_installed_themes()
   local installed = {}
-  for _, theme in ipairs(_opts.default_themes or {}) do
-    table.insert(installed, { theme = theme, is_default = true })
-  end
-  local user_installed = load_installed()
-  for _, name in ipairs(user_installed) do
-    local theme = find_theme(name)
-    if theme then
-      table.insert(installed, { theme = theme, is_default = false })
-    end
-  end
-  return installed
-end
-
-local function get_available_themes()
   local user_installed = load_installed()
   local installed_set = {}
   for _, name in ipairs(user_installed) do
     installed_set[name] = true
   end
 
+  for _, theme in ipairs(_opts.themes or {}) do
+    -- A theme is installed if it's in the persistence file OR its colorscheme is available
+    if installed_set[theme.name] or is_colorscheme_available(theme.colorscheme) then
+      table.insert(installed, { theme = theme, is_managed = installed_set[theme.name] or false })
+    end
+  end
+  return installed
+end
+
+local function get_available_themes()
+  local installed = get_installed_themes()
+  local installed_set = {}
+  for _, entry in ipairs(installed) do
+    installed_set[entry.theme.name] = true
+  end
+
   local available = {}
-  for _, theme in ipairs(_opts.optional_themes or {}) do
+  for _, theme in ipairs(_opts.themes or {}) do
     if not installed_set[theme.name] then
       table.insert(available, theme)
     end
@@ -141,18 +148,22 @@ local function build_items()
   table.insert(_items, { type = "header", text = "  INSTALLED" })
 
   local installed = get_installed_themes()
-  for _, entry in ipairs(installed) do
-    local prefix = "    "
-    if entry.theme.colorscheme == current or
-        (entry.theme.variants and vim.tbl_contains(entry.theme.variants, current)) then
-      prefix = "  * "
+  if #installed == 0 then
+    table.insert(_items, { type = "empty", text = "    (no themes installed)" })
+  else
+    for _, entry in ipairs(installed) do
+      local prefix = "    "
+      if entry.theme.colorscheme == current or
+          (entry.theme.variants and vim.tbl_contains(entry.theme.variants, current)) then
+        prefix = "  * "
+      end
+      table.insert(_items, {
+        type = "installed",
+        theme = entry.theme,
+        is_managed = entry.is_managed,
+        text = prefix .. entry.theme.name,
+      })
     end
-    table.insert(_items, {
-      type = "installed",
-      theme = entry.theme,
-      is_default = entry.is_default,
-      text = prefix .. entry.theme.name,
-    })
   end
 
   table.insert(_items, { type = "separator", text = "" })
@@ -257,8 +268,8 @@ local function on_uninstall()
   local item = _items[_cursor_line]
   if not item or item.type ~= "installed" then return end
 
-  if item.is_default then
-    notify.warn("Cannot uninstall default theme")
+  if not item.is_managed then
+    notify.warn("This theme is installed via a plugin spec, not the theme picker")
     return
   end
 
@@ -306,15 +317,15 @@ local function open()
   _cursor_line = find_first_selectable()
   render()
 
-  local opts = { buffer = _buf, silent = true }
-  vim.keymap.set("n", "j", function() move_cursor(1) end, opts)
-  vim.keymap.set("n", "k", function() move_cursor(-1) end, opts)
-  vim.keymap.set("n", "<Down>", function() move_cursor(1) end, opts)
-  vim.keymap.set("n", "<Up>", function() move_cursor(-1) end, opts)
-  vim.keymap.set("n", "<CR>", on_select, opts)
-  vim.keymap.set("n", "x", on_uninstall, opts)
-  vim.keymap.set("n", "q", function() preview_restore(); close() end, opts)
-  vim.keymap.set("n", "<Esc>", function() preview_restore(); close() end, opts)
+  local kopts = { buffer = _buf, silent = true }
+  vim.keymap.set("n", "j", function() move_cursor(1) end, kopts)
+  vim.keymap.set("n", "k", function() move_cursor(-1) end, kopts)
+  vim.keymap.set("n", "<Down>", function() move_cursor(1) end, kopts)
+  vim.keymap.set("n", "<Up>", function() move_cursor(-1) end, kopts)
+  vim.keymap.set("n", "<CR>", on_select, kopts)
+  vim.keymap.set("n", "x", on_uninstall, kopts)
+  vim.keymap.set("n", "q", function() preview_restore(); close() end, kopts)
+  vim.keymap.set("n", "<Esc>", function() preview_restore(); close() end, kopts)
 
   if _items[_cursor_line] and _items[_cursor_line].type == "installed" then
     preview_apply(_items[_cursor_line].theme.colorscheme)

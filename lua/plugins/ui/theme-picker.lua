@@ -11,16 +11,13 @@ return {
     picker.setup(opts)
   end,
   opts = {
-    default_themes = {
-      { repo = "LuxVim/nami.nvim", name = "nami", description = "LuxVim default theme", colorscheme = "nami" },
+    themes = {
       { repo = "catppuccin/nvim", name = "catppuccin", description = "Soothing pastel theme, 4 variants", colorscheme = "catppuccin",
         variants = { "catppuccin-latte", "catppuccin-frappe", "catppuccin-macchiato", "catppuccin-mocha" } },
       { repo = "folke/tokyonight.nvim", name = "tokyonight", description = "Clean dark theme, multiple styles", colorscheme = "tokyonight",
         variants = { "tokyonight-night", "tokyonight-storm", "tokyonight-day", "tokyonight-moon" } },
       { repo = "morhetz/gruvbox", name = "gruvbox", description = "Retro groove color scheme", colorscheme = "gruvbox" },
       { repo = "dracula/vim", name = "dracula", description = "Dark theme for vampires", colorscheme = "dracula" },
-    },
-    optional_themes = {
       { repo = "rose-pine/neovim", name = "rose-pine", description = "Minimal, dark and light variants", colorscheme = "rose-pine",
         variants = { "rose-pine", "rose-pine-moon", "rose-pine-dawn" } },
       { repo = "sainnhe/everforest", name = "everforest", description = "Green-based, easy on eyes", colorscheme = "everforest" },
