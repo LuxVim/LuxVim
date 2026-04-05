@@ -6,17 +6,32 @@ local augroup = vim.api.nvim_create_augroup("LuxVimCore", { clear = true })
 
 function M.register_autocmds(registry)
   for event, config in pairs(registry) do
+    if event == "extends" or event == "replaces" then
+      goto continue
+    end
+
     local pattern = config.pattern or "*"
     local once = config.once or false
 
-    vim.api.nvim_create_autocmd(event, {
-      group = augroup,
-      pattern = pattern,
-      once = once,
+    local callback
+    if config.callback then
+      callback = config.callback
+    elseif config.action then
       callback = function()
         actions.invoke(config.action)
-      end,
-    })
+      end
+    end
+
+    if callback then
+      vim.api.nvim_create_autocmd(event, {
+        group = augroup,
+        pattern = pattern,
+        once = once,
+        callback = callback,
+      })
+    end
+
+    ::continue::
   end
 end
 

@@ -62,8 +62,6 @@ function M.setup()
 
   bootstrap.setup_lazy(result.lazy_specs)
 
-  actions.register_core_actions()
-
   for _, spec in ipairs(result.raw_specs) do
     actions.register_from_spec(spec)
   end
@@ -79,11 +77,6 @@ end
 
 function M._create_commands()
   local notify = require("core.lib.notify")
-
-  vim.api.nvim_create_user_command("SearchText", function()
-    local actions = require("core.lib.actions")
-    actions.invoke("core.search_text")
-  end, { desc = "Search text in current directory" })
 
   vim.api.nvim_create_user_command("LuxVimErrors", function()
     local errors = M._result and M._result.errors or {}
