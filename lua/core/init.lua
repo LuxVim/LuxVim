@@ -7,8 +7,11 @@ local function setup_pipeline()
   local validate_stage = require("core.lib.pipeline.validate")
   local transform = require("core.lib.pipeline.transform")
 
+  local merge = require("core.lib.pipeline.merge")
+
   pipeline.register_stage("discover", discover.run)
   pipeline.register_stage("load", load_stage.run)
+  pipeline.register_stage("merge", merge.run)
   pipeline.register_stage("validate", validate_stage.run)
   pipeline.register_stage("transform", transform.run)
 
@@ -48,6 +51,20 @@ local function report_errors(result)
 end
 
 function M.setup()
+  -- Prepend user config lua/ to package.path for require() overrides
+  local data = require("core.lib.data")
+  local user_config = data.user_config_path()
+  local user_lua = user_config .. "/lua"
+  if vim.uv.fs_stat(user_lua) then
+    package.path = user_lua .. "/?.lua;" .. user_lua .. "/?/init.lua;" .. package.path
+  end
+
+  -- Load user init.lua early (schema extensions, pipeline hooks)
+  local user_init = user_config .. "/init.lua"
+  if vim.uv.fs_stat(user_init) then
+    dofile(user_init)
+  end
+
   local pipeline = setup_pipeline()
   local bootstrap = require("core.lib.bootstrap")
   local actions = require("core.lib.actions")

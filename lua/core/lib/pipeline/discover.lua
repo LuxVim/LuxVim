@@ -83,6 +83,20 @@ function M.run(context)
     end
   end
 
+  -- Scan user plugin directories
+  local user_config = data.user_config_path()
+  local user_plugins_dir = paths.join(user_config, "plugins")
+  if vim.uv.fs_stat(user_plugins_dir) then
+    local user_dirs = M.scan_plugin_dirs(user_plugins_dir)
+    for _, dir in ipairs(user_dirs) do
+      local category_files = M.scan_category(dir.path, dir.name)
+      for _, f in ipairs(category_files) do
+        f.source = "user"
+        table.insert(files, f)
+      end
+    end
+  end
+
   context.discovered_files = files
   return context
 end

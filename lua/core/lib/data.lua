@@ -33,4 +33,9 @@ function M.parser_path()
   return paths.join(M.root(), "data", "site")
 end
 
+function M.user_config_path()
+  return vim.env.LUXVIM_CONFIG
+      or paths.join(vim.env.XDG_CONFIG_HOME or paths.join(vim.env.HOME or "", ".config"), "luxvim")
+end
+
 return M
