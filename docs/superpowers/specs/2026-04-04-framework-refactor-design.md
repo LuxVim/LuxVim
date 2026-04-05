@@ -56,9 +56,25 @@ end)
 - Hooks receive the current data and must return it (possibly modified)
 - ~30-40 lines total
 
+**Pipeline context:**
+
+The pipeline maintains a shared context object passed through all stages. This replaces the module-level state in the current loader:
+
+```lua
+-- context structure
+{
+  specs = {},           -- current spec list (evolves through stages)
+  specs_by_name = {},   -- name-indexed lookup (built by load, used by merge and transform)
+  errors = {},          -- accumulated errors
+  warnings = {},        -- accumulated warnings
+}
+```
+
+The `load` stage builds `specs_by_name` as it processes specs. The `merge` stage uses it to match `extends`/`replaces` targets. The `transform` stage uses it for dependency resolution (`resolve_dependencies` needs to look up dependency specs by name). Each stage receives and returns the context — no module-level mutable state.
+
 **Error handling:**
 
-Errors become a data structure accumulated through the pipeline rather than module-level state. Each stage can append errors/warnings. The pipeline returns `{specs, errors, warnings}` at the end. Error reporting moves to `core/init.lua` where it already conceptually belongs.
+Errors are accumulated in the context rather than module-level state. Each stage can append errors/warnings. The pipeline returns the final context at the end. Error reporting moves to `core/init.lua` where it already conceptually belongs.
 
 **What gets eliminated:**
 - Module-level mutable state (`M._specs`, `M._specs_by_name`, etc.)
@@ -80,7 +96,7 @@ Errors become a data structure accumulated through the pipeline rather than modu
 | Create | `lua/core/lib/pipeline/load.lua` (~50 lines) |
 | Create | `lua/core/lib/pipeline/merge.lua` (~80 lines) |
 | Create | `lua/core/lib/pipeline/validate.lua` (~40 lines, thin wrapper calling validate.lua) |
-| Create | `lua/core/lib/pipeline/transform.lua` (~100 lines, from loader's transform + deps + build logic) |
+| Create | `lua/core/lib/pipeline/transform.lua` (~100 lines, from loader's transform + deps + build logic; depends on `core.lib.debug`, `core.lib.platform`, `core.lib.paths`, `core.registry.conditions`) |
 | Modify | `lua/core/init.lua` (call pipeline instead of loader) |
 
 ## 2. Pluggable Schema & Validation
@@ -224,7 +240,12 @@ return {
 }
 ```
 
-For `extends` registries, user entries with the same key (lhs for keymaps, event for autocmds, filetype for filetypes) override the framework entry. New keys are added. Sections not present in the user registry are left unchanged. Deep merge uses `vim.tbl_deep_extend("force", framework, user)` per section.
+For `extends` registries, merge behavior per type:
+
+- **Keymaps**: Merged per section (`editor`, `navigation`, `ui`, `terminal`). Within a section, user entries with the same lhs override the framework entry. New lhs bindings are added. Sections not present in the user registry are left unchanged. Uses `vim.tbl_deep_extend("force", framework_section, user_section)`.
+- **Autocmds**: Merged by event name key (`FileType`, `BufLeave`, etc.). User entry for an event replaces the framework entry for that event entirely. New events are added.
+- **Filetypes**: Merged by filetype key. User entry for a filetype replaces framework settings for that filetype. New filetypes are added. Uses `vim.tbl_deep_extend("force", framework, user)`.
+- **Conditions**: Merged by condition name. User functions override framework functions with the same name. New conditions are added.
 
 **Pipeline integration:**
 
@@ -263,6 +284,18 @@ end
 
 `LUXVIM_CONFIG` env var allows override for testing or non-standard setups.
 
+**Config file overrides:**
+
+Some plugin specs load config via `require()` (e.g., `opts = require("plugins.ui.config.luxdash")`). Users can override these by placing files at the same require path under their config directory's `lua/` subdirectory. The user config path is prepended to `package.path` early in `core/init.lua`, so user modules shadow framework modules:
+
+```
+~/.config/luxvim/
+  lua/
+    plugins/ui/config/luxdash.lua   -- shadows framework's luxdash config
+```
+
+This works because `require()` searches `package.path` in order — user path first, framework path second.
+
 ### File Changes
 
 | Action | File |
@@ -297,7 +330,7 @@ Add:
 - `unregister(namespace, name)` — remove an action (also clears cache entry)
 
 Simplify:
-- `split_action()`: replace namespace-iterating prefix match with simple first-dot split. Namespaces don't contain dots, so `action_string:match("^([^.]+)%.(.+)$")` is sufficient. This is already the fallback path — make it the only path. O(1) instead of O(n).
+- `split_action()`: the current implementation iterates all registered namespaces to find a prefix match, which is O(n). However, namespaces CAN contain dots (e.g., `fzf.vim` from `basename("junegunn/fzf.vim")`), so a naive first-dot split would break `"fzf.vim.files"` into `("fzf", "vim.files")` instead of `("fzf.vim", "files")`. Replace with a longest-prefix match: sort registered namespaces by length descending, check each as a prefix. This is still O(n) but predictable and correct. With <20 namespaces the performance difference is negligible. Alternatively, maintain a trie of namespace segments — but that's over-engineering at this scale.
 
 Remove:
 - `register_core_actions()` and all hardcoded action functions (window, search, filetype, diagnostic)
@@ -305,7 +338,22 @@ Remove:
 
 **Virtual specs:**
 
-Some specs (like core-actions, theme-picker) don't have a real GitHub repo — they're framework-internal. These use `source = "virtual"` to signal that the transform stage should not produce a lazy.nvim installable spec. The framework still processes them for actions, config, and other framework features. The transform stage skips `lazy_spec[1]` for virtual specs and uses lazy.nvim's `dir` field pointing to the LuxVim root (so lazy.nvim has a valid spec but doesn't try to clone anything).
+Some specs (like core-actions, theme-picker) don't have a real GitHub repo — they're framework-internal. These use `source = "virtual"` to signal that the transform stage should handle them differently.
+
+Transform stage logic for virtual specs:
+
+```lua
+if spec.source == "virtual" then
+  -- Don't set lazy_spec[1] (no repo to clone)
+  -- Use dir pointing to LuxVim root so lazy.nvim has a valid local plugin
+  lazy_spec.dir = debug_mod.get_luxvim_root()
+  lazy_spec.name = spec.debug_name or "virtual"
+else
+  lazy_spec[1] = spec.source
+end
+```
+
+This gives lazy.nvim a valid spec without attempting to clone. The framework still processes virtual specs for actions, config functions, and other framework features. Virtual specs with a `config` function will have it called by lazy.nvim like any other plugin.
 
 **Core actions as a plugin spec:**
 
@@ -363,13 +411,38 @@ return {
 }
 ```
 
-This requires a small change to `autocmd.lua`: support a `callback` field as an alternative to `action`. If `callback` is present, use it directly; if `action` is present, resolve and invoke it. This is cleaner — not every autocmd needs to go through the action registry.
+This requires two changes:
+
+1. **`autocmd.lua`**: support a `callback` field as an alternative to `action`. If `callback` is present, use it directly; if `action` is present, resolve and invoke it. This is cleaner — not every autocmd needs to go through the action registry.
+
+2. **`schema.lua` autocmd_entry update**: `action` is currently `required = true`, but it can't be required if `callback` is an alternative. Update the schema:
+
+```lua
+M.autocmd_entry = {
+  action = { type = "string", desc = "Action to invoke (mutually exclusive with callback)" },
+  callback = { type = "function", desc = "Direct callback (mutually exclusive with action)" },
+  pattern = { type = { "string", "list" }, default = "*", desc = "File pattern" },
+  once = { type = "boolean", default = false, desc = "Run only once" },
+}
+```
+
+Validation should warn if neither `action` nor `callback` is present, or if both are. This mutual-exclusivity check lives in `lua/core/lib/validate.lua` as a dedicated `validate_autocmd_entry()` function (alongside the existing `validate_plugin_spec()`). It runs the standard schema validation first via `validate_against()`, then applies the custom action/callback rule.
 
 The diagnostic config (`ensure_diagnostic_virtual_text`) moves to `options.lua` or the user's `init.lua` — it's a vim setting, not an action.
 
 **Search action:**
 
-The `core.search_text` action and `SearchText` command are redundant with fzf's `:Rg`. Remove both. If users want a non-fzf search fallback, they can add it via user config.
+The `core.search_text` action and `SearchText` command are redundant with fzf's `:Rg`. Remove both. Additionally, update `lua/plugins/editor/fzf.lua` to point `search_text` at `:Rg` instead of the removed `:SearchText`:
+
+```lua
+-- fzf.lua actions (updated)
+actions = {
+  files = ":Files",
+  search_text = ":Rg",  -- was :SearchText, now uses fzf's built-in
+},
+```
+
+This keeps the `fzf.vim.search_text` action working (keymaps.lua references it) while removing the custom grep implementation.
 
 ### File Changes
 
@@ -377,8 +450,10 @@ The `core.search_text` action and `SearchText` command are redundant with fzf's 
 |--------|------|
 | Modify | `lua/core/lib/actions.lua` (strip to ~50 lines, add unregister) |
 | Create | `lua/plugins/editor/core-actions.lua` (~30 lines) |
+| Modify | `lua/plugins/editor/fzf.lua` (change `search_text` action from `:SearchText` to `:Rg`) |
 | Modify | `lua/core/registry/autocmds.lua` (inline filetype/diagnostic logic) |
 | Modify | `lua/core/lib/autocmd.lua` (support `callback` field alongside `action`) |
+| Modify | `lua/core/lib/schema.lua` (update autocmd_entry: action optional, add callback field) |
 | Modify | `lua/core/init.lua` (remove `register_core_actions()` call, remove SearchText command) |
 
 ## 5. Theme Picker as Plugin
@@ -476,7 +551,22 @@ return {
 
 The theme picker's install/uninstall actions write and delete these files. On next `lux` launch, discover picks them up automatically. No hooks needed, no timing issues, and it proves the auto-discovery system works for dynamic plugin management.
 
-The discover stage change is minimal: scan `data/dynamic-specs/` as an additional directory (no category, no defaults).
+The discover stage change is minimal: scan `data/dynamic-specs/` as an additional directory (no category, no defaults). If the directory doesn't exist, discover returns an empty list for it — no error.
+
+**Note on `.gitignore`:** The `data/` directory is gitignored, so `data/dynamic-specs/` is local state that won't be committed. This is intentional — installed themes are a per-machine preference, not a framework concern. Users who want to sync theme preferences across machines can do so via their user config (`~/.config/luxvim/`) by adding theme plugin specs there.
+
+**Relationship to `colorschemes.lua`:**
+
+The existing `lua/plugins/ui/colorschemes.lua` spec loads fathom.nvim as the active default colorscheme. This is a separate concern from the theme picker — colorschemes.lua sets "which colorscheme is active right now," while the theme picker manages "which colorschemes are available to choose from." Both files remain:
+
+- `colorschemes.lua` — stays as-is, loads the default active colorscheme (fathom)
+- `theme-picker.lua` — new plugin for browsing, installing, and switching themes
+
+When a user selects a theme via the picker, the picker updates persistence and writes a dynamic spec. On restart, the new theme is available. If the user wants to change the default startup colorscheme, they override `colorschemes.lua` via the user config layer (`extends = "fathom.nvim"` with a different colorscheme in config).
+
+**In-session install behavior:**
+
+When a user installs a theme via the picker during a session, the spec file is written to `data/dynamic-specs/` immediately. However, the theme is not available until the next `lux` restart — the pipeline and lazy.nvim have already run for the current session. The picker UI should display a message: "Theme added. Restart LuxVim to activate." This matches the current behavior (`"Run :Lazy sync to install, then restart LuxVim"`).
 
 **What gets deleted:**
 
