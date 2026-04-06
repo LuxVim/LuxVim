@@ -16,7 +16,11 @@ local function merge(framework, user)
     for key, value in pairs(user) do
       if merged[key] then
         if type(merged[key]) == "table" and type(value) == "table" then
-          merged[key] = vim.tbl_deep_extend("force", merged[key], value)
+          if #merged[key] > 0 or #value > 0 then
+            merged[key] = vim.list_extend(vim.deepcopy(merged[key]), value)
+          else
+            merged[key] = vim.tbl_deep_extend("force", merged[key], value)
+          end
         else
           merged[key] = value
         end
