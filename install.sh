@@ -124,8 +124,54 @@ print_logo() {
     echo ""
 }
 
+# Draws a box with a title and key-value pairs.
+# Usage: draw_box "Title" "Label1" "Value1" "Label2" "Value2" ...
+draw_box() {
+    local title=$1
+    shift
+    local box_width=36
+    local inner=$(( box_width - 4 ))
+
+    # Top border
+    local title_len=${#title}
+    local border_rest=$(( box_width - title_len - 5 ))
+    printf "  ${DIM}┌─ %s " "$title"
+    printf '%0.s─' $(seq 1 "$border_rest")
+    printf "┐${NC}\n"
+
+    # Rows
+    while (( $# >= 2 )); do
+        local label=$1 value=$2
+        shift 2
+        # Truncate value if it exceeds available space
+        local max_val_len=$(( inner - 12 ))
+        if (( ${#value} > max_val_len )); then
+            value="...${value: -$((max_val_len - 3))}"
+        fi
+        printf "  ${DIM}│${NC}  %-10s %-${max_val_len}s  ${DIM}│${NC}\n" "$label" "$value"
+    done
+
+    # Bottom border
+    printf "  ${DIM}└"
+    printf '%0.s─' $(seq 1 $(( box_width - 2 )))
+    printf "┘${NC}\n"
+}
+
 # ── Logo ─────────────────────────────────────────────────
 print_logo
+
+# ── System info ──────────────────────────────────────────
+NVIM_VERSION=$(nvim --version 2>/dev/null | head -1 | sed 's/NVIM /v/')
+OS_INFO=$(uname -sr)
+SHELL_NAME=$(basename "${SHELL:-unknown}")
+DISPLAY_PATH="${LUXVIM_DIR/#$HOME/\~}"
+
+draw_box "System" \
+    "Neovim" "$NVIM_VERSION" \
+    "OS" "$OS_INFO" \
+    "Shell" "$SHELL_NAME" \
+    "Path" "$DISPLAY_PATH"
+echo ""
 
 # ── Check prerequisites ─────────────────────────────────
 
