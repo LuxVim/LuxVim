@@ -20,17 +20,17 @@ if [[ "$COLORTERM" == "truecolor" || "$COLORTERM" == "24bit" ]]; then
 fi
 
 # ── Cleanup trap (always restore cursor) ─────────────────
-cleanup() { tput cnorm 2>/dev/null; }
+cleanup() { tput cnorm 2>/dev/null; rm -f "$LOG_FILE" 2>/dev/null; }
 trap cleanup EXIT
 
 # ── Helpers ──────────────────────────────────────────────
 
 step_ok() {
-    printf "\r  ${GREEN}✓${NC} %b\n" "$1"
+    printf "\r\033[K  ${GREEN}✓${NC} %b\n" "$1"
 }
 
 step_fail() {
-    printf "\r  ${RED}✗${NC} %b\n" "$1"
+    printf "\r\033[K  ${RED}✗${NC} %b\n" "$1"
 }
 
 # Returns a truecolor escape for position $1 out of $2 total steps
@@ -246,14 +246,20 @@ fi
 
 LUXVIM_DATA_DIR="$LUXVIM_DIR/data"
 mkdir -p "$LUXVIM_DATA_DIR/lazy" "$LUXVIM_DATA_DIR/luxlsp" "$LUXVIM_DATA_DIR/site"
+step_ok "Created data directories"
 
 LAZY_PATH="$LUXVIM_DATA_DIR/lazy/lazy.nvim"
 if [ ! -d "$LAZY_PATH" ]; then
     git clone -q --filter=blob:none --branch=stable \
         https://github.com/folke/lazy.nvim.git "$LAZY_PATH" 2>/dev/null &
     spinner $! "Cloning lazy.nvim..."
-    wait $!
-    step_ok "Installed lazy.nvim"
+    wait $! || true
+    if [ -d "$LAZY_PATH" ]; then
+        step_ok "Installed lazy.nvim"
+    else
+        step_fail "Failed to clone lazy.nvim"
+        exit 1
+    fi
 else
     step_ok "lazy.nvim already present"
 fi
@@ -280,7 +286,7 @@ while kill -0 "$SYNC_PID" 2>/dev/null; do
 done
 tput cnorm 2>/dev/null
 
-wait "$SYNC_PID"
+wait "$SYNC_PID" || true
 SYNC_EXIT=$?
 
 if [ "$SYNC_EXIT" -eq 0 ]; then
