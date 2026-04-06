@@ -26,11 +26,11 @@ trap cleanup EXIT
 # ── Helpers ──────────────────────────────────────────────
 
 step_ok() {
-    printf "\r\033[K  ${GREEN}✓${NC} %b\n" "$1"
+    printf "\r\033[K%s${GREEN}✓${NC} %b\n" "$PAD" "$1"
 }
 
 step_fail() {
-    printf "\r\033[K  ${RED}✗${NC} %b\n" "$1"
+    printf "\r\033[K%s${RED}✗${NC} %b\n" "$PAD" "$1"
 }
 
 # Returns a truecolor escape for position $1 out of $2 total steps
@@ -55,7 +55,7 @@ spinner() {
 
     tput civis 2>/dev/null
     while kill -0 "$pid" 2>/dev/null; do
-        printf "\r  ${CYAN}%s${NC} %s" "${frames[$i]}" "$msg"
+        printf "\r%s${CYAN}%s${NC} %s" "$PAD" "${frames[$i]}" "$msg"
         i=$(( (i + 1) % ${#frames[@]} ))
         sleep 0.08
     done
@@ -130,12 +130,12 @@ draw_box() {
     local title=$1
     shift
     local box_width=36
-    local inner=$(( box_width - 4 ))
+    local max_val_len=$(( box_width - 17 ))
 
     # Top border
     local title_len=${#title}
     local border_rest=$(( box_width - title_len - 5 ))
-    printf "  ${DIM}┌─ %s " "$title"
+    printf "%s${DIM}┌─ %s " "$PAD" "$title"
     printf '%0.s─' $(seq 1 "$border_rest")
     printf "┐${NC}\n"
 
@@ -143,16 +143,14 @@ draw_box() {
     while (( $# >= 2 )); do
         local label=$1 value=$2
         shift 2
-        # Truncate value if it exceeds available space
-        local max_val_len=$(( inner - 12 ))
         if (( ${#value} > max_val_len )); then
             value="...${value: -$((max_val_len - 3))}"
         fi
-        printf "  ${DIM}│${NC}  %-10s %-${max_val_len}s  ${DIM}│${NC}\n" "$label" "$value"
+        printf "%s${DIM}│${NC}  %-10s %-${max_val_len}s  ${DIM}│${NC}\n" "$PAD" "$label" "$value"
     done
 
     # Bottom border
-    printf "  ${DIM}└"
+    printf "%s${DIM}└" "$PAD"
     printf '%0.s─' $(seq 1 $(( box_width - 2 )))
     printf "┘${NC}\n"
 }
@@ -186,8 +184,16 @@ draw_progress_bar() {
     done
     bar+="${NC}"
 
-    printf "\r  %b  %s" "$bar" "$msg"
+    printf "\r%s%b  %s" "$PAD" "$bar" "$msg"
 }
+
+# ── Centering ────────────────────────────────────────────
+TERM_WIDTH=$(tput cols 2>/dev/null || echo 80)
+BOX_WIDTH=36
+PAD_LEN=$(( (TERM_WIDTH - BOX_WIDTH) / 2 ))
+(( PAD_LEN < 0 )) && PAD_LEN=0
+PAD=""
+for (( i=0; i<PAD_LEN; i++ )); do PAD+=" "; done
 
 # ── Logo ─────────────────────────────────────────────────
 print_logo
@@ -237,8 +243,8 @@ step_ok "Created ${DIM}lux${NC} command"
 
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
     echo ""
-    echo -e "  ${YELLOW}!${NC} ~/.local/bin is not in your PATH"
-    echo -e "    Add to your shell profile:  ${CYAN}export PATH=\"\$HOME/.local/bin:\$PATH\"${NC}"
+    echo -e "${PAD}${YELLOW}!${NC} ~/.local/bin is not in your PATH"
+    echo -e "${PAD}  Add to your shell profile:  ${CYAN}export PATH=\"\$HOME/.local/bin:\$PATH\"${NC}"
     echo ""
 fi
 
@@ -311,5 +317,5 @@ draw_box "Install Complete" \
     "Plugins" "${PLUGIN_COUNT} installed" \
     "Time" "${ELAPSED}s"
 echo ""
-echo -e "  ${GREEN}${BOLD}LuxVim is ready!${NC} Run ${CYAN}lux${NC} to start."
+echo -e "${PAD}${GREEN}${BOLD}LuxVim is ready!${NC} Run ${CYAN}lux${NC} to start."
 echo ""
