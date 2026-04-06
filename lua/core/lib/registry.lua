@@ -50,6 +50,8 @@ function M.new(config)
       local uok, user = pcall(dofile, user_path)
       if uok and type(user) == "table" then
         return merge(framework, user)
+      elseif not uok then
+        notify.warn("Failed to load user " .. self.name .. " config: " .. tostring(user))
       end
     end
 
