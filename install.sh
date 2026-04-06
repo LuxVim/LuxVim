@@ -193,7 +193,7 @@ draw_progress_bar() {
 print_logo
 
 # ── System info ──────────────────────────────────────────
-NVIM_VERSION=$(nvim --version 2>/dev/null | head -1 | sed 's/NVIM /v/')
+NVIM_VERSION=$(nvim --version 2>/dev/null | head -1 | sed 's/NVIM //')
 OS_INFO=$(uname -sr)
 SHELL_NAME=$(basename "${SHELL:-unknown}")
 DISPLAY_PATH="${LUXVIM_DIR/#$HOME/\~}"
