@@ -298,7 +298,12 @@ rm -f "$LOG_FILE"
 
 # ── Done ─────────────────────────────────────────────────
 
+ELAPSED=$(( SECONDS - START_TIME ))
+
 echo ""
-echo -e "  ${GREEN}${BOLD}LuxVim is ready!${NC}"
-echo -e "  Run ${CYAN}lux${NC} to start."
+draw_box "Install Complete" \
+    "Plugins" "${PLUGIN_COUNT} installed" \
+    "Time" "${ELAPSED}s"
+echo ""
+echo -e "  ${GREEN}${BOLD}LuxVim is ready!${NC} Run ${CYAN}lux${NC} to start."
 echo ""
