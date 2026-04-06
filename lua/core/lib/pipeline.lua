@@ -35,6 +35,13 @@ function M.run()
     context = run_hooks("pre_" .. stage.name, context)
     context = stage.fn(context)
     context = run_hooks("post_" .. stage.name, context)
+
+    local critical = vim.tbl_filter(function(e)
+      return e.level == "critical"
+    end, context.errors)
+    if #critical > 0 then
+      break
+    end
   end
 
   local critical = vim.tbl_filter(function(e)
