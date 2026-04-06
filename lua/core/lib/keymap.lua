@@ -27,7 +27,7 @@ function M.register_one(mapping)
 end
 
 local function register_all(entries)
-  for section_name, section in pairs(entries) do
+  for _, section in pairs(entries) do
     for _, mapping in ipairs(section) do
       M.register_one(mapping)
     end
