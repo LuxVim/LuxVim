@@ -157,6 +157,38 @@ draw_box() {
     printf "┘${NC}\n"
 }
 
+# Draws a progress bar with optional gradient fill.
+# Usage: draw_progress_bar <filled> <width> <message>
+draw_progress_bar() {
+    local filled=$1 width=$2 msg=$3
+    local empty=$(( width - filled ))
+    local bar=""
+
+    if $HAS_TRUECOLOR; then
+        for (( j=0; j<filled; j++ )); do
+            local r=$(( 255 - 36 * j / (width - 1) ))
+            local g=$(( 120 - 75 * j / (width - 1) ))
+            local b=$(( 1 + 237 * j / (width - 1) ))
+            bar+="\033[38;2;${r};${g};${b}m█"
+        done
+        bar+="${NC}"
+    else
+        bar+="${GREEN}"
+        for (( j=0; j<filled; j++ )); do
+            bar+="█"
+        done
+        bar+="${NC}"
+    fi
+
+    bar+="${DIM}"
+    for (( j=0; j<empty; j++ )); do
+        bar+="░"
+    done
+    bar+="${NC}"
+
+    printf "\r  %b  %s" "$bar" "$msg"
+}
+
 # ── Logo ─────────────────────────────────────────────────
 print_logo
 
@@ -231,15 +263,31 @@ fi
 LOG_FILE=$(mktemp)
 
 "$ALIAS_SCRIPT" --headless "+Lazy! sync" +qa > "$LOG_FILE" 2>&1 &
-spinner $! "Installing plugins..."
-wait $!
+SYNC_PID=$!
+
+BAR_WIDTH=32
+EST_TICKS=100  # ~15 seconds at 0.15s/tick
+tick=0
+
+tput civis 2>/dev/null
+while kill -0 "$SYNC_PID" 2>/dev/null; do
+    count=$(grep -c "Finished task clone" "$LOG_FILE" 2>/dev/null || true)
+    filled=$(( tick * BAR_WIDTH / EST_TICKS ))
+    (( filled > BAR_WIDTH )) && filled=$BAR_WIDTH
+    draw_progress_bar "$filled" "$BAR_WIDTH" "Installing plugins (${count:-0} installed)..."
+    sleep 0.15
+    (( tick++ )) || true
+done
+tput cnorm 2>/dev/null
+
+wait "$SYNC_PID"
 SYNC_EXIT=$?
 
-if [ $SYNC_EXIT -eq 0 ]; then
+if [ "$SYNC_EXIT" -eq 0 ]; then
     PLUGIN_COUNT=$(grep -c "Finished task clone" "$LOG_FILE" 2>/dev/null || echo "0")
     step_ok "Installed ${PLUGIN_COUNT} plugins"
 else
-    step_fail "Plugin sync failed — check log below"
+    step_fail "Plugin sync failed"
     echo ""
     cat "$LOG_FILE"
     rm -f "$LOG_FILE"
