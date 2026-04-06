@@ -49,13 +49,7 @@ function M.resolve(action_string)
     return M._registry[namespace][method]
   end
 
-  -- Fallback: try requiring the namespace as a module
-  local ok, module = pcall(require, namespace)
-  if ok and type(module) == "table" and type(module[method]) == "function" then
-    return function() module[method]() end
-  end
-
-  return nil, "could not resolve action: " .. action_string
+  return nil, "unregistered action: " .. action_string
 end
 
 function M.invoke(action_string)
