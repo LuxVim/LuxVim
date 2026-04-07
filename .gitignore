@@ -1,4 +1,6 @@
 # Claude Code
+.codex/
+.nvimlog
 .claude/
 claude/
 CLAUDE.*
