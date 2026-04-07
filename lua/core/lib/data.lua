@@ -9,7 +9,7 @@ function M.root()
   if _root then
     return _root
   end
-  _root = vim.env.XDG_DATA_HOME or debug_mod.get_luxvim_root()
+  _root = vim.env.LUXVIM_ROOT or debug_mod.get_luxvim_root()
   return _root
 end
 

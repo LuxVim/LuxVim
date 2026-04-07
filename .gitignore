@@ -2,6 +2,8 @@
 .claude/
 claude/
 CLAUDE.*
+docs/superpowers/
+docs/maestro/
 
 # LuxVim specific
 cache/*

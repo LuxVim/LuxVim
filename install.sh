@@ -235,7 +235,7 @@ mkdir -p "$ALIAS_SCRIPT_DIR"
 cat > "$ALIAS_SCRIPT" << EOF
 #!/bin/bash
 # LuxVim launcher script
-NVIM_APPNAME="LuxVim" XDG_DATA_HOME="${LUXVIM_DIR}" nvim --cmd "set rtp+=${LUXVIM_DIR}" -u "${LUXVIM_DIR}/init.lua" "\$@"
+LUXVIM_ROOT="${LUXVIM_DIR}" NVIM_APPNAME="LuxVim" XDG_DATA_HOME="${LUXVIM_DIR}/data" nvim --cmd "set rtp+=${LUXVIM_DIR}" -u "${LUXVIM_DIR}/init.lua" "\$@"
 EOF
 
 chmod +x "$ALIAS_SCRIPT"
