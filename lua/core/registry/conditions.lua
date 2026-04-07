@@ -7,17 +7,17 @@ local function has_executable(name)
 end
 
 return {
-  is_mac = function() return platform.is_mac end,
-  is_linux = function() return platform.is_linux end,
-  is_windows = function() return platform.is_windows end,
+  is_mac      = function() return platform.is_mac end,
+  is_linux    = function() return platform.is_linux end,
+  is_windows  = function() return platform.is_windows end,
 
-  has_git = has_executable("git"),
-  has_node = has_executable("node"),
-  has_npm = has_executable("npm"),
+  has_git   = has_executable("git"),
+  has_node  = has_executable("node"),
+  has_npm   = has_executable("npm"),
   has_cargo = has_executable("cargo"),
-  has_make = has_executable("make"),
-  has_go = has_executable("go"),
+  has_make  = has_executable("make"),
+  has_go    = has_executable("go"),
 
-  is_gui = function() return vim.fn.has("gui_running") == 1 end,
+  is_gui    = function() return vim.fn.has("gui_running") == 1 end,
   is_vscode = function() return vim.g.vscode ~= nil end,
 }

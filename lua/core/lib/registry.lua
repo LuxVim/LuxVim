@@ -1,8 +1,20 @@
-local notify = require("core.lib.notify")
 local data = require("core.lib.data")
 local paths = require("core.lib.paths")
 
 local M = {}
+
+local function run_validator(validator, ...)
+  if not validator then
+    return true
+  end
+
+  local ok, err = validator(...)
+  if ok == false or ok == nil then
+    return nil, err or "validation failed"
+  end
+
+  return true
+end
 
 local function merge(framework, user)
   if user.replaces then
@@ -40,33 +52,60 @@ function M.new(config)
     framework_module = config.framework_module,
     user_file = config.user_file,
     register = config.register,
+    validate_user = config.validate_user,
+    validate_entries = config.validate_entries,
   }
 
   function instance:load()
     local ok, framework = pcall(require, self.framework_module)
     if not ok then
-      notify.warn("Failed to load " .. self.name .. " registry: " .. tostring(framework))
-      return nil
+      return nil, "Failed to load " .. self.name .. " registry: " .. tostring(framework)
     end
 
     local user_path = paths.join(data.user_config_path(), self.user_file)
+    local user = nil
     if vim.uv.fs_stat(user_path) then
-      local uok, user = pcall(dofile, user_path)
-      if uok and type(user) == "table" then
-        return merge(framework, user)
+      local uok, loaded = pcall(dofile, user_path)
+      if uok and type(loaded) == "table" then
+        user = loaded
+        local vok, verr = run_validator(self.validate_user, user, user_path)
+        if not vok then
+          return nil, verr
+        end
       elseif not uok then
-        notify.warn("Failed to load user " .. self.name .. " config: " .. tostring(user))
+        return nil, "Failed to load user " .. self.name .. " config: " .. tostring(loaded)
       end
     end
 
-    return framework
+    local entries = framework
+    if user then
+      entries = merge(framework, user)
+    end
+
+    local vok, verr = run_validator(self.validate_entries, entries, {
+      framework = framework,
+      user = user,
+      user_path = user_path,
+    })
+    if not vok then
+      return nil, verr
+    end
+
+    return entries
   end
 
   function instance:setup()
-    local entries = self:load()
-    if entries then
-      self.register(entries)
+    local entries, err = self:load()
+    if not entries then
+      return nil, err
     end
+
+    local ok, reg_err = self.register(entries)
+    if ok == false or (ok == nil and reg_err ~= nil) then
+      return nil, reg_err
+    end
+
+    return true
   end
 
   return instance

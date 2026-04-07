@@ -1,5 +1,11 @@
 local M = {}
 
+local function report_fatal_message(message)
+  local msg = "[LuxVim] FATAL: Cannot start\n  " .. tostring(message):gsub("\n", "\n  ") .. "\n"
+  vim.api.nvim_echo({ { msg, "ErrorMsg" } }, true, {})
+  return false
+end
+
 local function setup_pipeline()
   local pipeline = require("core.lib.pipeline")
   local discover = require("core.lib.pipeline.discover")
@@ -96,8 +102,15 @@ function M.setup()
     end
   end
 
-  keymap.setup()
-  autocmd.setup()
+  local ok, err = keymap.setup()
+  if not ok then
+    return report_fatal_message(err)
+  end
+
+  ok, err = autocmd.setup()
+  if not ok then
+    return report_fatal_message(err)
+  end
 
   M._result = result
   M._create_commands()

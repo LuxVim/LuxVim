@@ -5,6 +5,39 @@ local M = {}
 
 local augroup = vim.api.nvim_create_augroup("LuxVimCore", { clear = true })
 
+local function invalid_autocmd_error(event, message)
+  return string.format("Invalid autocmd '%s': %s", event, message)
+end
+
+local function unresolved_action_error(event, action)
+  return string.format(
+    "Autocmd '%s' references unsupported action '%s'. Actions must be registered explicitly; module-backed require() fallback is no longer supported.",
+    event,
+    action
+  )
+end
+
+local function validate_autocmd_entries(entries)
+  for event, config in pairs(entries) do
+    if type(config) ~= "table" then
+      return nil, invalid_autocmd_error(event, "expected a table entry")
+    end
+
+    if config.action ~= nil then
+      if type(config.action) ~= "string" or config.action == "" then
+        return nil, invalid_autocmd_error(event, "action must be a non-empty string")
+      end
+
+      local _, err = actions.resolve(config.action)
+      if err then
+        return nil, unresolved_action_error(event, config.action)
+      end
+    end
+  end
+
+  return true
+end
+
 local function register_autocmds(entries)
   for event, config in pairs(entries) do
     local pattern = config.pattern or "*"
@@ -20,19 +53,24 @@ local function register_autocmds(entries)
     end
 
     if callback then
-      vim.api.nvim_create_autocmd(event, {
+      local ok, err = pcall(vim.api.nvim_create_autocmd, event, {
         group = augroup,
         pattern = pattern,
         once = once,
         callback = callback,
       })
+      if not ok then
+        return nil, string.format("Failed to register autocmd '%s': %s", event, tostring(err))
+      end
     end
   end
+
+  return true
 end
 
 local function register_filetypes(entries)
   for ft, settings in pairs(entries) do
-    vim.api.nvim_create_autocmd("FileType", {
+    local ok, err = pcall(vim.api.nvim_create_autocmd, "FileType", {
       group = augroup,
       pattern = ft,
       callback = function()
@@ -41,13 +79,19 @@ local function register_filetypes(entries)
         end
       end,
     })
+    if not ok then
+      return nil, string.format("Failed to register filetype autocmd '%s': %s", ft, tostring(err))
+    end
   end
+
+  return true
 end
 
 local autocmd_registry = registry.new({
   name = "autocmds",
   framework_module = "core.registry.autocmds",
   user_file = "registry/autocmds.lua",
+  validate_entries = validate_autocmd_entries,
   register = register_autocmds,
 })
 
@@ -59,8 +103,12 @@ local filetype_registry = registry.new({
 })
 
 function M.setup()
-  autocmd_registry:setup()
-  filetype_registry:setup()
+  local ok, err = autocmd_registry:setup()
+  if not ok then
+    return nil, err
+  end
+
+  return filetype_registry:setup()
 end
 
 return M
