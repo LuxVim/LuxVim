@@ -56,13 +56,13 @@ function M.generate()
     "",
   }
 
-  table.insert(output, generate_class("BuildSpec", schema.build_spec))
+  table.insert(output, generate_class("BuildSpec", schema.get("build_spec")))
   table.insert(output, "")
-  table.insert(output, generate_class("PluginSpec", schema.plugin_spec))
+  table.insert(output, generate_class("PluginSpec", schema.get("plugin_spec")))
   table.insert(output, "")
-  table.insert(output, generate_class("KeymapEntry", schema.keymap_entry))
+  table.insert(output, generate_class("KeymapEntry", schema.get("keymap_entry")))
   table.insert(output, "")
-  table.insert(output, generate_class("AutocmdEntry", schema.autocmd_entry))
+  table.insert(output, generate_class("AutocmdEntry", schema.get("autocmd_entry")))
 
   return table.concat(output, "\n")
 end

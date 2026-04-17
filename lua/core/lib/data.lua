@@ -9,7 +9,7 @@ function M.root()
   if _root then
     return _root
   end
-  _root = vim.env.XDG_DATA_HOME or debug_mod.get_luxvim_root()
+  _root = vim.env.LUXVIM_ROOT or debug_mod.get_luxvim_root()
   return _root
 end
 
@@ -31,6 +31,11 @@ end
 
 function M.parser_path()
   return paths.join(M.root(), "data", "site")
+end
+
+function M.user_config_path()
+  return vim.env.LUXVIM_CONFIG
+      or paths.join(vim.env.XDG_CONFIG_HOME or paths.join(vim.env.HOME or "", ".config"), "luxvim")
 end
 
 return M

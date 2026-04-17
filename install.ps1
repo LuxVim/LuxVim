@@ -18,7 +18,7 @@ if (-not (Get-Command nvim -ErrorAction SilentlyContinue)) {
 Write-Host "Neovim found" -ForegroundColor Green
 
 # Create data directories
-$dataDirs = @("data\lazy", "data\mason", "data\nvim", "data\luxlsp")
+$dataDirs = @("data\lazy", "data\luxlsp", "data\site")
 foreach ($dir in $dataDirs) {
     $fullPath = Join-Path $LuxVimDir $dir
     if (-not (Test-Path $fullPath)) {
@@ -47,9 +47,9 @@ $LuxVimDirForward = $LuxVimDir -replace '\\', '/'
 # Create PowerShell launcher (lux.ps1)
 $launcherPs1 = Join-Path $LuxVimDir "lux.ps1"
 $ps1Content = @"
+`$env:LUXVIM_ROOT = "$LuxVimDirForward"
 `$env:NVIM_APPNAME = "LuxVim"
-`$env:XDG_DATA_HOME = "$LuxVimDirForward"
-`$env:XDG_CONFIG_HOME = "$LuxVimDirForward"
+`$env:XDG_DATA_HOME = "$LuxVimDirForward/data"
 & nvim --cmd "set rtp+=$LuxVimDirForward" -u "$LuxVimDirForward/init.lua" @args
 "@
 Set-Content -Path $launcherPs1 -Value $ps1Content -Encoding UTF8
@@ -59,9 +59,9 @@ Write-Host "Created lux.ps1" -ForegroundColor Green
 $launcherCmd = Join-Path $LuxVimDir "lux.cmd"
 $cmdContent = @"
 @echo off
+set "LUXVIM_ROOT=$LuxVimDirForward"
 set "NVIM_APPNAME=LuxVim"
-set "XDG_DATA_HOME=$LuxVimDirForward"
-set "XDG_CONFIG_HOME=$LuxVimDirForward"
+set "XDG_DATA_HOME=$LuxVimDirForward/data"
 nvim --cmd "set rtp+=$LuxVimDirForward" -u "$LuxVimDirForward/init.lua" %*
 "@
 Set-Content -Path $launcherCmd -Value $cmdContent -Encoding ASCII

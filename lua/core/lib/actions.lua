@@ -1,17 +1,73 @@
-local M = {}
+-- lua/core/lib/actions.lua
+-- Factory-pattern action registry. Production uses actions.default();
+-- tests use actions.new(). Module-level functions forward to default.
+
 local notify = require("core.lib.notify")
-local platform = require("core.lib.platform")
 
-M._registry = {}
-M._cache = {}
+local Actions = {}
+Actions.__index = Actions
 
-function M.register(namespace, name, fn)
-  M._registry[namespace] = M._registry[namespace] or {}
-  M._registry[namespace][name] = fn
-  M._cache[namespace .. "." .. name] = fn
+function Actions:register(namespace, name, fn)
+  self._registry[namespace] = self._registry[namespace] or {}
+  self._registry[namespace][name] = fn
 end
 
-function M.register_from_spec(spec)
+function Actions:register_namespace(namespace, actions_table)
+  for name, fn in pairs(actions_table) do
+    self:register(namespace, name, fn)
+  end
+end
+
+function Actions:unregister(namespace, name)
+  if self._registry[namespace] then
+    self._registry[namespace][name] = nil
+  end
+end
+
+function Actions:_split_action(action_string)
+  local sorted_ns = vim.tbl_keys(self._registry)
+  table.sort(sorted_ns, function(a, b) return #a > #b end)
+
+  for _, ns in ipairs(sorted_ns) do
+    local prefix = ns .. "."
+    if action_string:sub(1, #prefix) == prefix then
+      return ns, action_string:sub(#prefix + 1)
+    end
+  end
+
+  local namespace, method = action_string:match("^([^.]+)%.(.+)$")
+  return namespace, method
+end
+
+function Actions:resolve(action_string)
+  local namespace, method = self:_split_action(action_string)
+  if not namespace or not method then
+    return nil, "invalid action format: " .. action_string
+  end
+
+  if self._registry[namespace] and self._registry[namespace][method] then
+    return self._registry[namespace][method]
+  end
+
+  return nil, "unregistered action: " .. action_string
+end
+
+function Actions:invoke(action_string)
+  local fn, err = self:resolve(action_string)
+  if not fn then
+    notify.warn(err)
+    return false
+  end
+
+  local ok, result = pcall(fn)
+  if not ok then
+    notify.error("Action error: " .. tostring(result))
+    return false
+  end
+  return true
+end
+
+function Actions:register_from_spec(spec)
   if not spec.actions then
     return
   end
@@ -29,174 +85,30 @@ function M.register_from_spec(spec)
       fn = nil
     end
     if fn then
-      M.register(plugin_name, action_name, fn)
+      self:register(plugin_name, action_name, fn)
     end
   end
 end
 
-local function split_action(action_string)
-  for ns, _ in pairs(M._registry) do
-    if action_string:sub(1, #ns + 1) == ns .. "." then
-      return ns, action_string:sub(#ns + 2)
-    end
-  end
+local M = {}
 
-  local namespace, method = action_string:match("^([^.]+)%.(.+)$")
-  return namespace, method
+function M.new()
+  return setmetatable({ _registry = {} }, Actions)
 end
 
-function M.resolve(action_string)
-  if M._cache[action_string] then
-    return M._cache[action_string]
+local _default
+function M.default()
+  if not _default then
+    _default = M.new()
   end
-
-  local namespace, method = split_action(action_string)
-  if not namespace or not method then
-    return nil, "invalid action format: " .. action_string
-  end
-
-  if M._registry[namespace] and M._registry[namespace][method] then
-    local fn = M._registry[namespace][method]
-    M._cache[action_string] = fn
-    return fn
-  end
-
-  local ok, module = pcall(require, namespace)
-  if ok and type(module) == "table" and type(module[method]) == "function" then
-    M._cache[action_string] = function()
-      module[method]()
-    end
-    return M._cache[action_string]
-  end
-
-  return nil, "could not resolve action: " .. action_string
+  return _default
 end
 
-function M.invoke(action_string)
-  local fn, err = M.resolve(action_string)
-  if not fn then
-    notify.warn(err)
-    return false
-  end
-
-  local ok, result = pcall(fn)
-  if not ok then
-    notify.error("Action error: " .. tostring(result))
-    return false
-  end
-  return true
-end
-
-local function register_cmd_actions()
-  local cmd_actions = {
-    save = "write",
-    quit = "quit",
-    force_quit = "quit!",
-    quit_all = "quitall!",
-    save_quit = "wq",
-    vsplit = "rightbelow vs new",
-    hsplit = "rightbelow split new",
-  }
-
-  for name, cmd in pairs(cmd_actions) do
-    M.register("core", name, function()
-      vim.cmd(cmd)
-    end)
-  end
-end
-
-local function register_window_actions()
-  local function goto_win(n)
-    if n <= vim.fn.winnr("$") then
-      vim.cmd(n .. "wincmd w")
-    end
-  end
-
-  for i = 1, 6 do
-    M.register("core", "win" .. i, function()
-      goto_win(i)
-    end)
-  end
-end
-
-local function register_search_actions()
-  M.register("core", "search_text", function()
-    local search_text = vim.fn.input("Search For Text (Current Directory): ")
-    if search_text == "" then
-      notify.info("Cancelled.")
-      return
-    end
-
-    local cmd
-    if platform.is_windows then
-      cmd = "findstr /S /N /I /P /C:" .. vim.fn.shellescape(search_text) .. " *"
-    else
-      cmd = "grep -rniI --exclude-dir=.git " .. vim.fn.shellescape(search_text) .. " ."
-    end
-
-    local results = vim.fn.systemlist(cmd)
-    if #results == 0 then
-      notify.info("No matches found.")
-      return
-    end
-
-    vim.fn.setqflist({}, "r", { lines = results, title = "Search Results" })
-    vim.cmd("copen")
-  end)
-end
-
-local function register_filetype_actions()
-  M.register("core", "filetype_setup", function()
-    local ft = vim.bo.filetype
-    if ft == "fzf" then
-      vim.opt_local.laststatus = 0
-      vim.opt_local.showmode = false
-      vim.opt_local.ruler = false
-      return
-    end
-
-    if ft == "qf" then
-      vim.keymap.set("n", "<CR>", "<CR>:cclose<CR>", { buffer = true })
-    end
-  end)
-
-  M.register("core", "fzf_bufleave", function()
-    if vim.bo.filetype == "fzf" then
-      vim.opt.laststatus = 3
-      vim.opt.showmode = true
-      vim.opt.ruler = true
-    end
-  end)
-end
-
-local function register_diagnostic_actions()
-  M.register("core", "ensure_diagnostic_virtual_text", function()
-    vim.defer_fn(function()
-      local current_config = vim.diagnostic.config()
-      if current_config.virtual_text == false then
-        local bullet = vim.fn.nr2char(0x25CF)
-        vim.diagnostic.config({
-          virtual_text = {
-            prefix = bullet,
-            spacing = 4,
-          },
-          signs = current_config.signs,
-          underline = current_config.underline,
-          update_in_insert = current_config.update_in_insert,
-          severity_sort = current_config.severity_sort,
-          float = current_config.float,
-        })
-      end
-    end, 100)
-  end)
-end
-
-function M.register_core_actions()
-  register_cmd_actions()
-  register_window_actions()
-  register_search_actions()
-  register_filetype_actions()
-  register_diagnostic_actions()
-end
+function M.register(ns, name, fn)         return M.default():register(ns, name, fn) end
+function M.register_namespace(ns, tbl)    return M.default():register_namespace(ns, tbl) end
+function M.unregister(ns, name)           return M.default():unregister(ns, name) end
+function M.resolve(str)                   return M.default():resolve(str) end
+function M.invoke(str)                    return M.default():invoke(str) end
+function M.register_from_spec(spec)       return M.default():register_from_spec(spec) end
 
 return M

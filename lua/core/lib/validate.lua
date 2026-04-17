@@ -62,10 +62,13 @@ function M.validate_against(value, schema_def, path)
     end
   end
 
+  local known_fields = nil
   for field, _ in pairs(value) do
     if not schema_def[field] then
-      local known_fields = vim.tbl_keys(schema_def)
-      table.sort(known_fields)
+      if not known_fields then
+        known_fields = vim.tbl_keys(schema_def)
+        table.sort(known_fields)
+      end
       table.insert(warnings, {
         level = M.errors.WARNING,
         path = path .. "." .. field,
@@ -78,7 +81,30 @@ function M.validate_against(value, schema_def, path)
 end
 
 function M.validate_plugin_spec(spec, file_path)
-  return M.validate_against(spec, schema.plugin_spec, file_path or "plugin")
+  return M.validate_against(spec, schema.get("plugin_spec"), file_path or "plugin")
+end
+
+function M.validate_autocmd_entry(entry, path)
+  local errors, warnings = M.validate_against(entry, schema.get("autocmd_entry"), path or "autocmd")
+
+  local has_action = entry.action ~= nil
+  local has_callback = entry.callback ~= nil
+
+  if not has_action and not has_callback then
+    table.insert(warnings, {
+      level = M.errors.WARNING,
+      path = path or "autocmd",
+      message = "autocmd entry should have either 'action' or 'callback'",
+    })
+  elseif has_action and has_callback then
+    table.insert(warnings, {
+      level = M.errors.WARNING,
+      path = path or "autocmd",
+      message = "autocmd entry has both 'action' and 'callback'; 'callback' takes precedence",
+    })
+  end
+
+  return errors, warnings
 end
 
 function M.format_errors(errors, warnings)

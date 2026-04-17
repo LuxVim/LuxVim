@@ -1,26 +1,24 @@
-local navigation = {
-  ["<leader>wv"] = { action = "core.vsplit", desc = "Vertical split" },
-  ["<leader>wh"] = { action = "core.hsplit", desc = "Horizontal split" },
-}
-
+local navigation = {}
 for i = 1, 6 do
-  navigation["<leader>" .. i] = { action = "core.win" .. i, desc = "Go to window " .. i }
+  table.insert(navigation, { lhs = "<leader>" .. i, action = "core.win" .. i, desc = "Go to window " .. i })
 end
+table.insert(navigation, { lhs = "<leader>wv", action = "core.vsplit", desc = "Vertical split" })
+table.insert(navigation, { lhs = "<leader>wh", action = "core.hsplit", desc = "Horizontal split" })
 
 return {
   editor = {
-    ["<leader>fs"] = { action = "core.save", desc = "Save file" },
-    ["<leader>fq"] = { action = "core.quit", desc = "Quit" },
-    ["<leader>FQ"] = { action = "core.force_quit", desc = "Force quit" },
-    ["<leader>bye"] = { action = "core.quit_all", desc = "Quit all" },
-    ["<leader><leader>"] = { action = "fzf.vim.files", desc = "Find files" },
-    ["<leader>st"] = { action = "fzf.vim.search_text", desc = "Search text" },
+    { lhs = "<leader>fs", action = "core.save", desc = "Save file" },
+    { lhs = "<leader>fq", action = "core.quit", desc = "Quit" },
+    { lhs = "<leader>FQ", action = "core.force_quit", desc = "Force quit" },
+    { lhs = "<leader>bye", action = "core.quit_all", desc = "Quit all" },
+    { lhs = "<leader><leader>", action = "fzf.vim.files", desc = "Find files" },
+    { lhs = "<leader>st", action = "fzf.vim.search_text", desc = "Search text" },
   },
 
   navigation = navigation,
 
   ui = {
-    ["<leader>e"] = { action = "nvim-tree.toggle", desc = "File explorer" },
+    { lhs = "<leader>e", action = "nvim-tree.toggle", desc = "File explorer" },
   },
 
   terminal = {

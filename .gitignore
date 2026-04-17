@@ -1,11 +1,17 @@
 # Claude Code
+.codex
+.nvimlog
 .claude/
 claude/
 CLAUDE.*
+docs/superpowers/
+docs/maestro/
 
 # LuxVim specific
 cache/*
 data/
+lux.ps1
+lux.cmd
 state/*
 debug/*
 lua/config/lazy.lua.backup
