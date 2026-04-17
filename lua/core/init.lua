@@ -165,6 +165,75 @@ function M._create_commands()
     local typegen = require("core.lib.typegen")
     typegen.write()
   end, { desc = "Generate LuxVim type annotations" })
+
+  vim.api.nvim_create_user_command("LuxVimValidate", function()
+    local result = M.validate_only()
+
+    if #result.errors == 0 and #result.warnings == 0 then
+      notify.info("LuxVim config validates cleanly")
+      return
+    end
+
+    local lines = { "=== LuxVim Validate ===" }
+    for _, e in ipairs(result.errors) do
+      table.insert(lines, string.format("[%s] %s: %s",
+        (e.level or "error"):upper(), e.file or "unknown", e.message))
+    end
+    for _, w in ipairs(result.warnings) do
+      table.insert(lines, string.format("[WARNING] %s: %s",
+        w.file or "unknown", w.message))
+    end
+
+    notify.warn(table.concat(lines, "\n"))
+  end, { desc = "Validate LuxVim config without applying" })
+end
+
+function M._run_validate_only()
+  local pipeline_mod = require("core.lib.pipeline")
+  local discover = require("core.lib.pipeline.discover")
+  local load_stage = require("core.lib.pipeline.load")
+  local merge = require("core.lib.pipeline.merge")
+  local validate_stage = require("core.lib.pipeline.validate")
+
+  local p = pipeline_mod.new()
+  p:register_stage("discover", discover.run)
+  p:register_stage("load", load_stage.run)
+  p:register_stage("merge", merge.run)
+  p:register_stage("validate", validate_stage.run)
+  return p:run()
+end
+
+function M.validate_only()
+  return M._run_validate_only()
+end
+
+function M.validate_only_or_exit()
+  local result = M._run_validate_only()
+
+  local lines = {}
+  for _, e in ipairs(result.errors) do
+    table.insert(lines, string.format("[%s] %s: %s",
+      (e.level or "error"):upper(), e.file or "unknown", e.message))
+  end
+  for _, w in ipairs(result.warnings) do
+    table.insert(lines, string.format("[WARNING] %s: %s",
+      w.file or "unknown", w.message))
+  end
+
+  if #lines == 0 then
+    io.stdout:write("OK: no errors or warnings\n")
+  else
+    io.stdout:write(table.concat(lines, "\n") .. "\n")
+  end
+
+  local critical = vim.tbl_filter(function(e)
+    return e.level == "critical"
+  end, result.errors)
+
+  if #critical > 0 then
+    os.exit(1)
+  end
+  os.exit(0)
 end
 
 return M
