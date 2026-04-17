@@ -57,6 +57,8 @@ function Pipeline:run()
   return context
 end
 
+-- In-place clear of this instance's hooks/stages. Distinct from M.reset,
+-- which swaps the module default for a fresh instance.
 function Pipeline:reset()
   self._hooks = {}
   self._stages = {}
