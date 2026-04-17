@@ -1,30 +1,31 @@
-local M = {}
+-- lua/core/lib/actions.lua
+-- Factory-pattern action registry. Production uses actions.default();
+-- tests use actions.new(). Module-level functions forward to default.
+
 local notify = require("core.lib.notify")
 
-M._registry = {}
+local Actions = {}
+Actions.__index = Actions
 
-function M.register(namespace, name, fn)
-  M._registry[namespace] = M._registry[namespace] or {}
-  M._registry[namespace][name] = fn
+function Actions:register(namespace, name, fn)
+  self._registry[namespace] = self._registry[namespace] or {}
+  self._registry[namespace][name] = fn
 end
 
-function M.register_namespace(namespace, actions_table)
+function Actions:register_namespace(namespace, actions_table)
   for name, fn in pairs(actions_table) do
-    M.register(namespace, name, fn)
+    self:register(namespace, name, fn)
   end
 end
 
-function M.unregister(namespace, name)
-  if M._registry[namespace] then
-    M._registry[namespace][name] = nil
+function Actions:unregister(namespace, name)
+  if self._registry[namespace] then
+    self._registry[namespace][name] = nil
   end
 end
 
-local function split_action(action_string)
-  -- Longest-prefix match against registered namespaces.
-  -- Namespaces can contain dots (e.g., "fzf.vim"), so simple first-dot
-  -- split would break. Sort by length descending for longest match.
-  local sorted_ns = vim.tbl_keys(M._registry)
+function Actions:_split_action(action_string)
+  local sorted_ns = vim.tbl_keys(self._registry)
   table.sort(sorted_ns, function(a, b) return #a > #b end)
 
   for _, ns in ipairs(sorted_ns) do
@@ -34,26 +35,25 @@ local function split_action(action_string)
     end
   end
 
-  -- Fallback: simple dot split for unregistered namespaces
   local namespace, method = action_string:match("^([^.]+)%.(.+)$")
   return namespace, method
 end
 
-function M.resolve(action_string)
-  local namespace, method = split_action(action_string)
+function Actions:resolve(action_string)
+  local namespace, method = self:_split_action(action_string)
   if not namespace or not method then
     return nil, "invalid action format: " .. action_string
   end
 
-  if M._registry[namespace] and M._registry[namespace][method] then
-    return M._registry[namespace][method]
+  if self._registry[namespace] and self._registry[namespace][method] then
+    return self._registry[namespace][method]
   end
 
   return nil, "unregistered action: " .. action_string
 end
 
-function M.invoke(action_string)
-  local fn, err = M.resolve(action_string)
+function Actions:invoke(action_string)
+  local fn, err = self:resolve(action_string)
   if not fn then
     notify.warn(err)
     return false
@@ -67,7 +67,7 @@ function M.invoke(action_string)
   return true
 end
 
-function M.register_from_spec(spec)
+function Actions:register_from_spec(spec)
   if not spec.actions then
     return
   end
@@ -85,9 +85,40 @@ function M.register_from_spec(spec)
       fn = nil
     end
     if fn then
-      M.register(plugin_name, action_name, fn)
+      self:register(plugin_name, action_name, fn)
     end
   end
 end
+
+local M = {}
+
+function M.new()
+  return setmetatable({ _registry = {} }, Actions)
+end
+
+local _default
+function M.default()
+  if not _default then
+    _default = M.new()
+  end
+  return _default
+end
+
+function M.register(ns, name, fn)         return M.default():register(ns, name, fn) end
+function M.register_namespace(ns, tbl)    return M.default():register_namespace(ns, tbl) end
+function M.unregister(ns, name)           return M.default():unregister(ns, name) end
+function M.resolve(str)                   return M.default():resolve(str) end
+function M.invoke(str)                    return M.default():invoke(str) end
+function M.register_from_spec(spec)       return M.default():register_from_spec(spec) end
+
+-- Expose _registry on the module for tests/tools that inspect the default.
+-- Production code should never read this directly.
+setmetatable(M, {
+  __index = function(_, key)
+    if key == "_registry" then
+      return M.default()._registry
+    end
+  end,
+})
 
 return M
