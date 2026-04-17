@@ -111,14 +111,4 @@ function M.resolve(str)                   return M.default():resolve(str) end
 function M.invoke(str)                    return M.default():invoke(str) end
 function M.register_from_spec(spec)       return M.default():register_from_spec(spec) end
 
--- Expose _registry on the module for tests/tools that inspect the default.
--- Production code should never read this directly.
-setmetatable(M, {
-  __index = function(_, key)
-    if key == "_registry" then
-      return M.default()._registry
-    end
-  end,
-})
-
 return M

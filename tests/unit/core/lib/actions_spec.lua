@@ -1,7 +1,22 @@
 -- tests/unit/core/lib/actions_spec.lua
 local actions = require("core.lib.actions")
+local notify = require("core.lib.notify")
 
 describe("actions", function()
+  local original_warn, original_error
+
+  before_each(function()
+    original_warn = notify.warn
+    original_error = notify.error
+    notify.warn = function() end
+    notify.error = function() end
+  end)
+
+  after_each(function()
+    notify.warn = original_warn
+    notify.error = original_error
+  end)
+
   describe("new()", function()
     it("returns a fresh instance with empty registry", function()
       local a = actions.new()
