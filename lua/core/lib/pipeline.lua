@@ -1,15 +1,18 @@
-local M = {}
+-- lua/core/lib/pipeline.lua
+-- Factory-pattern pipeline orchestrator. Production uses
+-- pipeline.default(); tests use pipeline.new(). Module-level reset()
+-- swaps the default for a fresh instance (production hot-reload primitive).
 
-local _hooks = {}
-local _stages = {}
+local Pipeline = {}
+Pipeline.__index = Pipeline
 
-function M.on(hook_name, fn)
-  _hooks[hook_name] = _hooks[hook_name] or {}
-  table.insert(_hooks[hook_name], fn)
+function Pipeline:on(hook_name, fn)
+  self._hooks[hook_name] = self._hooks[hook_name] or {}
+  table.insert(self._hooks[hook_name], fn)
 end
 
-local function run_hooks(name, context)
-  local hooks = _hooks[name]
+function Pipeline:_run_hooks(name, context)
+  local hooks = self._hooks[name]
   if not hooks then
     return context
   end
@@ -19,11 +22,20 @@ local function run_hooks(name, context)
   return context
 end
 
-function M.register_stage(name, fn)
-  table.insert(_stages, { name = name, fn = fn })
+function Pipeline:register_stage(name, fn)
+  table.insert(self._stages, { name = name, fn = fn })
 end
 
-function M.run()
+local function has_critical(context)
+  for _, e in ipairs(context.errors) do
+    if e.level == "critical" then
+      return true
+    end
+  end
+  return false
+end
+
+function Pipeline:run()
   local context = {
     specs = {},
     specs_by_name = {},
@@ -31,31 +43,42 @@ function M.run()
     warnings = {},
   }
 
-  for _, stage in ipairs(_stages) do
-    context = run_hooks("pre_" .. stage.name, context)
+  for _, stage in ipairs(self._stages) do
+    context = self:_run_hooks("pre_" .. stage.name, context)
     context = stage.fn(context)
-    context = run_hooks("post_" .. stage.name, context)
-
-    local critical = vim.tbl_filter(function(e)
-      return e.level == "critical"
-    end, context.errors)
-    if #critical > 0 then
+    context = self:_run_hooks("post_" .. stage.name, context)
+    if has_critical(context) then
       break
     end
   end
 
-  local critical = vim.tbl_filter(function(e)
-    return e.level == "critical"
-  end, context.errors)
-
-  context.ok = #critical == 0
+  context.ok = not has_critical(context)
   context.raw_specs = context.specs
   return context
 end
 
-function M.reset()
-  _hooks = {}
-  _stages = {}
+function Pipeline:reset()
+  self._hooks = {}
+  self._stages = {}
 end
+
+local M = {}
+
+function M.new()
+  return setmetatable({ _hooks = {}, _stages = {} }, Pipeline)
+end
+
+local _default
+function M.default()
+  if not _default then
+    _default = M.new()
+  end
+  return _default
+end
+
+function M.on(hook_name, fn)        return M.default():on(hook_name, fn) end
+function M.register_stage(name, fn) return M.default():register_stage(name, fn) end
+function M.run()                    return M.default():run() end
+function M.reset()                  _default = M.new() end
 
 return M
