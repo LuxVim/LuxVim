@@ -4,6 +4,12 @@
 -- runtime-managed copy in data/lazy/.
 
 local cwd = vim.fn.getcwd()
+
+if vim.fn.filereadable(cwd .. "/lua/core/init.lua") == 0 then
+  io.stderr:write("minimal_init.lua must be run from the LuxVim repo root (cwd=" .. cwd .. ")\n")
+  os.exit(1)
+end
+
 vim.opt.runtimepath:prepend(cwd)
 
 local lua_dir = cwd .. "/lua"
@@ -18,7 +24,7 @@ if vim.fn.isdirectory(plenary_path) == 0 then
     "https://github.com/nvim-lua/plenary.nvim.git",
     plenary_path,
   })
-  if vim.v.shell_error ~= 0 then
+  if vim.v.shell_error ~= 0 and vim.fn.isdirectory(plenary_path) == 0 then
     io.stderr:write("Failed to clone plenary.nvim\n" .. out .. "\n")
     os.exit(1)
   end
