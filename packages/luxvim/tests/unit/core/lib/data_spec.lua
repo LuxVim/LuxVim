@@ -94,4 +94,28 @@ describe("core.lib.data", function()
       vim.env.XDG_CONFIG_HOME = orig_xdg
     end)
   end)
+
+  describe("root", function()
+    it("prefers $LUXVIM_ROOT when set", function()
+      local original = vim.env.LUXVIM_ROOT
+      vim.env.LUXVIM_ROOT = "/explicit/root"
+      package.loaded["core.lib.data"] = nil
+      local fresh = require("core.lib.data")
+      assert.equal("/explicit/root", fresh.root())
+      vim.env.LUXVIM_ROOT = original
+      package.loaded["core.lib.data"] = nil
+    end)
+
+    it("caches the resolved root across calls", function()
+      local original = vim.env.LUXVIM_ROOT
+      vim.env.LUXVIM_ROOT = "/first/root"
+      package.loaded["core.lib.data"] = nil
+      local fresh = require("core.lib.data")
+      assert.equal("/first/root", fresh.root())
+      vim.env.LUXVIM_ROOT = "/second/root"
+      assert.equal("/first/root", fresh.root())
+      vim.env.LUXVIM_ROOT = original
+      package.loaded["core.lib.data"] = nil
+    end)
+  end)
 end)
