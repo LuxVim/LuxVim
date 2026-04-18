@@ -257,7 +257,7 @@ fi
 
 # ── Bootstrap lazy.nvim ──────────────────────────────────
 
-LUXVIM_DATA_DIR="$LUXVIM_DIR/data"
+LUXVIM_DATA_DIR="$LUXVIM_DIR/data/LuxVim"
 mkdir -p "$LUXVIM_DATA_DIR/lazy" "$LUXVIM_DATA_DIR/luxlsp" "$LUXVIM_DATA_DIR/site"
 step_ok "Created data directories"
 
