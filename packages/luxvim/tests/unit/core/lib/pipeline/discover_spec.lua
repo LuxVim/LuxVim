@@ -18,11 +18,19 @@ end
 
 local function with_luxvim_data_root(root, fn)
   local orig_env = vim.env.LUXVIM_ROOT
+  local orig_stdpath = vim.fn.stdpath
   vim.env.LUXVIM_ROOT = root
+  vim.fn.stdpath = function(name)
+    if name == "data" then
+      return root .. "/data"
+    end
+    return orig_stdpath(name)
+  end
   package.loaded["core.lib.data"] = nil
   data_mod = require("core.lib.data")
   local ok, err = pcall(fn)
   vim.env.LUXVIM_ROOT = orig_env
+  vim.fn.stdpath = orig_stdpath
   package.loaded["core.lib.data"] = nil
   data_mod = require("core.lib.data")
   if not ok then error(err) end
