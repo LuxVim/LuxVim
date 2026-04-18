@@ -1,0 +1,39 @@
+{
+  "name": "@josstei/luxvim",
+  "version": "0.0.1",
+  "description": "LuxVim — self-contained Neovim distribution.",
+  "license": "Apache-2.0",
+  "author": "josstei",
+  "homepage": "https://github.com/josstei/luxvim",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/josstei/luxvim.git"
+  },
+  "bugs": {
+    "url": "https://github.com/josstei/luxvim/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "lux": "./bin/lux.js"
+  },
+  "files": [
+    "bin/",
+    "init.lua",
+    "lua/",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test tests/node/"
+  },
+  "keywords": [
+    "neovim",
+    "nvim",
+    "luxvim",
+    "editor",
+    "distribution"
+  ]
+}
