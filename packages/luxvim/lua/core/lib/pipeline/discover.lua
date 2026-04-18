@@ -68,7 +68,7 @@ function M.run(context)
 
   -- Scan dynamic-specs directory (for theme picker and other dynamic plugins)
   local data = require("core.lib.data")
-  local dynamic_dir = paths.join(data.root(), "data", "dynamic-specs")
+  local dynamic_dir = data.dynamic_specs_dir()
   if vim.uv.fs_stat(dynamic_dir) then
     local dynamic_entries = paths.scandir(dynamic_dir, function(name, entry_type)
       return entry_type == "file" and name:match("%.lua$")
