@@ -198,6 +198,13 @@ for (( i=0; i<PAD_LEN; i++ )); do PAD+=" "; done
 # ── Logo ─────────────────────────────────────────────────
 print_logo
 
+# ── Deprecation notice ───────────────────────────────────
+draw_box "Deprecation notice" \
+    "Status" "git-clone path is legacy" \
+    "Preferred" "npm install -g @josstei/luxvim" \
+    "Removed in" "v1.0 (see docs)"
+echo ""
+
 # ── System info ──────────────────────────────────────────
 NVIM_VERSION=$(nvim --version 2>/dev/null | head -1 | sed 's/NVIM //')
 OS_INFO=$(uname -sr)
