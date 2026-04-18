@@ -10,10 +10,6 @@ export function resolveRuntimePackageName(platform, arch) {
   return `@josstei/luxvim-runtime-${platform}-${arch}`;
 }
 
-export function isSupportedPlatform(platform, arch) {
-  return SUPPORTED.includes(`${platform}-${arch}`);
-}
-
 export function buildUnsupportedPlatformMessage(platform, arch) {
   return (
     `No LuxVim runtime available for ${platform}/${arch}.\n` +
