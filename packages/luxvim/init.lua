@@ -3,20 +3,11 @@
 -- **********************************************************
 
 local function script_dir()
-  local info = debug.getinfo(1, "S")
-  local source = info and info.source or ""
+  local source = debug.getinfo(1, "S").source or ""
   if source:sub(1, 1) == "@" then
     source = source:sub(2)
   end
-  local dir = source:match("(.*[/\\])")
-  if not dir then
-    return "."
-  end
-  dir = dir:gsub("\\", "/")
-  if dir:sub(-1) == "/" then
-    dir = dir:sub(1, -2)
-  end
-  return dir
+  return (vim.fn.fnamemodify(source, ":p:h"):gsub("\\", "/"))
 end
 
 local current_dir = script_dir()
