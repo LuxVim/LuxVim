@@ -27,7 +27,7 @@
     "README.md"
   ],
   "scripts": {
-    "test": "node --test tests/node/"
+    "test": "node --test tests/node/*.test.js"
   },
   "keywords": [
     "neovim",
