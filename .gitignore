@@ -19,6 +19,10 @@ lazy-lock.json
 LuxVim/lazy-lock.json
 lesshst
 
+# npm artifacts
+packages/luxvim/*.tgz
+packages/luxvim/node_modules/
+
 # OS - macOS
 .DS_Store
 .AppleDouble
