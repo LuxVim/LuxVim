@@ -9,6 +9,15 @@ $LuxVimDir = $PSScriptRoot
 Write-Host "Installing LuxVim..." -ForegroundColor Blue
 Write-Host "LuxVim directory: $LuxVimDir" -ForegroundColor Yellow
 
+Write-Host ""
+Write-Host "------------------------------------------------" -ForegroundColor DarkGray
+Write-Host "DEPRECATION NOTICE" -ForegroundColor Yellow
+Write-Host "  The git-clone install path is legacy." -ForegroundColor DarkGray
+Write-Host "  Preferred: npm install -g @josstei/luxvim" -ForegroundColor DarkGray
+Write-Host "  This path will be removed in LuxVim v1.0." -ForegroundColor DarkGray
+Write-Host "------------------------------------------------" -ForegroundColor DarkGray
+Write-Host ""
+
 # Check for nvim
 if (-not (Get-Command nvim -ErrorAction SilentlyContinue)) {
     Write-Host "Neovim is not installed. Please install Neovim first." -ForegroundColor Red
