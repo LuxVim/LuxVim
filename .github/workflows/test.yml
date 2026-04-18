@@ -22,8 +22,8 @@ jobs:
       - name: Cache plenary
         uses: actions/cache@v4
         with:
-          path: data/test-plenary
-          key: plenary-${{ hashFiles('tests/minimal_init.lua') }}
+          path: packages/luxvim/data/test-plenary
+          key: plenary-${{ hashFiles('packages/luxvim/tests/minimal_init.lua') }}
 
       - name: Run tests
         run: ./scripts/test.sh
