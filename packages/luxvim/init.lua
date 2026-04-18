@@ -2,8 +2,24 @@
 -- ********************* LUXVIM *****************************
 -- **********************************************************
 
-local current_dir = vim.fn.expand("<sfile>:p:h")
-current_dir = current_dir:gsub("\\", "/")
+local function script_dir()
+  local info = debug.getinfo(1, "S")
+  local source = info and info.source or ""
+  if source:sub(1, 1) == "@" then
+    source = source:sub(2)
+  end
+  local dir = source:match("(.*[/\\])")
+  if not dir then
+    return "."
+  end
+  dir = dir:gsub("\\", "/")
+  if dir:sub(-1) == "/" then
+    dir = dir:sub(1, -2)
+  end
+  return dir
+end
+
+local current_dir = script_dir()
 vim.opt.runtimepath:prepend(current_dir)
 
 local lua_dir = current_dir .. "/lua"
