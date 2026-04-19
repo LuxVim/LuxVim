@@ -76,20 +76,20 @@ describe("pipeline.transform", function()
     assert.equal("unknown", r.dependencies[1])
   end)
 
-  it("sets dir/name when a debug plugin is detected", function()
-    local debug_mod = require("core.lib.debug")
-    local orig_has = debug_mod.has_debug_plugin
-    local orig_path = debug_mod.get_debug_path
-    debug_mod.has_debug_plugin = function(name) return name == "myplugin" end
-    debug_mod.get_debug_path = function(name) return "/fake/debug/" .. name end
+  it("sets dir/name when a vendored plugin is detected", function()
+    local bundle_mod = require("core.lib.bundle")
+    local orig_has = bundle_mod.has_vendored_plugin
+    local orig_path = bundle_mod.get_vendored_path
+    bundle_mod.has_vendored_plugin = function(name) return name == "myplugin" end
+    bundle_mod.get_vendored_path = function(name) return "/fake/vendor/" .. name end
 
     local r = transform.transform_one({ source = "x/myplugin" }, {})
-    assert.equal("/fake/debug/myplugin", r.dir)
-    assert.equal("myplugin-debug", r.name)
+    assert.equal("/fake/vendor/myplugin", r.dir)
+    assert.equal("myplugin", r.name)
     assert.is_nil(r[1])
 
-    debug_mod.has_debug_plugin = orig_has
-    debug_mod.get_debug_path = orig_path
+    bundle_mod.has_vendored_plugin = orig_has
+    bundle_mod.get_vendored_path = orig_path
   end)
 
   describe("transform_build", function()
