@@ -6,8 +6,9 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$ROOT"
+PKG="$ROOT/packages/luxvim"
+cd "$PKG"
 
-LUXVIM_ROOT="$ROOT" NVIM_APPNAME="LuxVim" XDG_DATA_HOME="$ROOT/data" \
-  exec nvim --headless --cmd "set rtp+=$ROOT" -u "$ROOT/init.lua" \
+LUXVIM_ROOT="$PKG" NVIM_APPNAME="LuxVim" XDG_DATA_HOME="$PKG/data" \
+  exec nvim --headless --cmd "set rtp+=$PKG" -u "$PKG/init.lua" \
   -c "lua require('core').validate_only_or_exit()"

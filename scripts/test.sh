@@ -6,7 +6,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$ROOT"
+cd "$ROOT/packages/luxvim"
 
 exec nvim --headless --clean -u tests/minimal_init.lua \
   -c "lua require('plenary.test_harness').test_directory('tests/unit', { minimal_init = 'tests/minimal_init.lua', sequential = true })" \

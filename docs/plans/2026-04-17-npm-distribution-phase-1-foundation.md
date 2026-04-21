@@ -31,7 +31,7 @@
 - [ ] **P.1: Work in a dedicated worktree** — this plan ships many commits; isolate from any in-flight work.
 
 ```bash
-cd /Users/josstei/Development/lux-workspace/LuxVim
+cd <path-to-LuxVim-clone>
 git worktree add -b feat/npm-foundation .worktrees/npm-foundation
 cd .worktrees/npm-foundation
 ```
@@ -232,7 +232,7 @@ The thin wrapper has no automated test today — it is a one-line delegator. Cre
 
 - [ ] **Step 2: Write the wrapper**
 
-Create `/Users/josstei/Development/lux-workspace/LuxVim/init.lua`:
+Create `<repo-root>/init.lua`:
 
 ```lua
 local this_dir = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h")

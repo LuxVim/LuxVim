@@ -6,7 +6,7 @@
 local cwd = vim.fn.getcwd()
 
 if vim.fn.filereadable(cwd .. "/lua/core/init.lua") == 0 then
-  io.stderr:write("minimal_init.lua must be run from the LuxVim repo root (cwd=" .. cwd .. ")\n")
+  io.stderr:write("minimal_init.lua must be run from packages/luxvim (cwd=" .. cwd .. ")\n")
   os.exit(1)
 end
 

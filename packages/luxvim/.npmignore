@@ -1,0 +1,18 @@
+# Exclude dev / runtime-only artifacts from the published tarball.
+data/
+debug/
+tests/
+lazy-lock.json
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor junk
+.vscode/
+.idea/
+*.swp
+
+# Source control
+.git/
+.gitignore
