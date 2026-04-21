@@ -36,45 +36,11 @@ function M.get_luxvim_root()
   return _luxvim_root
 end
 
-function M.get_debug_path(plugin_name)
-  return paths.join(M.get_luxvim_root(), "debug", plugin_name)
-end
-
-function M.has_debug_plugin(plugin_name)
-  local debug_path = M.get_debug_path(plugin_name)
-  local stat = vim.uv.fs_stat(debug_path)
-  if not stat or stat.type ~= "directory" then
-    return false
-  end
-
-  local plugin_dir = paths.join(debug_path, "plugin")
-  local lua_dir = paths.join(debug_path, "lua")
-  local plugin_stat = vim.uv.fs_stat(plugin_dir)
-  local lua_stat = vim.uv.fs_stat(lua_dir)
-
-  return (plugin_stat and plugin_stat.type == "directory")
-      or (lua_stat and lua_stat.type == "directory")
-end
-
 function M.resolve_debug_name(spec)
   if spec.debug_name then
     return spec.debug_name
   end
   return paths.basename(spec.source)
-end
-
-function M.list_debug_plugins()
-  local debug_dir = paths.join(M.get_luxvim_root(), "debug")
-
-  local entries = paths.scandir(debug_dir, function(name, entry_type)
-    return (entry_type == "directory" or entry_type == "link") and M.has_debug_plugin(name)
-  end)
-
-  local plugins = {}
-  for _, entry in ipairs(entries) do
-    table.insert(plugins, entry.name)
-  end
-  return plugins
 end
 
 return M

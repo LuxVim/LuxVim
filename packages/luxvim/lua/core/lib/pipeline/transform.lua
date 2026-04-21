@@ -1,4 +1,5 @@
 local debug_mod = require("core.lib.debug")
+local bundle_mod = require("core.lib.bundle")
 local platform = require("core.lib.platform")
 local conditions = require("core.registry.conditions")
 local notify = require("core.lib.notify")
@@ -97,14 +98,14 @@ function M.transform_one(spec, specs_by_name)
     return nil
   end
 
-  local debug_name = debug_mod.resolve_debug_name(spec)
-  local use_debug = debug_mod.has_debug_plugin(debug_name)
+  local plugin_name = debug_mod.resolve_debug_name(spec)
+  local use_bundle = bundle_mod.has_vendored_plugin(plugin_name)
 
   local lazy_spec = {}
 
-  if use_debug then
-    lazy_spec.dir = debug_mod.get_debug_path(debug_name)
-    lazy_spec.name = debug_name .. "-debug"
+  if use_bundle then
+    lazy_spec.dir = bundle_mod.get_vendored_path(plugin_name)
+    lazy_spec.name = plugin_name
   else
     lazy_spec[1] = spec.source
   end

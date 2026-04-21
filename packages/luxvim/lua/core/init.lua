@@ -142,25 +142,6 @@ function M._create_commands()
     notify.warn(table.concat(lines, "\n"))
   end, { desc = "Show LuxVim errors and warnings" })
 
-  vim.api.nvim_create_user_command("LuxDevStatus", function()
-    local debug_mod = require("core.lib.debug")
-    local plugins = debug_mod.list_debug_plugins()
-
-    local lines = { "LuxVim Development Status", "============================" }
-
-    if #plugins == 0 then
-      table.insert(lines, "No debug plugins found in /debug directory")
-    else
-      table.insert(lines, "Active debug plugins:")
-      for _, plugin in ipairs(plugins) do
-        local path = debug_mod.get_debug_path(plugin)
-        table.insert(lines, "  " .. plugin .. " -> " .. path)
-      end
-    end
-
-    notify.info(table.concat(lines, "\n"))
-  end, { desc = "Show LuxVim development status" })
-
   vim.api.nvim_create_user_command("LuxVimGenerateTypes", function()
     local typegen = require("core.lib.typegen")
     typegen.write()
