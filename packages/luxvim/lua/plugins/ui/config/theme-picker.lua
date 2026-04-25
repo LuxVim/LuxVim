@@ -14,11 +14,11 @@ local _original_colorscheme = nil
 -- Persistence
 
 local function get_data_path()
-  return paths.join(data.root(), "data", "installed-themes.json")
+  return data.installed_themes_path()
 end
 
 local function get_dynamic_specs_dir()
-  return paths.join(data.root(), "data", "dynamic-specs")
+  return data.dynamic_specs_dir()
 end
 
 local function load_installed()

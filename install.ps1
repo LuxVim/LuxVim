@@ -9,6 +9,15 @@ $LuxVimDir = $PSScriptRoot
 Write-Host "Installing LuxVim..." -ForegroundColor Blue
 Write-Host "LuxVim directory: $LuxVimDir" -ForegroundColor Yellow
 
+Write-Host ""
+Write-Host "------------------------------------------------" -ForegroundColor DarkGray
+Write-Host "DEPRECATION NOTICE" -ForegroundColor Yellow
+Write-Host "  The git-clone install path is legacy." -ForegroundColor DarkGray
+Write-Host "  Preferred: npm install -g @josstei/luxvim" -ForegroundColor DarkGray
+Write-Host "  This path will be removed in LuxVim v1.0." -ForegroundColor DarkGray
+Write-Host "------------------------------------------------" -ForegroundColor DarkGray
+Write-Host ""
+
 # Check for nvim
 if (-not (Get-Command nvim -ErrorAction SilentlyContinue)) {
     Write-Host "Neovim is not installed. Please install Neovim first." -ForegroundColor Red
@@ -18,7 +27,7 @@ if (-not (Get-Command nvim -ErrorAction SilentlyContinue)) {
 Write-Host "Neovim found" -ForegroundColor Green
 
 # Create data directories
-$dataDirs = @("data\lazy", "data\luxlsp", "data\site")
+$dataDirs = @("data\LuxVim\lazy", "data\LuxVim\luxlsp", "data\LuxVim\site")
 foreach ($dir in $dataDirs) {
     $fullPath = Join-Path $LuxVimDir $dir
     if (-not (Test-Path $fullPath)) {
@@ -28,7 +37,7 @@ foreach ($dir in $dataDirs) {
 Write-Host "Created data directories" -ForegroundColor Green
 
 # Bootstrap lazy.nvim
-$lazyPath = Join-Path $LuxVimDir "data\lazy\lazy.nvim"
+$lazyPath = Join-Path $LuxVimDir "data\LuxVim\lazy\lazy.nvim"
 if (-not (Test-Path $lazyPath)) {
     Write-Host "Bootstrapping lazy.nvim..." -ForegroundColor Blue
     git clone --filter=blob:none --branch=stable "https://github.com/folke/lazy.nvim.git" $lazyPath
