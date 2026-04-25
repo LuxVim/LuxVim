@@ -5,6 +5,7 @@
 claude/
 CLAUDE.*
 docs/superpowers/
+docs/plans
 docs/maestro/
 
 # LuxVim specific
