@@ -292,8 +292,8 @@ while kill -0 "$SYNC_PID" 2>/dev/null; do
 done
 tput cnorm 2>/dev/null
 
-wait "$SYNC_PID" || true
-SYNC_EXIT=$?
+SYNC_EXIT=0
+wait "$SYNC_PID" || SYNC_EXIT=$?
 
 if [ "$SYNC_EXIT" -eq 0 ]; then
     PLUGIN_COUNT=$(grep -c "Finished task clone" "$LOG_FILE" 2>/dev/null || echo "0")
