@@ -331,7 +331,7 @@ local function on_uninstall()
   render()
 end
 
-function open()
+local function open()
   _original_colorscheme = vim.g.colors_name
   build_items()
 
