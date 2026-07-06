@@ -20,10 +20,14 @@
 ---@field dependencies? any[] References to other plugin specs
 ---@field enabled? boolean Enable/disable plugin
 ---@field event? string|any[] Lazy-load on event
+---@field extends? string Name of framework spec to extend (deep merge)
 ---@field ft? string|any[] Lazy-load on filetype
+---@field globals? table vim.g variables set before plugin loads
+---@field keys? string|any[]|table Lazy-load on keymap
 ---@field lazy? table Lazy.nvim native fields
 ---@field opts? table Options passed to setup()
----@field source string GitHub repo (author/name)
+---@field replaces? string Name of framework spec to replace entirely
+---@field source string GitHub repo (author/name) or 'virtual'
 
 ---@class KeymapEntry
 ---@field action string Action to invoke
@@ -31,6 +35,7 @@
 ---@field mode? string|any[] Vim mode(s)
 
 ---@class AutocmdEntry
----@field action string Action to invoke
+---@field action? string Action to invoke (mutually exclusive with callback)
+---@field callback? function Direct callback (mutually exclusive with action)
 ---@field once? boolean Run only once
 ---@field pattern? string|any[] File pattern
