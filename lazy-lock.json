@@ -1,0 +1,14 @@
+{
+  "fzf": { "branch": "master", "commit": "f5fbfd848ec0a5c9771dd103e921e7064445c9ba" },
+  "fzf.vim": { "branch": "master", "commit": "356608e2ae5d9127e2c964885ea2b21ea7aea9ab" },
+  "lazy.nvim": { "branch": "main", "commit": "306a05526ada86a7b30af95c5cc81ffba93fef97" },
+  "nvim-lspconfig": { "branch": "master", "commit": "ed19590a3a9792901553c388d1aadafce012f80d" },
+  "nvim-luxdash": { "branch": "main", "commit": "58d7586521c6e156c0bbeae89e0ff78ff9126da8" },
+  "nvim-luxline": { "branch": "main", "commit": "0d370d47e650aa2b05032e73b94791e8ccf6b92a" },
+  "nvim-tree.lua": { "branch": "master", "commit": "82f58063d67defc620e1ef8be606fc62a7b5dc1e" },
+  "nvim-treesitter": { "branch": "main", "commit": "4916d6592ede8c07973490d9322f187e07dfefac" },
+  "nvim-web-devicons": { "branch": "master", "commit": "dfbfaa967a6f7ec50789bead7ef87e336c1fa63c" },
+  "plenary.nvim": { "branch": "master", "commit": "74b06c6c75e4eeb3108ec01852001636d85a932b" },
+  "vim-luxpane": { "branch": "main", "commit": "b3da76d6fe37e79d6ff35941d589fa7231228e3b" },
+  "whisk.nvim": { "branch": "main", "commit": "852b6892f4fe0a8f911843e0b90bfc947d3b95df" }
+}

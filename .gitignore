@@ -15,8 +15,6 @@ lux.cmd
 state/*
 debug/*
 lua/config/lazy.lua.backup
-lazy-lock.json
-LuxVim/lazy-lock.json
 lesshst
 
 # OS - macOS
