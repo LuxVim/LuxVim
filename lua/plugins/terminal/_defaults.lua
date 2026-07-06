@@ -1,3 +1,1 @@
-return {
-  cmd = true,
-}
+return {}
