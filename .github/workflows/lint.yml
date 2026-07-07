@@ -42,10 +42,10 @@ jobs:
       - name: selene
         run: selene init.lua lua/ tests/
 
+      # shellcheck version floats with the runner image (accepted trade-off)
       - name: shellcheck
         run: shellcheck --severity=warning install.sh scripts/test.sh scripts/validate.sh
 
-      # shellcheck version floats with the runner image (accepted trade-off)
       - name: PSScriptAnalyzer
         shell: pwsh
         run: |
