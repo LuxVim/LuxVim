@@ -1,0 +1,52 @@
+name: lint
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  STYLUA_VERSION: v2.4.1
+  SELENE_VERSION: 0.30.0
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install stylua
+        run: |
+          curl -fsSL -o /tmp/stylua.zip "https://github.com/JohnnyMorganz/StyLua/releases/download/${STYLUA_VERSION}/stylua-linux-x86_64.zip"
+          unzip -o /tmp/stylua.zip -d /tmp/tools
+          chmod +x /tmp/tools/stylua
+          echo "/tmp/tools" >> "$GITHUB_PATH"
+
+      - name: Install selene
+        run: |
+          curl -fsSL -o /tmp/selene.zip "https://github.com/Kampfkarren/selene/releases/download/${SELENE_VERSION}/selene-${SELENE_VERSION}-linux.zip"
+          unzip -o /tmp/selene.zip -d /tmp/tools
+          chmod +x /tmp/tools/selene
+          echo "/tmp/tools" >> "$GITHUB_PATH"
+
+      - name: stylua check
+        run: stylua --check init.lua lua/ tests/
+
+      - name: selene
+        run: selene init.lua lua/ tests/
+
+      - name: shellcheck
+        run: shellcheck --severity=warning install.sh scripts/test.sh scripts/validate.sh
+
+      - name: PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
+          Invoke-ScriptAnalyzer -Path ./install.ps1 -Severity Warning -EnableExit
