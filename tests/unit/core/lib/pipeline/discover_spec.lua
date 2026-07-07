@@ -1,7 +1,7 @@
 -- tests/unit/core/lib/pipeline/discover_spec.lua
 local discover = require("core.lib.pipeline.discover")
 local debug_mod = require("core.lib.debug")
-local data_mod = require("core.lib.data")
+local _data_mod = require("core.lib.data")
 local tmpdir = require("tests.helpers.tmpdir")
 
 local function fresh_ctx()
@@ -24,11 +24,11 @@ local function with_luxvim_data_root(root, fn)
   local orig_env = vim.env.LUXVIM_ROOT
   vim.env.LUXVIM_ROOT = root
   package.loaded["core.lib.data"] = nil
-  data_mod = require("core.lib.data")
+  _data_mod = require("core.lib.data")
   local ok, err = pcall(fn)
   vim.env.LUXVIM_ROOT = orig_env
   package.loaded["core.lib.data"] = nil
-  data_mod = require("core.lib.data")
+  _data_mod = require("core.lib.data")
   if not ok then
     error(err)
   end
