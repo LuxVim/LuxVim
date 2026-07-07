@@ -9,7 +9,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   STYLUA_VERSION: v2.4.1
@@ -45,8 +45,9 @@ jobs:
       - name: shellcheck
         run: shellcheck --severity=warning install.sh scripts/test.sh scripts/validate.sh
 
+      # shellcheck version floats with the runner image (accepted trade-off)
       - name: PSScriptAnalyzer
         shell: pwsh
         run: |
-          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
+          Install-Module PSScriptAnalyzer -RequiredVersion 1.25.0 -Force -Scope CurrentUser
           Invoke-ScriptAnalyzer -Path ./install.ps1 -Severity Warning -EnableExit
