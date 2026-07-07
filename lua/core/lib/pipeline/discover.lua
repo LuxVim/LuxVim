@@ -51,9 +51,11 @@ function M.run(context)
     table.insert(context.errors, {
       level = "critical",
       file = "core.lib.pipeline.discover",
-      message = "Plugin directory not found: " .. plugins_dir
-          .. "\nLuxVim root detected as: " .. root
-          .. "\nLaunch LuxVim from its directory or check installation.",
+      message = "Plugin directory not found: "
+        .. plugins_dir
+        .. "\nLuxVim root detected as: "
+        .. root
+        .. "\nLaunch LuxVim from its directory or check installation.",
     })
     return context
   end

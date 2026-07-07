@@ -60,10 +60,10 @@ local function write_dynamic_spec(theme)
   if not file then
     return false
   end
-  file:write('return {\n')
+  file:write("return {\n")
   file:write('  source = "' .. theme.repo .. '",\n')
-  file:write('  lazy = { lazy = true, priority = 1000 },\n')
-  file:write('}\n')
+  file:write("  lazy = { lazy = true, priority = 1000 },\n")
+  file:write("}\n")
   file:close()
   return true
 end
@@ -77,7 +77,9 @@ end
 
 local function find_theme(name)
   for _, t in ipairs(_opts.themes or {}) do
-    if t.name == name then return t end
+    if t.name == name then
+      return t
+    end
   end
   return nil
 end
@@ -118,8 +120,7 @@ local function get_installed_themes()
   if current and not seen[current] then
     -- Check if it matches a catalog theme
     for _, theme in ipairs(_opts.themes or {}) do
-      if theme.colorscheme == current or
-          (theme.variants and vim.tbl_contains(theme.variants, current)) then
+      if theme.colorscheme == current or (theme.variants and vim.tbl_contains(theme.variants, current)) then
         if not seen[theme.name] then
           seen[theme.name] = true
           table.insert(installed, 1, { theme = theme, is_managed = false })
@@ -163,8 +164,10 @@ local function build_items()
   else
     for _, entry in ipairs(installed) do
       local prefix = "    "
-      if entry.theme.colorscheme == current or
-          (entry.theme.variants and vim.tbl_contains(entry.theme.variants, current)) then
+      if
+        entry.theme.colorscheme == current
+        or (entry.theme.variants and vim.tbl_contains(entry.theme.variants, current))
+      then
         prefix = "  * "
       end
       table.insert(_items, {
@@ -198,7 +201,9 @@ local function build_items()
 end
 
 local function render()
-  if not _buf or not vim.api.nvim_buf_is_valid(_buf) then return end
+  if not _buf or not vim.api.nvim_buf_is_valid(_buf) then
+    return
+  end
 
   vim.bo[_buf].modifiable = true
   local lines = {}
@@ -269,7 +274,9 @@ local function install_theme(theme)
   if not vim.uv.fs_stat(install_path) then
     notify.info("Installing " .. theme.name .. "...")
     vim.fn.system({
-      "git", "clone", "--filter=blob:none",
+      "git",
+      "clone",
+      "--filter=blob:none",
       "https://github.com/" .. theme.repo .. ".git",
       install_path,
     })
@@ -291,7 +298,9 @@ end
 
 local function on_select()
   local item = _items[_cursor_line]
-  if not item then return end
+  if not item then
+    return
+  end
 
   if item.type == "installed" then
     preview_apply(item.theme.colorscheme)
@@ -302,13 +311,17 @@ end
 
 local function on_install()
   local item = _items[_cursor_line]
-  if not item or item.type ~= "available" then return end
+  if not item or item.type ~= "available" then
+    return
+  end
   install_theme(item.theme)
 end
 
 local function on_uninstall()
   local item = _items[_cursor_line]
-  if not item or item.type ~= "installed" then return end
+  if not item or item.type ~= "installed" then
+    return
+  end
 
   if not item.is_managed then
     notify.warn("This theme is installed via a plugin spec, not the theme picker")
@@ -361,15 +374,29 @@ local function open()
   render()
 
   local kopts = { buffer = _buf, silent = true }
-  vim.keymap.set("n", "j", function() move_cursor(1) end, kopts)
-  vim.keymap.set("n", "k", function() move_cursor(-1) end, kopts)
-  vim.keymap.set("n", "<Down>", function() move_cursor(1) end, kopts)
-  vim.keymap.set("n", "<Up>", function() move_cursor(-1) end, kopts)
+  vim.keymap.set("n", "j", function()
+    move_cursor(1)
+  end, kopts)
+  vim.keymap.set("n", "k", function()
+    move_cursor(-1)
+  end, kopts)
+  vim.keymap.set("n", "<Down>", function()
+    move_cursor(1)
+  end, kopts)
+  vim.keymap.set("n", "<Up>", function()
+    move_cursor(-1)
+  end, kopts)
   vim.keymap.set("n", "<CR>", on_select, kopts)
   vim.keymap.set("n", "i", on_install, kopts)
   vim.keymap.set("n", "x", on_uninstall, kopts)
-  vim.keymap.set("n", "q", function() preview_restore(); close() end, kopts)
-  vim.keymap.set("n", "<Esc>", function() preview_restore(); close() end, kopts)
+  vim.keymap.set("n", "q", function()
+    preview_restore()
+    close()
+  end, kopts)
+  vim.keymap.set("n", "<Esc>", function()
+    preview_restore()
+    close()
+  end, kopts)
 
   if _items[_cursor_line] and _items[_cursor_line].type == "installed" then
     preview_apply(_items[_cursor_line].theme.colorscheme)

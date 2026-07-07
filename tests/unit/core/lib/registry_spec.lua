@@ -7,7 +7,9 @@ local function with_user_config(root, fn)
   vim.env.LUXVIM_CONFIG = root
   local ok, err = pcall(fn)
   vim.env.LUXVIM_CONFIG = orig
-  if not ok then error(err) end
+  if not ok then
+    error(err)
+  end
 end
 
 describe("registry.new", function()
@@ -16,7 +18,9 @@ describe("registry.new", function()
       name = "testreg",
       framework_module = "does.not.matter",
       user_file = "nope.lua",
-      register = function() return true end,
+      register = function()
+        return true
+      end,
     })
     assert.equal("testreg", r.name)
     assert.is_function(r.register)
@@ -28,7 +32,9 @@ describe("registry.new", function()
       name = "testreg",
       framework_module = "_test_fw",
       user_file = "no-such-user-file.lua",
-      register = function() return true end,
+      register = function()
+        return true
+      end,
     })
     local entries, err = r:load()
     assert.is_nil(err)
@@ -41,7 +47,9 @@ describe("registry.new", function()
       name = "testreg",
       framework_module = "definitely.not.a.module.xyz",
       user_file = "nope.lua",
-      register = function() return true end,
+      register = function()
+        return true
+      end,
     })
     local entries, err = r:load()
     assert.is_nil(entries)
@@ -51,14 +59,16 @@ describe("registry.new", function()
   it("load() merges user 'extends' into framework entries", function()
     package.loaded["_test_fw"] = { base = { a = 1 } }
     local user_root, cleanup = tmpdir.new({
-      ["user.lua"] = 'return { extends = true, base = { b = 2 } }',
+      ["user.lua"] = "return { extends = true, base = { b = 2 } }",
     })
     with_user_config(user_root, function()
       local r = registry.new({
         name = "testreg",
         framework_module = "_test_fw",
         user_file = "user.lua",
-        register = function() return true end,
+        register = function()
+          return true
+        end,
       })
       local entries, err = r:load()
       assert.is_nil(err)
@@ -72,14 +82,16 @@ describe("registry.new", function()
   it("load() respects user 'replaces' to swap entirely", function()
     package.loaded["_test_fw"] = { base = { a = 1 } }
     local user_root, cleanup = tmpdir.new({
-      ["user.lua"] = 'return { replaces = true, other = { x = 9 } }',
+      ["user.lua"] = "return { replaces = true, other = { x = 9 } }",
     })
     with_user_config(user_root, function()
       local r = registry.new({
         name = "testreg",
         framework_module = "_test_fw",
         user_file = "user.lua",
-        register = function() return true end,
+        register = function()
+          return true
+        end,
       })
       local entries, err = r:load()
       assert.is_nil(err)
@@ -93,14 +105,16 @@ describe("registry.new", function()
   it("load() fails when user file has a syntax error", function()
     package.loaded["_test_fw"] = { foo = "bar" }
     local user_root, cleanup = tmpdir.new({
-      ["user.lua"] = 'this is not valid lua ::::',
+      ["user.lua"] = "this is not valid lua ::::",
     })
     with_user_config(user_root, function()
       local r = registry.new({
         name = "testreg",
         framework_module = "_test_fw",
         user_file = "user.lua",
-        register = function() return true end,
+        register = function()
+          return true
+        end,
       })
       local entries, err = r:load()
       assert.is_nil(entries)
@@ -120,8 +134,12 @@ describe("registry.new", function()
         name = "testreg",
         framework_module = "_test_fw",
         user_file = "user.lua",
-        validate_user = function() return nil, "user rejected" end,
-        register = function() return true end,
+        validate_user = function()
+          return nil, "user rejected"
+        end,
+        register = function()
+          return true
+        end,
       })
       local entries, err = r:load()
       assert.is_nil(entries)
@@ -137,8 +155,12 @@ describe("registry.new", function()
       name = "testreg",
       framework_module = "_test_fw",
       user_file = "nope.lua",
-      validate_entries = function() return nil, "entries rejected" end,
-      register = function() return true end,
+      validate_entries = function()
+        return nil, "entries rejected"
+      end,
+      register = function()
+        return true
+      end,
     })
     local entries, err = r:load()
     assert.is_nil(entries)
@@ -152,7 +174,9 @@ describe("registry.new", function()
       name = "testreg",
       framework_module = "_test_fw",
       user_file = "nope.lua",
-      register = function() return nil, "register boom" end,
+      register = function()
+        return nil, "register boom"
+      end,
     })
     local ok, err = r:setup()
     assert.is_nil(ok)
@@ -167,7 +191,10 @@ describe("registry.new", function()
       name = "testreg",
       framework_module = "_test_fw",
       user_file = "nope.lua",
-      register = function(entries) seen = entries; return true end,
+      register = function(entries)
+        seen = entries
+        return true
+      end,
     })
     local ok = r:setup()
     assert.is_true(ok)

@@ -5,7 +5,7 @@ return {
     priority = 1000,
   },
   opts = {
-    transparent = true
+    transparent = true,
   },
   config = function(_, opts)
     require("fathom").setup(opts)

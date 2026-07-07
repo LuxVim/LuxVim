@@ -3,13 +3,17 @@ local merge = require("core.lib.pipeline.merge")
 
 local function fw_spec(name, overrides)
   local s = { source = "framework/" .. name, _source = "framework", _category = "editor" }
-  for k, v in pairs(overrides or {}) do s[k] = v end
+  for k, v in pairs(overrides or {}) do
+    s[k] = v
+  end
   return s
 end
 
 local function user_spec(overrides)
   local s = { _source = "user", _file = "user/init.lua" }
-  for k, v in pairs(overrides or {}) do s[k] = v end
+  for k, v in pairs(overrides or {}) do
+    s[k] = v
+  end
   return s
 end
 

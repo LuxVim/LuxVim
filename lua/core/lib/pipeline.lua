@@ -78,9 +78,17 @@ function M.default()
   return _default
 end
 
-function M.on(hook_name, fn)        return M.default():on(hook_name, fn) end
-function M.register_stage(name, fn) return M.default():register_stage(name, fn) end
-function M.run()                    return M.default():run() end
-function M.reset()                  _default = M.new() end
+function M.on(hook_name, fn)
+  return M.default():on(hook_name, fn)
+end
+function M.register_stage(name, fn)
+  return M.default():register_stage(name, fn)
+end
+function M.run()
+  return M.default():run()
+end
+function M.reset()
+  _default = M.new()
+end
 
 return M
