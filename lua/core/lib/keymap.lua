@@ -43,11 +43,16 @@ local function validate_mapping(mapping, section_name)
   end
 
   if type(mapping.lhs) ~= "string" or mapping.lhs == "" then
-    return nil, invalid_mapping_error(section_name, "missing required lhs; use list-style entries like { lhs = '<leader>xx', action = 'core.save' }")
+    return nil,
+      invalid_mapping_error(
+        section_name,
+        "missing required lhs; use list-style entries like { lhs = '<leader>xx', action = 'core.save' }"
+      )
   end
 
   if type(mapping.action) ~= "string" or mapping.action == "" then
-    return nil, invalid_mapping_error(section_name, string.format("mapping '%s' is missing required action", mapping.lhs))
+    return nil,
+      invalid_mapping_error(section_name, string.format("mapping '%s' is missing required action", mapping.lhs))
   end
 
   local _, err = actions.resolve(mapping.action)

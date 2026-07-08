@@ -176,12 +176,10 @@ function M._create_commands()
 
     local lines = { "=== LuxVim Validate ===" }
     for _, e in ipairs(result.errors) do
-      table.insert(lines, string.format("[%s] %s: %s",
-        (e.level or "error"):upper(), e.file or "unknown", e.message))
+      table.insert(lines, string.format("[%s] %s: %s", (e.level or "error"):upper(), e.file or "unknown", e.message))
     end
     for _, w in ipairs(result.warnings) do
-      table.insert(lines, string.format("[WARNING] %s: %s",
-        w.file or "unknown", w.message))
+      table.insert(lines, string.format("[WARNING] %s: %s", w.file or "unknown", w.message))
     end
 
     notify.warn(table.concat(lines, "\n"))
@@ -212,12 +210,10 @@ function M.validate_only_or_exit()
 
   local lines = {}
   for _, e in ipairs(result.errors) do
-    table.insert(lines, string.format("[%s] %s: %s",
-      (e.level or "error"):upper(), e.file or "unknown", e.message))
+    table.insert(lines, string.format("[%s] %s: %s", (e.level or "error"):upper(), e.file or "unknown", e.message))
   end
   for _, w in ipairs(result.warnings) do
-    table.insert(lines, string.format("[WARNING] %s: %s",
-      w.file or "unknown", w.message))
+    table.insert(lines, string.format("[WARNING] %s: %s", w.file or "unknown", w.message))
   end
 
   if #lines == 0 then

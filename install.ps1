@@ -2,6 +2,13 @@
 # ********************* LUXVIM INSTALLER *******************
 # **********************************************************
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    'PSAvoidUsingWriteHost',
+    '',
+    Justification = 'Write-Host is intentional here: this is an interactive installer that relies on colored console output, not a library cmdlet whose output needs to be captured or redirected.'
+)]
+param()
+
 $ErrorActionPreference = "Stop"
 
 $LuxVimDir = $PSScriptRoot

@@ -36,7 +36,9 @@ describe("actions", function()
   describe(":register / :unregister", function()
     it("stores a function under namespace.method", function()
       local a = actions.new()
-      a:register("ns", "m", function() return 42 end)
+      a:register("ns", "m", function()
+        return 42
+      end)
       local fn, err = a:resolve("ns.m")
       assert.is_nil(err)
       assert.equal(42, fn())
@@ -56,8 +58,12 @@ describe("actions", function()
     it("registers an entire table at once", function()
       local a = actions.new()
       a:register_namespace("ns", {
-        one = function() return 1 end,
-        two = function() return 2 end,
+        one = function()
+          return 1
+        end,
+        two = function()
+          return 2
+        end,
       })
       local one = a:resolve("ns.one")
       local two = a:resolve("ns.two")
@@ -85,7 +91,9 @@ describe("actions", function()
   describe("longest-prefix namespace match", function()
     it("resolves dotted namespaces before first-dot split", function()
       local a = actions.new()
-      a:register("fzf.vim", "files", function() return "dotted" end)
+      a:register("fzf.vim", "files", function()
+        return "dotted"
+      end)
       local fn, err = a:resolve("fzf.vim.files")
       assert.is_nil(err)
       assert.equal("dotted", fn())
@@ -93,7 +101,9 @@ describe("actions", function()
 
     it("falls back to first-dot split when no dotted namespace matches", function()
       local a = actions.new()
-      a:register("ns", "action", function() return "short" end)
+      a:register("ns", "action", function()
+        return "short"
+      end)
       local fn = a:resolve("ns.action")
       assert.equal("short", fn())
     end)
@@ -103,14 +113,18 @@ describe("actions", function()
     it("returns true on success", function()
       local a = actions.new()
       local called = false
-      a:register("ns", "m", function() called = true end)
+      a:register("ns", "m", function()
+        called = true
+      end)
       assert.is_true(a:invoke("ns.m"))
       assert.is_true(called)
     end)
 
     it("returns false and swallows pcall errors", function()
       local a = actions.new()
-      a:register("ns", "bad", function() error("boom") end)
+      a:register("ns", "bad", function()
+        error("boom")
+      end)
       assert.is_false(a:invoke("ns.bad"))
     end)
 
@@ -139,7 +153,11 @@ describe("actions", function()
       a:register_from_spec({
         source = "virtual",
         debug_name = "core",
-        actions = { tok = function() return token end },
+        actions = {
+          tok = function()
+            return token
+          end,
+        },
       })
       local fn = a:resolve("core.tok")
       assert.equal(token, fn())
@@ -178,7 +196,9 @@ describe("actions", function()
     end)
 
     it("actions.register forwards to default", function()
-      actions.register("test_mod", "m", function() return "ok" end)
+      actions.register("test_mod", "m", function()
+        return "ok"
+      end)
       local fn = actions.default():resolve("test_mod.m")
       assert.equal("ok", fn())
     end)

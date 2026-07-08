@@ -13,14 +13,24 @@ end
 vim.opt.runtimepath:prepend(cwd)
 
 local lua_dir = cwd .. "/lua"
-package.path = cwd .. "/?.lua;" .. cwd .. "/?/init.lua;"
-  .. lua_dir .. "/?.lua;" .. lua_dir .. "/?/init.lua;" .. package.path
+package.path = cwd
+  .. "/?.lua;"
+  .. cwd
+  .. "/?/init.lua;"
+  .. lua_dir
+  .. "/?.lua;"
+  .. lua_dir
+  .. "/?/init.lua;"
+  .. package.path
 
 local plenary_path = cwd .. "/data/test-plenary/plenary.nvim"
 if vim.fn.isdirectory(plenary_path) == 0 then
   vim.fn.mkdir(cwd .. "/data/test-plenary", "p")
   local out = vim.fn.system({
-    "git", "clone", "--depth", "1",
+    "git",
+    "clone",
+    "--depth",
+    "1",
     "https://github.com/nvim-lua/plenary.nvim.git",
     plenary_path,
   })

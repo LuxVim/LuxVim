@@ -18,8 +18,10 @@ local function write_tree(root, tree)
       vim.fn.mkdir(path, "p")
       write_tree(path, content)
     else
-      assert(type(content) == "string",
-        "tmpdir tree leaf must be string or table, got " .. type(content) .. " at " .. path)
+      assert(
+        type(content) == "string",
+        "tmpdir tree leaf must be string or table, got " .. type(content) .. " at " .. path
+      )
       local f = assert(io.open(path, "w"))
       f:write(content)
       f:close()

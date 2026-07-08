@@ -55,7 +55,12 @@ describe("pipeline.transform", function()
   end)
 
   it("defers cond to a function lazy.nvim will invoke", function()
-    local r = transform.transform_one({ source = "a/b", cond = function() return true end }, {})
+    local r = transform.transform_one({
+      source = "a/b",
+      cond = function()
+        return true
+      end,
+    }, {})
     assert.is_function(r.cond)
     assert.is_true(r.cond())
   end)
@@ -80,8 +85,12 @@ describe("pipeline.transform", function()
     local debug_mod = require("core.lib.debug")
     local orig_has = debug_mod.has_debug_plugin
     local orig_path = debug_mod.get_debug_path
-    debug_mod.has_debug_plugin = function(name) return name == "myplugin" end
-    debug_mod.get_debug_path = function(name) return "/fake/debug/" .. name end
+    debug_mod.has_debug_plugin = function(name)
+      return name == "myplugin"
+    end
+    debug_mod.get_debug_path = function(name)
+      return "/fake/debug/" .. name
+    end
 
     local r = transform.transform_one({ source = "x/myplugin" }, {})
     assert.equal("/fake/debug/myplugin", r.dir)
@@ -124,7 +133,9 @@ describe("pipeline.transform", function()
 
     it("returns nil when a required executable is missing and on_fail=ignore", function()
       local orig = vim.fn.executable
-      vim.fn.executable = function() return 0 end
+      vim.fn.executable = function()
+        return 0
+      end
       local cmd = transform.transform_build({
         cmd = ":make",
         requires = { "not-a-real-binary-xyz" },
@@ -136,7 +147,9 @@ describe("pipeline.transform", function()
 
     it("raises when a required executable is missing and on_fail=error", function()
       local orig = vim.fn.executable
-      vim.fn.executable = function() return 0 end
+      vim.fn.executable = function()
+        return 0
+      end
       assert.has_error(function()
         transform.transform_build({
           cmd = ":make",
@@ -152,8 +165,12 @@ describe("pipeline.transform", function()
       local orig_warn = notify.warn
       local orig_exec = vim.fn.executable
       local warned
-      notify.warn = function(msg) warned = msg end
-      vim.fn.executable = function() return 0 end
+      notify.warn = function(msg)
+        warned = msg
+      end
+      vim.fn.executable = function()
+        return 0
+      end
 
       local cmd = transform.transform_build({
         cmd = ":make",
@@ -171,7 +188,9 @@ describe("pipeline.transform", function()
     it("returns nil when build cond evaluates to false", function()
       local cmd = transform.transform_build({
         cmd = ":make",
-        cond = function() return false end,
+        cond = function()
+          return false
+        end,
       })
       assert.is_nil(cmd)
     end)

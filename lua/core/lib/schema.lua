@@ -87,8 +87,14 @@ function M.default()
   return _default
 end
 
-function M.get(name)           return M.default():get(name) end
-function M.extend(name, fs)    return M.default():extend(name, fs) end
-function M.replace(name, fs)   return M.default():replace(name, fs) end
+function M.get(name)
+  return M.default():get(name)
+end
+function M.extend(name, fs)
+  return M.default():extend(name, fs)
+end
+function M.replace(name, fs)
+  return M.default():replace(name, fs)
+end
 
 return M

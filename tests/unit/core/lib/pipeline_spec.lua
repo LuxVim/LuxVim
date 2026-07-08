@@ -1,7 +1,9 @@
 -- tests/unit/core/lib/pipeline_spec.lua
 local pipeline = require("core.lib.pipeline")
 
-local function noop_stage(ctx) return ctx end
+local function noop_stage(ctx)
+  return ctx
+end
 
 describe("pipeline", function()
   describe("new()", function()
@@ -24,9 +26,18 @@ describe("pipeline", function()
     it("preserves insertion order", function()
       local p = pipeline.new()
       local order = {}
-      p:register_stage("a", function(c) table.insert(order, "a"); return c end)
-      p:register_stage("b", function(c) table.insert(order, "b"); return c end)
-      p:register_stage("c", function(c) table.insert(order, "c"); return c end)
+      p:register_stage("a", function(c)
+        table.insert(order, "a")
+        return c
+      end)
+      p:register_stage("b", function(c)
+        table.insert(order, "b")
+        return c
+      end)
+      p:register_stage("c", function(c)
+        table.insert(order, "c")
+        return c
+      end)
       p:run()
       assert.same({ "a", "b", "c" }, order)
     end)
@@ -36,9 +47,18 @@ describe("pipeline", function()
     it("fires pre_<stage> before stage fn and post_<stage> after", function()
       local p = pipeline.new()
       local order = {}
-      p:on("pre_a", function(c) table.insert(order, "pre"); return c end)
-      p:on("post_a", function(c) table.insert(order, "post"); return c end)
-      p:register_stage("a", function(c) table.insert(order, "stage"); return c end)
+      p:on("pre_a", function(c)
+        table.insert(order, "pre")
+        return c
+      end)
+      p:on("post_a", function(c)
+        table.insert(order, "post")
+        return c
+      end)
+      p:register_stage("a", function(c)
+        table.insert(order, "stage")
+        return c
+      end)
       p:run()
       assert.same({ "pre", "stage", "post" }, order)
     end)
@@ -46,8 +66,14 @@ describe("pipeline", function()
     it("supports multiple hooks for the same name (insertion order)", function()
       local p = pipeline.new()
       local order = {}
-      p:on("pre_a", function(c) table.insert(order, "first"); return c end)
-      p:on("pre_a", function(c) table.insert(order, "second"); return c end)
+      p:on("pre_a", function(c)
+        table.insert(order, "first")
+        return c
+      end)
+      p:on("pre_a", function(c)
+        table.insert(order, "second")
+        return c
+      end)
       p:register_stage("a", noop_stage)
       p:run()
       assert.same({ "first", "second" }, order)
@@ -55,8 +81,13 @@ describe("pipeline", function()
 
     it("hooks can mutate context; returned context replaces input", function()
       local p = pipeline.new()
-      p:on("pre_a", function(c) c.mutated = true; return c end)
-      p:register_stage("a", function(c) return c end)
+      p:on("pre_a", function(c)
+        c.mutated = true
+        return c
+      end)
+      p:register_stage("a", function(c)
+        return c
+      end)
       local result = p:run()
       assert.is_true(result.mutated)
     end)
@@ -117,7 +148,9 @@ describe("pipeline", function()
     it("clears hooks and stages on an instance", function()
       local p = pipeline.new()
       p:register_stage("a", noop_stage)
-      p:on("pre_a", function(c) return c end)
+      p:on("pre_a", function(c)
+        return c
+      end)
       p:reset()
       assert.equal(0, #p._stages)
       assert.is_nil(next(p._hooks))
@@ -147,7 +180,10 @@ describe("pipeline", function()
     it("pipeline.register_stage / pipeline.run operate on default", function()
       pipeline.reset()
       local ran = false
-      pipeline.register_stage("m", function(c) ran = true; return c end)
+      pipeline.register_stage("m", function(c)
+        ran = true
+        return c
+      end)
       pipeline.run()
       assert.is_true(ran)
     end)

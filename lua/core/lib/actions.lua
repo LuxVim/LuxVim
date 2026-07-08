@@ -26,7 +26,9 @@ end
 
 function Actions:_split_action(action_string)
   local sorted_ns = vim.tbl_keys(self._registry)
-  table.sort(sorted_ns, function(a, b) return #a > #b end)
+  table.sort(sorted_ns, function(a, b)
+    return #a > #b
+  end)
 
   for _, ns in ipairs(sorted_ns) do
     local prefix = ns .. "."
@@ -81,7 +83,9 @@ function Actions:register_from_spec(spec)
         vim.cmd(cmd)
       end
     elseif type(fn) ~= "function" then
-      notify.warn("Invalid action type for " .. plugin_name .. "." .. action_name .. ": expected function or :command string")
+      notify.warn(
+        "Invalid action type for " .. plugin_name .. "." .. action_name .. ": expected function or :command string"
+      )
       fn = nil
     end
     if fn then
@@ -104,11 +108,23 @@ function M.default()
   return _default
 end
 
-function M.register(ns, name, fn)         return M.default():register(ns, name, fn) end
-function M.register_namespace(ns, tbl)    return M.default():register_namespace(ns, tbl) end
-function M.unregister(ns, name)           return M.default():unregister(ns, name) end
-function M.resolve(str)                   return M.default():resolve(str) end
-function M.invoke(str)                    return M.default():invoke(str) end
-function M.register_from_spec(spec)       return M.default():register_from_spec(spec) end
+function M.register(ns, name, fn)
+  return M.default():register(ns, name, fn)
+end
+function M.register_namespace(ns, tbl)
+  return M.default():register_namespace(ns, tbl)
+end
+function M.unregister(ns, name)
+  return M.default():unregister(ns, name)
+end
+function M.resolve(str)
+  return M.default():resolve(str)
+end
+function M.invoke(str)
+  return M.default():invoke(str)
+end
+function M.register_from_spec(spec)
+  return M.default():register_from_spec(spec)
+end
 
 return M

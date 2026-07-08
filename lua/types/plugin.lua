@@ -5,7 +5,7 @@
 ---@class BuildSpec
 ---@field cmd string Build command
 ---@field cond? string Condition from registry
----@field on_fail? enum 
+---@field on_fail? enum
 ---@field outputs? any[] Expected output files
 ---@field platforms? table Platform-specific build commands
 ---@field requires? any[] Required executables

@@ -76,7 +76,9 @@ describe("schema", function()
   describe("module-level convenience API", function()
     after_each(function()
       local ps = schema.default():get("plugin_spec")
-      if ps then ps.convenience_marker = nil end
+      if ps then
+        ps.convenience_marker = nil
+      end
     end)
 
     it("schema.get delegates to default", function()

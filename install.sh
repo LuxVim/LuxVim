@@ -296,7 +296,7 @@ SYNC_EXIT=0
 wait "$SYNC_PID" || SYNC_EXIT=$?
 
 if [ "$SYNC_EXIT" -eq 0 ]; then
-    PLUGIN_COUNT=$(grep -c "Finished task clone" "$LOG_FILE" 2>/dev/null || echo "0")
+    PLUGIN_COUNT=$(grep -c "Finished task clone" "$LOG_FILE" 2>/dev/null) || PLUGIN_COUNT=0
     step_ok "Installed ${PLUGIN_COUNT} plugins"
 else
     step_fail "Plugin sync failed"

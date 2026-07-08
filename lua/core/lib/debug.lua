@@ -6,7 +6,7 @@ local _luxvim_root = nil
 
 function M._is_luxvim_root(candidate)
   return vim.fn.filereadable(paths.join(candidate, "init.lua")) == 1
-      and vim.fn.isdirectory(paths.join(candidate, "lua", "core")) == 1
+    and vim.fn.isdirectory(paths.join(candidate, "lua", "core")) == 1
 end
 
 function M.get_luxvim_root()
@@ -52,8 +52,7 @@ function M.has_debug_plugin(plugin_name)
   local plugin_stat = vim.uv.fs_stat(plugin_dir)
   local lua_stat = vim.uv.fs_stat(lua_dir)
 
-  return (plugin_stat and plugin_stat.type == "directory")
-      or (lua_stat and lua_stat.type == "directory")
+  return (plugin_stat and plugin_stat.type == "directory") or (lua_stat and lua_stat.type == "directory")
 end
 
 function M.resolve_debug_name(spec)
