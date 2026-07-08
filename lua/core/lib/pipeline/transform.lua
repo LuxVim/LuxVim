@@ -1,4 +1,5 @@
 local debug_mod = require("core.lib.debug")
+local paths = require("core.lib.paths")
 local platform = require("core.lib.platform")
 local conditions = require("core.registry.conditions")
 local notify = require("core.lib.notify")
@@ -6,6 +7,55 @@ local notify = require("core.lib.notify")
 local M = {}
 
 local passthrough_fields = { "event", "cmd", "ft", "keys" }
+
+local function normname(name)
+  return tostring(name or "")
+    :lower()
+    :gsub("^n?vim%-", "")
+    :gsub("%.n?vim$", "")
+    :gsub("[%.%-]lua", "")
+    :gsub("[^a-z]+", "")
+end
+
+local function lua_modules(lua_dir)
+  local modules = {}
+  local handle = vim.uv.fs_scandir(lua_dir)
+  if not handle then
+    return modules
+  end
+
+  while true do
+    local name, entry_type = vim.uv.fs_scandir_next(handle)
+    if not name then
+      break
+    end
+
+    if entry_type == "file" and name:match("%.lua$") then
+      table.insert(modules, name:gsub("%.lua$", ""))
+    elseif entry_type == "directory" and vim.uv.fs_stat(paths.join(lua_dir, name, "init.lua")) then
+      table.insert(modules, name)
+    end
+  end
+
+  return modules
+end
+
+local function infer_debug_main(debug_name, debug_path)
+  local modules = lua_modules(paths.join(debug_path, "lua"))
+  local target = normname(debug_name)
+
+  for _, module in ipairs(modules) do
+    if normname(module) == target then
+      return module
+    end
+  end
+
+  if #modules == 1 then
+    return modules[1]
+  end
+
+  return nil
+end
 
 local function safe_eval(fn)
   local ok, result = pcall(fn)
@@ -103,8 +153,10 @@ function M.transform_one(spec, specs_by_name)
   local lazy_spec = {}
 
   if use_debug then
-    lazy_spec.dir = debug_mod.get_debug_path(debug_name)
+    local debug_path = debug_mod.get_debug_path(debug_name)
+    lazy_spec.dir = debug_path
     lazy_spec.name = debug_name .. "-debug"
+    lazy_spec.main = infer_debug_main(debug_name, debug_path)
   else
     lazy_spec[1] = spec.source
   end

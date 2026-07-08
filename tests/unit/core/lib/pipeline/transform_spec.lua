@@ -101,6 +101,44 @@ describe("pipeline.transform", function()
     debug_mod.get_debug_path = orig_path
   end)
 
+  it("sets main for renamed debug plugins from the original plugin name", function()
+    local helpers = require("tests.helpers")
+    local root, cleanup = helpers.tmpdir.new({
+      lua = {
+        luxmotion = {
+          ["init.lua"] = "return {}",
+        },
+        whisk = {
+          ["init.lua"] = "return {}",
+        },
+      },
+    })
+
+    local debug_mod = require("core.lib.debug")
+    local orig_has = debug_mod.has_debug_plugin
+    local orig_path = debug_mod.get_debug_path
+    debug_mod.has_debug_plugin = function(name)
+      return name == "whisk.nvim"
+    end
+    debug_mod.get_debug_path = function()
+      return root
+    end
+
+    local ok, result = pcall(function()
+      return transform.transform_one({ source = "josstei/whisk.nvim", opts = {} }, {})
+    end)
+
+    debug_mod.has_debug_plugin = orig_has
+    debug_mod.get_debug_path = orig_path
+    cleanup()
+
+    assert.is_true(ok)
+    assert.equal(root, result.dir)
+    assert.equal("whisk.nvim-debug", result.name)
+    assert.equal("whisk", result.main)
+    assert.is_true(result.config)
+  end)
+
   describe("transform_build", function()
     it("returns the cmd field for a plain table build", function()
       local cmd = transform.transform_build({ cmd = ":make" })
