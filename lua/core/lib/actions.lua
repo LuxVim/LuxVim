@@ -66,7 +66,7 @@ function Actions:invoke(action_string)
     notify.error("Action error: " .. tostring(result))
     return false
   end
-  return true
+  return result ~= false
 end
 
 function Actions:register_from_spec(spec)

@@ -1,9 +1,22 @@
+local function quit()
+  local ok, err = pcall(vim.cmd, "quit")
+  if ok then
+    return true
+  end
+  local message = tostring(err)
+  if message:find("Vim(quit):E37:", 1, true) or message:find("Vim(quit):E162:", 1, true) then
+    require("core.lib.notify").warn("Unsaved changes. Save with Space fs or discard with Space FQ.")
+    return false
+  end
+  error(err, 0)
+end
+
 return {
   source = "virtual",
   debug_name = "core",
   actions = {
     save = ":write",
-    quit = ":quit",
+    quit = quit,
     force_quit = ":quit!",
     quit_all = ":quitall!",
     save_quit = ":wq",
