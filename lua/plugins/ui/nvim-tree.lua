@@ -1,9 +1,10 @@
 return {
-  source = "nvim-tree/nvim-tree.lua",
+  source = "LuxVim/nvim-tree.lua",
   debug_name = "nvim-tree",
   dependencies = { "nvim-web-devicons" },
   cmd = { "NvimTreeToggle", "NvimTreeFocus", "NvimTreeOpen" },
   lazy = {
+    commit = "2eb3cd1b5d87026757e278289c91545b04ed9708",
     init = function()
       require("core.lib.directory_startup").setup()
     end,

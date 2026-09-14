@@ -6,7 +6,7 @@
   "nvim-luxdash": { "branch": "main", "commit": "c11f308c28f12b957309951be7c5825b716f3f2b" },
   "nvim-luxline": { "branch": "main", "commit": "ee473ed3601bceada0c9228f41191e148201823e" },
   "nvim-luxlsp": { "branch": "main", "commit": "55f0f10fcdb5dade76993edab5f0bd96a94b12eb" },
-  "nvim-tree.lua": { "branch": "master", "commit": "82f58063d67defc620e1ef8be606fc62a7b5dc1e" },
+  "nvim-tree.lua": { "branch": "master", "commit": "2eb3cd1b5d87026757e278289c91545b04ed9708" },
   "nvim-treesitter": { "branch": "main", "commit": "4916d6592ede8c07973490d9322f187e07dfefac" },
   "nvim-web-devicons": { "branch": "master", "commit": "dfbfaa967a6f7ec50789bead7ef87e336c1fa63c" },
   "plenary.nvim": { "branch": "master", "commit": "74b06c6c75e4eeb3108ec01852001636d85a932b" },
