@@ -9,8 +9,12 @@ return {
     save_quit = ":wq",
     vsplit = ":rightbelow vsplit",
     hsplit = ":rightbelow split",
+    equalize = function()
+      require("core.lib.windows").rebalance(true)
+    end,
   },
   config = function()
+    require("core.lib.windows").setup()
     local actions = require("core.lib.actions")
     for i = 1, 6 do
       actions.register("core", "win" .. i, function()
