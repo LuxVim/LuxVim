@@ -3,6 +3,11 @@ return {
   debug_name = "nvim-tree",
   dependencies = { "nvim-web-devicons" },
   cmd = { "NvimTreeToggle", "NvimTreeFocus", "NvimTreeOpen" },
+  lazy = {
+    init = function()
+      require("core.lib.directory_startup").setup()
+    end,
+  },
   actions = {
     toggle = function()
       require("nvim-tree.api").tree.toggle()
