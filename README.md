@@ -181,6 +181,7 @@ return {
 return {
   -- parser    defaults to the filename
   -- filetypes defaults to { "<filename>" }
+  lsp_servers = { "zls" }, -- optional; false disables this language's servers
   options = { tabstop = 4, shiftwidth = 4, expandtab = true },
 }
 ```
@@ -188,6 +189,15 @@ return {
 The parser is installed on the next launch, `:checkhealth luxvim` starts verifying
 it, and the options apply to the filetype. A file of the same name as a shipped
 language deep-merges into it; add `replaces = true` to swap it outright.
+
+Declared language servers install in `data/luxlsp/` when their filetype is first
+opened. Existing managed servers or commands on `PATH` are used immediately;
+installation runs in the background and attaches to open buffers when complete.
+Failures remain visible in `:LuxVimErrors` and `:checkhealth luxvim`. Retry with
+`:LuxLspInstall <server>`. In a user `plugins/lsp/luxlsp.lua` override, set
+`opts.auto_install = false` to install manually, or set
+`opts.servers.lua_ls.cmd = { "/path/to/lua-language-server" }` to use a custom command.
+Custom server options merge with nvim-lspconfig's roots, settings, and hooks.
 
 Run `:LuxVimInstallParsers` to build any declared parser that is missing without
 restarting. Open buffers attach highlighting when their parser becomes available,

@@ -211,6 +211,25 @@ function M.check()
   check_dependencies()
   check_languages()
   check_treesitter()
+  vim.health.start("LuxVim: language servers")
+  local lsp = require("core.lib.lsp")
+  for _, err in ipairs(lsp.errors()) do
+    vim.health.error(err.file .. ": " .. err.message)
+  end
+  local report = lsp.report()
+  if #report == 0 then
+    vim.health.info("Language server setup has not run yet; open a declared language to start it")
+  end
+  for _, server in ipairs(report) do
+    local text = server.name .. ": " .. server.status
+    if server.status == "attached" then
+      vim.health.ok(text .. " to " .. server.attached_buffers .. " buffer(s)")
+    elseif server.status == "failed" then
+      vim.health.error(text, { "Retry with :LuxLspInstall " .. server.name })
+    else
+      vim.health.info(text)
+    end
+  end
 end
 
 return M

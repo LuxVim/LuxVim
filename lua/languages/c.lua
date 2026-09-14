@@ -1,2 +1,4 @@
 -- Parser ships with Neovim.
-return {}
+return {
+  lsp_servers = { "clangd" },
+}

@@ -124,6 +124,36 @@ describe("core.lib.languages", function()
     end)
   end)
 
+  describe("lsp_servers", function()
+    it("unions filetypes shared by a server and honors disabled languages", function()
+      local rows = load({
+        ["javascript.lua"] = "return { lsp_servers = { 'ts_ls' } }",
+        ["tsx.lua"] = "return { filetypes = { 'typescriptreact' }, lsp_servers = { 'ts_ls' } }",
+        ["lua.lua"] = "return { lsp_servers = false }",
+      })
+      assert.same({ ts_ls = { filetypes = { "javascript", "typescriptreact" } } }, languages.lsp_servers(rows))
+      assert.is_false(by_name(rows, "lua").lsp_servers)
+    end)
+
+    it("rejects malformed declarations without attempting installation", function()
+      for _, value in ipairs({ "'lua_ls'", "{ [3] = 'lua_ls' }", "{ 'bad/server' }", "{ 42 }" }) do
+        local rows, errors = load({ ["lua.lua"] = "return { lsp_servers = " .. value .. " }" })
+        assert.same({}, rows)
+        assert.equal(1, #errors)
+      end
+    end)
+
+    it("preserves server declarations through an options-only user override", function()
+      local rows = languages.rows({
+        dirs = {
+          { path = tmp({ ["lua.lua"] = "return { lsp_servers = { 'lua_ls' } }" }) },
+          { path = tmp({ ["lua.lua"] = "return { options = { tabstop = 4 } }" }) },
+        },
+      })
+      assert.same({ lua_ls = { filetypes = { "lua" } } }, languages.lsp_servers(rows))
+    end)
+  end)
+
   describe("filetype_options", function()
     it("maps each declared filetype to that language's options", function()
       local rows = load({

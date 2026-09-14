@@ -122,7 +122,8 @@ function M._create_commands()
   local notify = require("core.lib.notify")
 
   vim.api.nvim_create_user_command("LuxVimErrors", function()
-    local errors = M._result and M._result.errors or {}
+    local errors = vim.deepcopy(M._result and M._result.errors or {})
+    vim.list_extend(errors, require("core.lib.lsp").errors())
     local warnings = M._result and M._result.warnings or {}
 
     if #errors == 0 and #warnings == 0 then

@@ -38,6 +38,10 @@ end
 --- declares a language LuxVim configures but has no treesitter grammar for, so
 --- it is never provisioned and never reported as a gap.
 local function normalize(name, row)
+  local servers = row.lsp_servers
+  if servers == nil then
+    servers = {}
+  end
   local parser = row.parser
   if parser == nil then
     parser = name
@@ -48,6 +52,7 @@ local function normalize(name, row)
     parser = parser,
     filetypes = row.filetypes or { name },
     options = row.options or {},
+    lsp_servers = servers,
     _file = row._file,
     _source = row._source,
   }
@@ -65,7 +70,18 @@ function M.load(opts)
 
   local rows = {}
   for _, name in ipairs(names) do
-    table.insert(rows, normalize(name, raw[name]))
+    local row = normalize(name, raw[name])
+    local valid = row.lsp_servers == false or (type(row.lsp_servers) == "table" and vim.islist(row.lsp_servers))
+    if valid and row.lsp_servers then
+      for _, server in pairs(row.lsp_servers) do
+        valid = valid and type(server) == "string" and server:match("^[%w_%-]+$") ~= nil
+      end
+    end
+    if valid then
+      table.insert(rows, row)
+    else
+      table.insert(errors, { file = row._file or name, message = "lsp_servers must be a list of server IDs or false" })
+    end
   end
   return rows, errors
 end
@@ -115,6 +131,22 @@ function M.by_filetype(rows)
   for _, row in ipairs(rows) do
     for _, filetype in ipairs(row.filetypes) do
       out[filetype] = row
+    end
+  end
+  return out
+end
+
+--- Server IDs mapped to the union of their declared filetypes.
+function M.lsp_servers(rows)
+  local out = {}
+  for _, row in ipairs(rows) do
+    for _, server in ipairs(row.lsp_servers or {}) do
+      out[server] = out[server] or { filetypes = {} }
+      for _, filetype in ipairs(row.filetypes) do
+        if not vim.tbl_contains(out[server].filetypes, filetype) then
+          table.insert(out[server].filetypes, filetype)
+        end
+      end
     end
   end
   return out
