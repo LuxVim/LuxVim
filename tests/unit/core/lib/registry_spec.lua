@@ -16,7 +16,7 @@ describe("registry.new", function()
   it("returns an instance with the configured fields", function()
     local r = registry.new({
       name = "testreg",
-      framework_module = "does.not.matter",
+      framework = {},
       user_file = "nope.lua",
       register = function()
         return true
@@ -30,7 +30,7 @@ describe("registry.new", function()
     package.loaded["_test_fw"] = { foo = "bar" }
     local r = registry.new({
       name = "testreg",
-      framework_module = "_test_fw",
+      framework = package.loaded["_test_fw"],
       user_file = "no-such-user-file.lua",
       register = function()
         return true
@@ -42,20 +42,6 @@ describe("registry.new", function()
     package.loaded["_test_fw"] = nil
   end)
 
-  it("load() fails when framework_module cannot be required", function()
-    local r = registry.new({
-      name = "testreg",
-      framework_module = "definitely.not.a.module.xyz",
-      user_file = "nope.lua",
-      register = function()
-        return true
-      end,
-    })
-    local entries, err = r:load()
-    assert.is_nil(entries)
-    assert.matches("Failed to load testreg registry", err)
-  end)
-
   it("load() merges user 'extends' into framework entries", function()
     package.loaded["_test_fw"] = { base = { a = 1 } }
     local user_root, cleanup = tmpdir.new({
@@ -64,7 +50,7 @@ describe("registry.new", function()
     with_user_config(user_root, function()
       local r = registry.new({
         name = "testreg",
-        framework_module = "_test_fw",
+        framework = package.loaded["_test_fw"],
         user_file = "user.lua",
         register = function()
           return true
@@ -87,7 +73,7 @@ describe("registry.new", function()
     with_user_config(user_root, function()
       local r = registry.new({
         name = "testreg",
-        framework_module = "_test_fw",
+        framework = package.loaded["_test_fw"],
         user_file = "user.lua",
         register = function()
           return true
@@ -110,7 +96,7 @@ describe("registry.new", function()
     with_user_config(user_root, function()
       local r = registry.new({
         name = "testreg",
-        framework_module = "_test_fw",
+        framework = package.loaded["_test_fw"],
         user_file = "user.lua",
         register = function()
           return true
@@ -132,7 +118,7 @@ describe("registry.new", function()
     with_user_config(user_root, function()
       local r = registry.new({
         name = "testreg",
-        framework_module = "_test_fw",
+        framework = package.loaded["_test_fw"],
         user_file = "user.lua",
         validate_user = function()
           return nil, "user rejected"
@@ -153,7 +139,7 @@ describe("registry.new", function()
     package.loaded["_test_fw"] = { foo = "bar" }
     local r = registry.new({
       name = "testreg",
-      framework_module = "_test_fw",
+      framework = package.loaded["_test_fw"],
       user_file = "nope.lua",
       validate_entries = function()
         return nil, "entries rejected"
@@ -172,7 +158,7 @@ describe("registry.new", function()
     package.loaded["_test_fw"] = { foo = "bar" }
     local r = registry.new({
       name = "testreg",
-      framework_module = "_test_fw",
+      framework = package.loaded["_test_fw"],
       user_file = "nope.lua",
       register = function()
         return nil, "register boom"
@@ -189,7 +175,7 @@ describe("registry.new", function()
     local seen
     local r = registry.new({
       name = "testreg",
-      framework_module = "_test_fw",
+      framework = package.loaded["_test_fw"],
       user_file = "nope.lua",
       register = function(entries)
         seen = entries
@@ -200,5 +186,90 @@ describe("registry.new", function()
     assert.is_true(ok)
     assert.equal("bar", seen.foo)
     package.loaded["_test_fw"] = nil
+  end)
+  -- A registry's entries are not always a hand-written module. The filetype
+  -- registry derives its entries from the language declarations, so the source
+  -- of "framework entries" has to be injectable without giving up the user
+  -- overlay, extends/replaces, or validation that registry.new already owns.
+  describe("derived framework entries", function()
+    it("load() accepts a framework provider function instead of a module name", function()
+      local r = registry.new({
+        name = "testreg",
+        framework = function()
+          return { derived = "yes" }
+        end,
+        user_file = "no-such-user-file.lua",
+        register = function()
+          return true
+        end,
+      })
+
+      local entries, err = r:load()
+
+      assert.is_nil(err)
+      assert.equal("yes", entries.derived)
+    end)
+
+    it("load() accepts a framework table instead of a module name", function()
+      local r = registry.new({
+        name = "testreg",
+        framework = { derived = "yes" },
+        user_file = "no-such-user-file.lua",
+        register = function()
+          return true
+        end,
+      })
+
+      local entries, err = r:load()
+
+      assert.is_nil(err)
+      assert.equal("yes", entries.derived)
+    end)
+
+    it("load() reports an error when the framework provider throws", function()
+      local r = registry.new({
+        name = "testreg",
+        framework = function()
+          error("derivation blew up")
+        end,
+        user_file = "nope.lua",
+        register = function()
+          return true
+        end,
+      })
+
+      local entries, err = r:load()
+
+      assert.is_nil(entries)
+      assert.matches("Failed to load testreg registry", err)
+      -- Without this the assertion above passes for any failure at all,
+      -- including one where the provider was never called.
+      assert.matches("derivation blew up", err)
+    end)
+
+    it("load() still merges a user overlay onto derived entries", function()
+      local user_root, cleanup = tmpdir.new({
+        ["user.lua"] = 'return { extends = true, added = "by user" }',
+      })
+      with_user_config(user_root, function()
+        local r = registry.new({
+          name = "testreg",
+          framework = function()
+            return { derived = "yes" }
+          end,
+          user_file = "user.lua",
+          register = function()
+            return true
+          end,
+        })
+
+        local entries, err = r:load()
+
+        assert.is_nil(err)
+        assert.equal("yes", entries.derived)
+        assert.equal("by user", entries.added)
+      end)
+      cleanup()
+    end)
   end)
 end)

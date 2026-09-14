@@ -89,15 +89,27 @@ end
 
 local autocmd_registry = registry.new({
   name = "autocmds",
-  framework_module = "core.registry.autocmds",
+  framework = function()
+    return require("core.registry.autocmds")
+  end,
   user_file = "registry/autocmds.lua",
   validate_entries = validate_autocmd_entries,
   register = register_autocmds,
 })
 
+-- Derived, not hand-written. Per-filetype editor settings are a fact ABOUT a
+-- language, so they live in that language's declaration under lua/languages/
+-- alongside its parser. A second hand-maintained table here would be the same
+-- facts in two places, and the two would drift.
+--
+-- The registry seam is unchanged, so ~/.config/luxvim/registry/filetypes.lua
+-- still overlays exactly as before.
 local filetype_registry = registry.new({
   name = "filetypes",
-  framework_module = "core.registry.filetypes",
+  framework = function()
+    local languages = require("core.lib.languages")
+    return languages.filetype_options(languages.rows())
+  end,
   user_file = "registry/filetypes.lua",
   register = register_filetypes,
 })

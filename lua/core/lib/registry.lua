@@ -46,10 +46,27 @@ local function merge(framework, user)
   return framework
 end
 
+--- Framework entries are supplied as a value: a table, or a function returning
+--- one. A function because not every registry's entries are hand-written — the
+--- filetype registry DERIVES its from the language declarations, and that
+--- derivation must not run until load() does. Either way the entries land on
+--- the same user-overlay, extends/replaces, and validation path.
+local function resolve_framework(instance)
+  if type(instance.framework) ~= "function" then
+    return instance.framework
+  end
+
+  local ok, entries = pcall(instance.framework)
+  if not ok then
+    return nil, entries
+  end
+  return entries
+end
+
 function M.new(config)
   local instance = {
     name = config.name,
-    framework_module = config.framework_module,
+    framework = config.framework,
     user_file = config.user_file,
     register = config.register,
     validate_user = config.validate_user,
@@ -57,9 +74,9 @@ function M.new(config)
   }
 
   function instance:load()
-    local ok, framework = pcall(require, self.framework_module)
-    if not ok then
-      return nil, "Failed to load " .. self.name .. " registry: " .. tostring(framework)
+    local framework, err = resolve_framework(self)
+    if not framework then
+      return nil, "Failed to load " .. self.name .. " registry: " .. tostring(err)
     end
 
     local user_path = paths.join(data.user_config_path(), self.user_file)

@@ -126,7 +126,9 @@ end
 
 local keymap_registry = registry.new({
   name = "keymaps",
-  framework_module = "core.registry.keymaps",
+  framework = function()
+    return require("core.registry.keymaps")
+  end,
   user_file = "registry/keymaps.lua",
   validate_user = validate_user_registry,
   validate_entries = validate_entries,

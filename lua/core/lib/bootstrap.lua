@@ -30,10 +30,8 @@ function M.ensure_lazy()
   vim.opt.rtp:prepend(lazypath)
 end
 
-function M.setup_lazy(specs)
-  M.ensure_lazy()
-
-  require("lazy").setup({
+function M.lazy_opts(specs)
+  return {
     spec = specs,
     defaults = {
       lazy = false,
@@ -46,6 +44,10 @@ function M.setup_lazy(specs)
       reset_packpath = true,
       rtp = {
         reset = true,
+        -- reset = true discards everything init.lua prepended, including the
+        -- LuxVim root itself — which is where lua/luxvim/health.lua lives.
+        -- Without this, :checkhealth luxvim reports "no healthcheck found".
+        paths = { data.root() },
         disabled_plugins = {
           "gzip",
           "matchit",
@@ -60,7 +62,13 @@ function M.setup_lazy(specs)
     },
     root = data.lazy_root(),
     lockfile = data.lockfile_path(),
-  })
+  }
+end
+
+function M.setup_lazy(specs)
+  M.ensure_lazy()
+
+  require("lazy").setup(M.lazy_opts(specs))
 end
 
 return M

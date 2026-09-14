@@ -3,6 +3,9 @@ return {
   hijack_netrw = true,
   sync_root_with_cwd = true,
   respect_buf_cwd = true,
+  notify = {
+    absolute_path = false,
+  },
   update_focused_file = {
     enable = true,
     update_root = false,

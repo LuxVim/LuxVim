@@ -1,5 +1,6 @@
 return {
   source = "LuxVim/nvim-luxline",
+  lazy = { commit = "ee473ed3601bceada0c9228f41191e148201823e" },
   event = "VeryLazy",
   opts = {
     right_active_items_winbar_NvimTree = {},

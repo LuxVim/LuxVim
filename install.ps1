@@ -1,4 +1,4 @@
-# **********************************************************
+﻿# **********************************************************
 # ********************* LUXVIM INSTALLER *******************
 # **********************************************************
 
@@ -16,13 +16,49 @@ $LuxVimDir = $PSScriptRoot
 Write-Host "Installing LuxVim..." -ForegroundColor Blue
 Write-Host "LuxVim directory: $LuxVimDir" -ForegroundColor Yellow
 
-# Check for nvim
+# Check prerequisites
+# Dependencies are declared once in lua/core/lib/deps.lua and read here via
+# scripts/check-deps.lua. Only nvim is checked inline, because running the
+# manifest requires nvim.
 if (-not (Get-Command nvim -ErrorAction SilentlyContinue)) {
     Write-Host "Neovim is not installed. Please install Neovim first." -ForegroundColor Red
     Write-Host "Visit: https://neovim.io/" -ForegroundColor Yellow
     exit 1
 }
-Write-Host "Neovim found" -ForegroundColor Green
+
+$checkScript = Join-Path $LuxVimDir "scripts\check-deps.lua"
+$depsOutput = & nvim -l $checkScript 2>&1
+$depsFailed = $LASTEXITCODE -ne 0
+
+$depsRows = 0
+$depsNoise = @()
+foreach ($line in $depsOutput) {
+    $parts = "$line" -split "`t"
+    if ($parts.Count -lt 4) {
+        if ("$line".Trim() -ne "") { $depsNoise += "$line" }
+        continue
+    }
+    $depsRows++
+    $status, $cmd, $version, $message = $parts
+    if ($status -eq "ok") {
+        Write-Host "$cmd $version" -ForegroundColor Green
+    } else {
+        Write-Host "$cmd - $message" -ForegroundColor Red
+    }
+}
+
+if ($depsFailed) {
+    Write-Host ""
+    if ($depsRows -eq 0) {
+        Write-Host "Dependency check could not run — nvim -l scripts\check-deps.lua failed:" -ForegroundColor Red
+        foreach ($noise in $depsNoise) {
+            Write-Host "    $noise" -ForegroundColor Red
+        }
+    } else {
+        Write-Host "Missing required dependencies. Install them and re-run this script." -ForegroundColor Red
+    }
+    exit 1
+}
 
 # Create data directories
 $dataDirs = @("data\lazy", "data\luxlsp", "data\site")
@@ -90,4 +126,17 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "All plugins installed! LuxVim is ready." -ForegroundColor Green
 } else {
     Write-Host "Plugin sync completed with warnings. Run 'lux' to check status." -ForegroundColor Yellow
+}
+
+# Build the treesitter parsers declared in lua/languages/. Syncing plugins does
+# NOT do this: nvim-treesitter installs nothing on its own, and the spec's
+# ":TSUpdate" build step only updates parsers that already exist. Without this
+# step a fresh install has zero parsers and no file highlights.
+Write-Host "Installing treesitter parsers (compiles C, this can take a while)..." -ForegroundColor Blue
+& $launcherPs1 --headless "+LuxVimInstallParsers" +qa
+
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "Treesitter parsers installed." -ForegroundColor Green
+} else {
+    Write-Host "Some parsers failed to build. Run ':checkhealth luxvim' for details." -ForegroundColor Yellow
 }

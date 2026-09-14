@@ -10,6 +10,48 @@ local _win = nil
 local _cursor_line = 1
 local _items = {}
 local _original_colorscheme = nil
+local _first_visible = 1
+
+local function truncate(text, width)
+  local out = ""
+  for i = 0, vim.fn.strchars(text) - 1 do
+    local char = vim.fn.strcharpart(text, i, 1)
+    if vim.fn.strdisplaywidth(out .. char) > width then
+      break
+    end
+    out = out .. char
+  end
+  return out
+end
+
+local function footer(width)
+  local lines, line = {}, ""
+  for _, control in ipairs({ "Enter: Apply", "i: Install", "x: Uninstall", "q/Esc: Close" }) do
+    local next_line = line == "" and control or line .. "  " .. control
+    if line ~= "" and vim.fn.strdisplaywidth(next_line) > width then
+      table.insert(lines, line)
+      line = control
+    else
+      line = next_line
+    end
+  end
+  table.insert(lines, truncate(line, width))
+  return lines
+end
+
+local function dimensions()
+  local width = math.max(1, math.min(50, vim.o.columns - 4))
+  local controls = footer(width)
+  local height = math.max(1, math.min(#_items + #controls + 1, vim.o.lines - vim.o.cmdheight - 4))
+  return {
+    relative = "editor",
+    width = width,
+    height = height,
+    row = math.max(0, math.floor((vim.o.lines - height - 2) / 2)),
+    col = math.max(0, math.floor((vim.o.columns - width - 2) / 2)),
+  },
+    controls
+end
 
 -- Persistence
 
@@ -188,8 +230,8 @@ local function build_items()
   else
     for _, theme in ipairs(available) do
       local desc = theme.description or ""
-      if #desc > 25 then
-        desc = desc:sub(1, 22) .. "..."
+      if vim.fn.strdisplaywidth(desc) > 25 then
+        desc = truncate(desc, 22) .. "..."
       end
       table.insert(_items, {
         type = "available",
@@ -201,23 +243,38 @@ local function build_items()
 end
 
 local function render()
-  if not _buf or not vim.api.nvim_buf_is_valid(_buf) then
+  if not _buf or not vim.api.nvim_buf_is_valid(_buf) or not _win or not vim.api.nvim_win_is_valid(_win) then
     return
+  end
+
+  local window, controls = dimensions()
+  vim.api.nvim_win_set_config(_win, window)
+  local capacity = math.max(1, window.height - #controls - 1)
+  _cursor_line = math.max(1, math.min(_cursor_line, #_items))
+  _first_visible = math.max(1, math.min(_first_visible, _cursor_line, math.max(1, #_items - capacity + 1)))
+  if _cursor_line >= _first_visible + capacity then
+    _first_visible = _cursor_line - capacity + 1
   end
 
   vim.bo[_buf].modifiable = true
   local lines = {}
-  for _, item in ipairs(_items) do
-    table.insert(lines, item.text)
+  for i = _first_visible, math.min(#_items, _first_visible + capacity - 1) do
+    table.insert(lines, truncate(_items[i].text, window.width))
   end
-  table.insert(lines, "")
-  table.insert(lines, "  [Enter] Apply  [i] Install  [x] Uninstall  [q] Close")
+  while #lines < window.height - #controls do
+    table.insert(lines, "")
+  end
+  for _, line in ipairs(controls) do
+    if #lines < window.height then
+      table.insert(lines, truncate(line, window.width))
+    end
+  end
 
   vim.api.nvim_buf_set_lines(_buf, 0, -1, false, lines)
   vim.bo[_buf].modifiable = false
 
   if _win and vim.api.nvim_win_is_valid(_win) then
-    vim.api.nvim_win_set_cursor(_win, { _cursor_line, 0 })
+    vim.api.nvim_win_set_cursor(_win, { _cursor_line - _first_visible + 1, 0 })
   end
 end
 
@@ -236,9 +293,7 @@ local function move_cursor(direction)
     local item = _items[new_line]
     if item.type == "installed" or item.type == "available" then
       _cursor_line = new_line
-      if _win and vim.api.nvim_win_is_valid(_win) then
-        vim.api.nvim_win_set_cursor(_win, { _cursor_line, 0 })
-      end
+      render()
       if item.type == "installed" then
         preview_apply(item.theme.colorscheme)
       end
@@ -249,6 +304,7 @@ local function move_cursor(direction)
 end
 
 local function close()
+  pcall(vim.api.nvim_del_augroup_by_name, "LuxVimThemePicker")
   if _win and vim.api.nvim_win_is_valid(_win) then
     vim.api.nvim_win_close(_win, true)
   end
@@ -345,30 +401,33 @@ local function on_uninstall()
 end
 
 local function open()
+  if _win and vim.api.nvim_win_is_valid(_win) then
+    vim.api.nvim_set_current_win(_win)
+    return
+  end
   _original_colorscheme = vim.g.colors_name
   build_items()
-
-  local width = 50
-  local height = #_items + 3
-  local row = math.floor((vim.o.lines - height) / 2)
-  local col = math.floor((vim.o.columns - width) / 2)
+  _first_visible = 1
 
   _buf = vim.api.nvim_create_buf(false, true)
 
-  _win = vim.api.nvim_open_win(_buf, true, {
-    relative = "editor",
-    width = width,
-    height = height,
-    row = row,
-    col = col,
-    style = "minimal",
-    border = "rounded",
-    title = " Themes ",
-    title_pos = "center",
-  })
+  local window = dimensions()
+  _win = vim.api.nvim_open_win(
+    _buf,
+    true,
+    vim.tbl_extend("force", window, {
+      style = "minimal",
+      border = "rounded",
+      title = " Themes ",
+      title_pos = "center",
+    })
+  )
 
   vim.bo[_buf].bufhidden = "wipe"
   vim.wo[_win].cursorline = true
+  vim.wo[_win].wrap = false
+  local group = vim.api.nvim_create_augroup("LuxVimThemePicker", { clear = true })
+  vim.api.nvim_create_autocmd("VimResized", { group = group, callback = render })
 
   _cursor_line = find_first_selectable()
   render()

@@ -27,12 +27,13 @@ export PATH="$HOME/.local/bin:$PATH"
 - **Action-based keymaps** — keymaps resolve through a central action registry (`namespace.method`), so the same action can be bound from multiple keys or reused from user config.
 - **First-class diagnostics** — `:LuxVimErrors` and `:LuxVimValidate` for inspecting pipeline output and validating config without applying it.
 - **Factory-based core** — `schema`, `actions`, and `pipeline` are explicit classes (`M.new()` + lazy `M.default()`) so tests can build isolated instances without touching production state.
-- **Test harness + CI** — 105 plenary-busted cases across 11 suites, runnable via `./scripts/test.sh`. GitHub Actions matrix runs on Neovim `v0.10.0`, `stable`, and `nightly`.
+- **Test harness + CI** — plenary-busted test suite runnable via `./scripts/test.sh`. GitHub Actions matrix runs on Neovim `v0.10.0`, `stable`, and `nightly`.
 
 ## Requirements
 
-- Neovim 0.10+
-- Git
+- Neovim 0.12+ (required by nvim-treesitter's `main` branch)
+- `tree-sitter-cli` 0.26.1+, installed via your package manager (**not npm**)
+- `git`, `curl`, `tar`, and a C compiler
 - macOS, Linux, or WSL
 - `bash` for the installer and scripts
 
@@ -85,6 +86,13 @@ Every action is declared in `lua/core/registry/keymaps.lua` and resolved through
 3. Creates `data/lazy/`, `data/luxlsp/`, `data/site/`.
 4. Clones `lazy.nvim` into `data/lazy/lazy.nvim`.
 5. Runs `lux --headless "+Lazy! sync" +qa` to install all plugin specs.
+6. Runs `lux --headless "+LuxVimInstallParsers" +qa` to build every treesitter parser
+   declared in `lua/languages/`. Syncing plugins does not do this — nvim-treesitter
+   installs nothing on its own — so without this step a fresh install has no parsers
+   and no syntax highlighting.
+
+If parser provisioning fails, the headless command exits nonzero. The installer
+reports the failure and preserves its build log at the printed path.
 
 Everything lives inside the repo's `data/` directory; deleting it resets LuxVim to a clean state.
 
@@ -96,12 +104,16 @@ init.lua
         ├── pipeline (5 stages: discover → load → merge → validate → transform)
         ├── bootstrap (lazy.nvim)
         ├── actions (namespace.method registry)
-        ├── keymap + autocmd (from registry/)
+        ├── keymap + autocmd (from registry/ and languages/)
         └── user commands (:LuxVimErrors, :LuxVimValidate, ...)
 ```
 
-- **`lua/core/lib/`** — factory modules (`pipeline`, `schema`, `actions`, `registry`) and utilities (`paths`, `data`, `notify`, `platform`, `bootstrap`, `keymap`, `autocmd`, `typegen`, `validate`).
-- **`lua/core/registry/`** — central definitions for keymaps, autocmds, conditions, filetypes.
+- **`lua/core/lib/`** — factory modules (`pipeline`, `schema`, `actions`, `registry`, `declarations`) and utilities (`paths`, `data`, `notify`, `platform`, `bootstrap`, `keymap`, `autocmd`, `typegen`, `validate`, `deps`, `languages`, `parsers`, `provision`, `treesitter_report`).
+- **`lua/core/registry/`** — central definitions for keymaps, autocmds, conditions.
+- **`lua/languages/`** — one file per supported language. Each declares its treesitter
+  parser, the filetypes it owns, and the editor options those filetypes get. The parsers
+  the installer builds, what `:checkhealth luxvim` verifies, and the FileType autocmds
+  are all derived from these files — adding a language is a new file, nothing else.
 - **`lua/plugins/<category>/`** — plugin specs grouped by purpose: `editor/`, `lib/`, `lsp/`, `navigation/`, `terminal/`, `ui/`. Each category's `_defaults.lua` applies to every spec in that directory.
 - **`data/`** — plugin installs, LSP servers, lockfiles, dynamic specs written by the theme picker.
 
@@ -162,6 +174,36 @@ return {
 }
 ```
 
+### Add or retune a language
+
+```lua
+-- ~/.config/luxvim/languages/zig.lua
+return {
+  -- parser    defaults to the filename
+  -- filetypes defaults to { "<filename>" }
+  lsp_servers = { "zls" }, -- optional; false disables this language's servers
+  options = { tabstop = 4, shiftwidth = 4, expandtab = true },
+}
+```
+
+The parser is installed on the next launch, `:checkhealth luxvim` starts verifying
+it, and the options apply to the filetype. A file of the same name as a shipped
+language deep-merges into it; add `replaces = true` to swap it outright.
+
+Declared language servers install in `data/luxlsp/` when their filetype is first
+opened. Existing managed servers or commands on `PATH` are used immediately;
+installation runs in the background and attaches to open buffers when complete.
+Failures remain visible in `:LuxVimErrors` and `:checkhealth luxvim`. Retry with
+`:LuxLspInstall <server>`. In a user `plugins/lsp/luxlsp.lua` override, set
+`opts.auto_install = false` to install manually, or set
+`opts.servers.lua_ls.cmd = { "/path/to/lua-language-server" }` to use a custom command.
+Custom server options merge with nvim-lspconfig's roots, settings, and hooks.
+
+Run `:LuxVimInstallParsers` to build any declared parser that is missing without
+restarting. Open buffers attach highlighting when their parser becomes available,
+including after a background build on startup. Each owned filetype uses the parser
+named in its language declaration.
+
 ### Pipeline hooks and schema extensions
 
 ```lua
@@ -205,7 +247,7 @@ end)
 ## Development
 
 ```bash
-./scripts/test.sh        # run the plenary-busted suite (105 cases)
+./scripts/test.sh        # run the plenary-busted suite
 ./scripts/validate.sh    # headless config validator; exits 1 on critical errors
 lux                      # interactive sanity check
 ```

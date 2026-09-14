@@ -4,6 +4,7 @@ for i = 1, 6 do
 end
 table.insert(navigation, { lhs = "<leader>wv", action = "core.vsplit", desc = "Vertical split" })
 table.insert(navigation, { lhs = "<leader>wh", action = "core.hsplit", desc = "Horizontal split" })
+table.insert(navigation, { lhs = "<leader>w=", action = "core.equalize", desc = "Balance windows" })
 
 return {
   editor = {
