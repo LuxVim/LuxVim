@@ -212,18 +212,51 @@ draw_box "System" \
 echo ""
 
 # ── Check prerequisites ─────────────────────────────────
+# Dependencies are declared once in lua/core/lib/deps.lua and read here via
+# scripts/check-deps.lua. Only nvim is checked inline, because running the
+# manifest requires nvim.
 
 if ! command -v nvim &> /dev/null; then
     step_fail "Neovim not found — install it from https://neovim.io"
     exit 1
 fi
-step_ok "Neovim found"
 
-if ! command -v git &> /dev/null; then
-    step_fail "Git not found — install git first"
+# NOTE: install.sh runs under `set -e` (line 2). A bare command substitution
+# carries the child's exit status, so `DEPS_OUTPUT=$(...)` would abort the
+# script the instant a dependency is missing — before the loop below prints
+# a single hint. The `|| DEPS_STATUS=$?` form is what keeps the failure path
+# reachable. Do not "simplify" this back to `DEPS_STATUS=$?`.
+DEPS_STATUS=0
+DEPS_OUTPUT=$(nvim -l "${LUXVIM_DIR}/scripts/check-deps.lua" 2>&1) || DEPS_STATUS=$?
+
+DEPS_ROWS=0
+DEPS_NOISE=""
+while IFS=$'\t' read -r status cmd version message; do
+    if [ -z "$cmd" ]; then
+        [ -n "$status" ] && DEPS_NOISE+="${status}"$'\n'
+        continue
+    fi
+    DEPS_ROWS=$(( DEPS_ROWS + 1 ))
+    if [ "$status" = "ok" ]; then
+        step_ok "${cmd} ${DIM}${version}${NC}"
+    else
+        step_fail "${cmd} — ${message}"
+    fi
+done <<< "$DEPS_OUTPUT"
+
+if [ $DEPS_STATUS -ne 0 ]; then
+    echo ""
+    if [ "$DEPS_ROWS" -eq 0 ]; then
+        step_fail "Dependency check could not run — nvim -l scripts/check-deps.lua failed:"
+        while IFS= read -r noise; do
+            [ -z "$noise" ] && continue
+            printf "%s    %s\n" "$PAD" "$noise"
+        done <<< "$DEPS_NOISE"
+    else
+        step_fail "Missing required dependencies — install them and re-run this script."
+    fi
     exit 1
 fi
-step_ok "Git found"
 
 # ── Create launcher ──────────────────────────────────────
 
@@ -307,6 +340,31 @@ else
 fi
 
 rm -f "$LOG_FILE"
+
+# ── Install treesitter parsers ───────────────────────────
+# Syncing plugins does NOT build parsers. nvim-treesitter installs nothing on
+# its own, and the spec's `build = ":TSUpdate"` only updates parsers that are
+# already installed — a no-op when there are none. Without this step a fresh
+# install ships zero parsers and treesitter is dead for every filetype.
+# The set installed is whatever lua/languages/ declares.
+
+PARSER_LOG=$(mktemp)
+
+"$ALIAS_SCRIPT" --headless "+LuxVimInstallParsers" +qa > "$PARSER_LOG" 2>&1 &
+PARSER_PID=$!
+spinner "$PARSER_PID" "Building treesitter parsers (compiles C)..."
+
+PARSER_EXIT=0
+wait "$PARSER_PID" || PARSER_EXIT=$?
+
+if [ "$PARSER_EXIT" -eq 0 ]; then
+    step_ok "Treesitter parsers ready"
+    rm -f "$PARSER_LOG"
+else
+    step_fail "Some treesitter parsers failed to build"
+    echo -e "${PAD}  Run ${CYAN}:checkhealth luxvim${NC} for details"
+    echo -e "${PAD}  Build log: ${PARSER_LOG}"
+fi
 
 # ── Done ─────────────────────────────────────────────────
 
