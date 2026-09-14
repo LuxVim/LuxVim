@@ -10,5 +10,5 @@
   "nvim-web-devicons": { "branch": "master", "commit": "dfbfaa967a6f7ec50789bead7ef87e336c1fa63c" },
   "plenary.nvim": { "branch": "master", "commit": "74b06c6c75e4eeb3108ec01852001636d85a932b" },
   "vim-luxpane": { "branch": "main", "commit": "2eb64eb7512ecb992ceacc6645671f3b28426747" },
-  "whisk.nvim": { "branch": "main", "commit": "852b6892f4fe0a8f911843e0b90bfc947d3b95df" }
+  "whisk.nvim": { "branch": "main", "commit": "eff17c15ec9bfae826b34adb564d682396f44afa" }
 }
