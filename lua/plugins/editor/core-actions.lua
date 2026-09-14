@@ -7,8 +7,8 @@ return {
     force_quit = ":quit!",
     quit_all = ":quitall!",
     save_quit = ":wq",
-    vsplit = ":rightbelow vs new",
-    hsplit = ":rightbelow split new",
+    vsplit = ":rightbelow vsplit",
+    hsplit = ":rightbelow split",
   },
   config = function()
     local actions = require("core.lib.actions")
