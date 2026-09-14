@@ -3,7 +3,7 @@
   "fzf.vim": { "branch": "master", "commit": "356608e2ae5d9127e2c964885ea2b21ea7aea9ab" },
   "lazy.nvim": { "branch": "main", "commit": "306a05526ada86a7b30af95c5cc81ffba93fef97" },
   "nvim-lspconfig": { "branch": "master", "commit": "77d3fdfb3554632c7a3b101ded643d422de7626f" },
-  "nvim-luxdash": { "branch": "main", "commit": "ba831398debdbdf3d086f61ef9584099afca976f" },
+  "nvim-luxdash": { "branch": "main", "commit": "4b12c27f47cf0ed7c96c85a4659bb5c9d5531ad8" },
   "nvim-luxline": { "branch": "main", "commit": "ee473ed3601bceada0c9228f41191e148201823e" },
   "nvim-luxlsp": { "branch": "main", "commit": "55f0f10fcdb5dade76993edab5f0bd96a94b12eb" },
   "nvim-tree.lua": { "branch": "master", "commit": "82f58063d67defc620e1ef8be606fc62a7b5dc1e" },

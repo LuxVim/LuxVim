@@ -2,7 +2,7 @@ return {
   source = "LuxVim/nvim-luxdash",
   event = "VimEnter",
   lazy = {
-    commit = "ba831398debdbdf3d086f61ef9584099afca976f",
+    commit = "4b12c27f47cf0ed7c96c85a4659bb5c9d5531ad8",
   },
   opts = require("plugins.ui.config.luxdash"),
 }
